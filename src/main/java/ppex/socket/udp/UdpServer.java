@@ -1,11 +1,11 @@
 package ppex.socket.udp;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import ppex.utils.Constants;
 
 public class UdpServer {
@@ -18,22 +18,9 @@ public class UdpServer {
         try {
             final Bootstrap peerBoostrap = new Bootstrap();
             peerBoostrap.group(workerGroup).channel(NioDatagramChannel.class)
-                    .handler(new ChannelInitializer<NioDatagramChannel>() {
-                        @Override
-                        protected void initChannel(NioDatagramChannel nioDatagramChannel) throws Exception {
-                            ChannelPipeline pipeline = nioDatagramChannel.pipeline();
-                            pipeline.addLast(new StringEncoder());
-                            pipeline.addLast(new StringDecoder());
-                            pipeline.addLast(group, "handler", new UdpServerHandler());
-                        }
-                    })
-                    .option(ChannelOption.SO_BROADCAST, true)
-                    .option(ChannelOption.SO_RCVBUF, 1024)
-                    .option(ChannelOption.SO_SNDBUF, 1024);
-            ChannelFuture future = peerBoostrap.bind(Constants.SERVER_PORT).sync();
-            channel = future.channel();
-            System.out.println("server start succ");
-            future.channel().closeFuture().sync();
+                    .handler(new UdpServerHandler())
+                    .option(ChannelOption.SO_BROADCAST, true);
+            peerBoostrap.bind(Constants.SERVER_PORT).sync().channel().closeFuture().await();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

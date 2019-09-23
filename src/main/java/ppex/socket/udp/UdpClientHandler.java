@@ -3,14 +3,19 @@ package ppex.socket.udp;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.CharsetUtil;
+import ppex.proto.Message;
 
 
 public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-        String body = datagramPacket.content().toString(CharsetUtil.UTF_8);
-        System.out.println("client recv:" + body);
+        Message msg = Message.bytebuf2Msg(datagramPacket.content());
+        if (msg != null){
+            System.out.println("client recv:" + msg.toString());
+        }else{
+            System.out.println("client recv error");
+        }
     }
 
     @Override
