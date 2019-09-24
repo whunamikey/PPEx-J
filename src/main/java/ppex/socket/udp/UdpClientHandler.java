@@ -12,7 +12,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         Message msg = Message.bytebuf2Msg(datagramPacket.content());
         if (msg != null){
-            System.out.println("client recv:" + msg.toString());
+            System.out.println("client recv:" + msg.toString() + " from:" + datagramPacket.sender());
         }else{
             System.out.println("client recv error");
         }
