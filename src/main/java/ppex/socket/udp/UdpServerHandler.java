@@ -56,13 +56,11 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         Message msg = Message.bytebuf2Msg(datagramPacket.content());
         if (msg != null) {
-            logger.warn("---->channelRead0:" + msg.toString());
+            logger.warn("---->channelRead0:" + msg.toString() + " from :" + datagramPacket.sender());
             msg.setContent("msg from server");
             final Connection connection = getSessionAttribute(channelHandlerContext).get();
             connection.setChannelHandlerContext(channelHandlerContext, datagramPacket.sender());
-            for (int i = 0; i < 10; i++) {
-                connection.sendMsg(msg);
-            }
+            connection.sendMsg(msg);
 //            channelHandlerContext.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg), datagramPacket.sender()));
         } else {
             logger.warn("---->channelRead0:Server Recv Msg Error");
