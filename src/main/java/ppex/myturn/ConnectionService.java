@@ -1,41 +1,55 @@
 package ppex.myturn;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
-import ppex.proto.Message;
-
-import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class ConnectionService {
-    private InetSocketAddress inetSocketAddress;
-    private ChannelHandlerContext ctx;
-    private String peerName;
 
-    public ConnectionService(ChannelHandlerContext ctx) {
-        this.ctx = ctx;
-        this.inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
+    //server name ->connection
+    private final Map<String,Connection> connections = new HashMap<>();
+
+    public void addConnection(final Connection connection){
+        final String peerName = connection.getPeerName();
+        final Connection previousConnection = connections.put(peerName,connection);
+
+        if (previousConnection != null){
+            previousConnection.close();
+            System.out.println("Already existing connection to " + peerName + " is closed.");
+        }
     }
 
-    public void setPeerName(String peerName) {
-        this.peerName = peerName;
-    }
-
-    public InetSocketAddress getInetSocketAddress(){
-        return this.inetSocketAddress;
-    }
-
-    public void sendMsg(Message msg){
-        if (ctx != null && ctx.isRemoved()){
-            ctx.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg),inetSocketAddress));
+    public boolean removeConnection(final Connection connection){
+        final boolean removed = connections.remove(connection.getPeerName()) != null;
+        if (removed){
+            System.out.println(connection.getPeerName() + " connection is removed from connections.");
         }else{
-            System.out.println("can not send msg to " + peerName);
+            System.out.println(connection.getPeerName() + " is not removed since not found in connections.");
         }
+        return removed;
     }
 
-    public void close(){
-        if (ctx != null){
-            ctx.close();
-            ctx = null;
-        }
+    public int getNumberOfConnection(){
+        return connections.size();
     }
+
+    public boolean isConnectedTo(final String peerName){
+        return connections.containsKey(peerName);
+    }
+
+    public Connection getConnection(final String peerName){
+        return connections.get(peerName);
+    }
+
+    public Collection<Connection> getConnections(){
+        return Collections.unmodifiableCollection(connections.values());
+    }
+
+    public void connectTo(String host, int port, CompletableFuture<Void> futureNotify){
+
+    }
+
 }
