@@ -57,7 +57,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         Message msg = Message.bytebuf2Msg(datagramPacket.content());
         if (msg != null) {
             logger.warn("---->channelRead0:" + msg.toString() + " from :" + datagramPacket.sender());
-            msg.setContent("msg from server");
+            msg.setContent("server recv from" + datagramPacket.sender().toString());
             final Connection connection = getSessionAttribute(channelHandlerContext).get();
             connection.setChannelHandlerContext(channelHandlerContext, datagramPacket.sender());
             connection.sendMsg(msg);
