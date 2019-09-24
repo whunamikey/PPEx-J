@@ -20,14 +20,14 @@ public class UdpClient {
             bootstrap.group(group).channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST,true)
                     .handler(new UdpClientHandler());
-            Channel ch = bootstrap.bind(0).sync().channel();
+            Channel ch = bootstrap.bind(Constants.CLIENT_PORT).sync().channel();
 
             Message msg = new Message();
             msg.setType(Short.valueOf(Message.MsgType.MSG_TYPE_TEXT.ordinal()+""));
             msg.setVersion(Constants.MSG_VERION);
             msg.setContent("msg from client");
 
-            ch.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg), SocketUtils.socketAddress("127.0.0.1",Constants.SERVER_PORT))).sync();
+            ch.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg), SocketUtils.socketAddress(Constants.SERVER_HOST,Constants.SERVER_PORT))).sync();
             if (!ch.closeFuture().await(15000)){
                 System.out.println("查询超时");
             }

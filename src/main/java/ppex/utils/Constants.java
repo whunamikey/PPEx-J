@@ -11,6 +11,7 @@ public class Constants {
     public static int MSG_BODYLEN = 4;
     public static int MSG_HEADLEN = 8;
 
+    public static String SERVER_HOST = "119.139.199.217";
     public static int SERVER_PORT = 9123;
     public static int CLIENT_PORT = 9124;
 }
