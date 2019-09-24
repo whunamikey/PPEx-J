@@ -26,10 +26,10 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-        System.out.println("server channel read0");
         Message msg = Message.bytebuf2Msg(datagramPacket.content());
         if (msg != null){
             System.out.println("server recv msg:" + msg.toString());
+            
             msg.setContent("msg from server");
             channelHandlerContext.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg),datagramPacket.sender()));
         }else{
