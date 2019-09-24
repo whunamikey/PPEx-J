@@ -5,8 +5,8 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         System.out.println("haha");
-//        startServer();
-        startClient();
+        startServer();
+//        startClient();
 //        String str = "this is string";
 //        StringBuilder builder = new StringBuilder(str);
 //        try {
