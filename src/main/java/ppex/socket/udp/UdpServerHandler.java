@@ -16,11 +16,11 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private final Peer peer;
 
-    public UdpServerHandler(Peer peer){
+    public UdpServerHandler(Peer peer) {
         this.peer = peer;
     }
 
-    private Attribute<Connection> getSessionAttribute(ChannelHandlerContext ctx){
+    private Attribute<Connection> getSessionAttribute(ChannelHandlerContext ctx) {
         return ctx.attr(AttributeKey.valueOf("session"));
     }
 
@@ -59,7 +59,10 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             logger.warn("---->channelRead0:" + msg.toString());
             msg.setContent("msg from server");
             final Connection connection = getSessionAttribute(channelHandlerContext).get();
-            connection.sendMsg(msg);
+            connection.setChannelHandlerContext(channelHandlerContext, datagramPacket.sender());
+            for (int i = 0; i < 10; i++) {
+                connection.sendMsg(msg);
+            }
 //            channelHandlerContext.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg), datagramPacket.sender()));
         } else {
             logger.warn("---->channelRead0:Server Recv Msg Error");
