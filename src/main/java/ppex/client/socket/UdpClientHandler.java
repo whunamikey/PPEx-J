@@ -4,17 +4,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import ppex.proto.Message;
-import ppex.proto.ContentMessage;
-import ppex.proto.NormalContentMessage;
+import ppex.proto.MessageHandler;
+import ppex.proto.NormalMessageHandler;
 import ppex.utils.MessageUtil;
 
 
 public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private ContentMessage contentMessage;
+    private MessageHandler contentMessage;
 
     public UdpClientHandler() {
-        contentMessage = new NormalContentMessage();
+        contentMessage = new NormalMessageHandler();
     }
 
     @Override

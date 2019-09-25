@@ -27,7 +27,6 @@ public class UdpClient {
 //            ch.writeAndFlush(new DatagramPacket(MessageUtil.msg2ByteBuf(msg), SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.SERVER_PORT))).sync();
 
 
-
             if (!ch.closeFuture().await(15000)){
                 System.out.println("查询超时");
             }

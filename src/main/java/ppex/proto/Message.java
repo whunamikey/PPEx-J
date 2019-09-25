@@ -1,11 +1,8 @@
 package ppex.proto;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
-import org.bouncycastle.pqc.crypto.MessageSigner;
-import ppex.proto.type.TypeMsg;
+import ppex.proto.type.TypeMessage;
 import ppex.utils.Constants;
 
 /**
@@ -57,8 +54,8 @@ public class Message {
         this.length = content.getBytes(CharsetUtil.UTF_8).length;
     }
 
-    public void setContent(TypeMsg typeMsg){
-        this.content = JSON.toJSONString(typeMsg);
+    public void setContent(TypeMessage typeMessage){
+        this.content = JSON.toJSONString(typeMessage);
         this.length = content.getBytes(CharsetUtil.UTF_8).length;
     }
 

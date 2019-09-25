@@ -7,14 +7,9 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
 import ppex.proto.Message;
-import ppex.proto.type.TypeMsg;
+import ppex.proto.type.TypeMessage;
 
 public class MessageUtil {
-
-    public static enum MsgType {
-        MSG_TYPE_PROBE,
-        MSG_TYPE_TXT,
-    }
 
     public static ByteBuf msg2ByteBuf(Message msg) {
         ByteBuf msgBuf = Unpooled.directBuffer(msg.getLength() + Message.VERSIONLENGTH + Message.CONTENTLENGTH + 1);
@@ -52,15 +47,15 @@ public class MessageUtil {
         return bytebuf2Msg(packet.content());
     }
 
-    public static DatagramPacket typemsg2Packet(TypeMsg typeMsg,String host,int port){
+    public static DatagramPacket typemsg2Packet(TypeMessage typeMessage, String host, int port){
         Message msg = new Message();
-        msg.setContent(typeMsg);
+        msg.setContent(typeMessage);
         return new DatagramPacket(msg2ByteBuf(msg),SocketUtils.socketAddress(host,port));
     }
 
-    public static TypeMsg packet2Typemsg(DatagramPacket packet){
+    public static TypeMessage packet2Typemsg(DatagramPacket packet){
         Message msg = packet2Msg(packet);
-        TypeMsg tMsg = JSON.parseObject(msg.getContent(),TypeMsg.class);
+        TypeMessage tMsg = JSON.parseObject(msg.getContent(), TypeMessage.class);
         return tMsg;
     }
 
