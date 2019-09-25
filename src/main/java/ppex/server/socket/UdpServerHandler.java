@@ -6,9 +6,13 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.apache.log4j.Logger;
+import ppex.proto.content.ContentMessage;
+import ppex.proto.content.NormalContentMessage;
 import ppex.server.myturn.Connection;
 import ppex.server.myturn.Peer;
 import ppex.proto.Message;
+import ppex.utils.MessageUtil;
+import sun.misc.MessageUtils;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
@@ -16,8 +20,11 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private final Peer peer;
 
+    private ContentMessage contentMessage;
+
     public UdpServerHandler(Peer peer) {
         this.peer = peer;
+        contentMessage = new NormalContentMessage();
     }
 
     private Attribute<Connection> getSessionAttribute(ChannelHandlerContext ctx) {
@@ -54,7 +61,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-        Message msg = Message.bytebuf2Msg(datagramPacket.content());
+        Message msg = MessageUtil.bytebuf2Msg(datagramPacket.content());
         if (msg != null) {
             logger.warn("---->channelRead0:" + msg.toString() + " from :" + datagramPacket.sender());
             msg.setContent("server recv from" + datagramPacket.sender().toString());

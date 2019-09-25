@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.Message;
+import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
 
@@ -38,7 +39,7 @@ public class Connection {
 
     public void sendMsg(Message msg) {
         if (ctx != null) {
-            ctx.writeAndFlush(new DatagramPacket(Message.msg2ByteBuf(msg), inetSocketAddress));
+            ctx.writeAndFlush(new DatagramPacket(MessageUtil.msg2ByteBuf(msg), inetSocketAddress));
         } else {
             logger.info("can not send msg to " + peerName);
         }

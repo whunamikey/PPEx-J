@@ -15,19 +15,12 @@ import ppex.utils.Constants;
  * --    0x01   --+--contentlength--+--   content   --+
  *----------------+-----------------+-----------------+
  *
- *
- *
  */
 
 public class Message {
     public static final int VERSIONLENGTH = 1;
     public static final int CONTENTLENGTH = 4;
 
-    public enum MsgType{
-        MSG_TYPE_DETECT,
-        MSG_TYPE_TXT,
-
-    }
     private byte version;
     private int length;
     private String content;
@@ -66,31 +59,5 @@ public class Message {
                 '}';
     }
 
-    public static ByteBuf msg2ByteBuf(Message msg){
-        ByteBuf msgBuf = Unpooled.directBuffer(msg.length + VERSIONLENGTH + CONTENTLENGTH + 1);
-        msgBuf.writeByte(msg.getVersion());
-        msgBuf.writeInt(msg.getLength());
-        byte[] bytes = msg.getContent().getBytes(CharsetUtil.UTF_8);
-        msgBuf.writeBytes(bytes);
-        return msgBuf;
-    }
 
-    public static Message bytebuf2Msg(ByteBuf byteBuf){
-        if (byteBuf.readableBytes() < (VERSIONLENGTH+CONTENTLENGTH)){
-            return null;
-        }
-        byte version = byteBuf.readByte();
-        if (version != Constants.MSG_VERION){
-            return null;
-        }
-        int length = byteBuf.readInt();
-        Message msg = new Message();
-        msg.setVersion(version);
-        msg.setLength(length);
-        byte[] bytes = new byte[length];
-        byteBuf.readBytes(bytes);
-        String content = new String(bytes);
-        msg.setContent(content);
-        return msg;
-    }
 }
