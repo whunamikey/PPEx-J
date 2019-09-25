@@ -1,7 +1,5 @@
 package ppex.proto.type;
 
-import ppex.proto.Message;
-
 public class TypeMessage {
 
     public static enum Type {
@@ -9,16 +7,25 @@ public class TypeMessage {
         MSG_TYPE_TXT,
     }
 
-    private Type type;
-    private String body;
+    public TypeMessage() {
+    }
 
-    public Type getType() {
+    public TypeMessage(int type, String body) {
+        this.type = type;
+        this.body = body;
+    }
+
+    public int getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(int type) {
         this.type = type;
     }
+
+    private int type;
+    private String body;
+
 
     public String getBody() {
         return body;

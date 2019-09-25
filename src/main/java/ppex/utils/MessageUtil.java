@@ -6,10 +6,14 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
+import org.apache.log4j.Logger;
 import ppex.proto.Message;
+import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
 
 public class MessageUtil {
+
+    private static Logger LOGGER = Logger.getLogger(MessageUtil.class);
 
     public static ByteBuf msg2ByteBuf(Message msg) {
         ByteBuf msgBuf = Unpooled.directBuffer(msg.getLength() + Message.VERSIONLENGTH + Message.CONTENTLENGTH + 1);
@@ -43,20 +47,33 @@ public class MessageUtil {
         return new DatagramPacket(msg2ByteBuf(message), SocketUtils.socketAddress(host, port));
     }
 
-    public static Message packet2Msg(DatagramPacket packet) {
-        return bytebuf2Msg(packet.content());
-    }
-
     public static DatagramPacket typemsg2Packet(TypeMessage typeMessage, String host, int port){
         Message msg = new Message();
         msg.setContent(typeMessage);
-        return new DatagramPacket(msg2ByteBuf(msg),SocketUtils.socketAddress(host,port));
+        return msg2Packet(msg,host,port);
+    }
+
+    public static DatagramPacket probemsg2Packet(ProbeTypeMsg probeTypeMsg,String host,int port){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_PROBE.ordinal());
+        typeMessage.setBody(JSON.toJSONString(probeTypeMsg));
+        return typemsg2Packet(typeMessage,host,port);
+    }
+
+    public static Message packet2Msg(DatagramPacket packet) {
+        return bytebuf2Msg(packet.content());
     }
 
     public static TypeMessage packet2Typemsg(DatagramPacket packet){
         Message msg = packet2Msg(packet);
         TypeMessage tMsg = JSON.parseObject(msg.getContent(), TypeMessage.class);
         return tMsg;
+    }
+
+    public static ProbeTypeMsg packet2Probemsg(DatagramPacket packet){
+        TypeMessage tmsg = packet2Typemsg(packet);
+        ProbeTypeMsg pmsg = JSON.parseObject(tmsg.getBody(),ProbeTypeMsg.class);
+        return pmsg;
     }
 
 

@@ -26,7 +26,7 @@ public class UdpServer {
             peerBoostrap.group(workerGroup).channel(NioDatagramChannel.class)
                     .handler(new UdpServerHandler())
                     .option(ChannelOption.SO_BROADCAST, true);
-            peerBoostrap.bind(Constants.SERVER_PORT).sync().channel().closeFuture().await();
+            peerBoostrap.bind(Constants.SERVER_PORT1).sync().channel().closeFuture().await();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
