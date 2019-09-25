@@ -1,8 +1,11 @@
 package ppex.proto;
 
+import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
+import org.bouncycastle.pqc.crypto.MessageSigner;
+import ppex.proto.type.TypeMsg;
 import ppex.utils.Constants;
 
 /**
@@ -24,6 +27,10 @@ public class Message {
     private byte version;
     private int length;
     private String content;
+
+    public Message() {
+        this.version = Constants.MSG_VERSION;
+    }
 
     public byte getVersion() {
         return version;
@@ -47,6 +54,11 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+        this.length = content.getBytes(CharsetUtil.UTF_8).length;
+    }
+
+    public void setContent(TypeMsg typeMsg){
+        this.content = JSON.toJSONString(typeMsg);
         this.length = content.getBytes(CharsetUtil.UTF_8).length;
     }
 

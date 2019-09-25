@@ -1,4 +1,4 @@
-package ppex.proto.content;
+package ppex.proto;
 
 public interface ContentMessage {
     default void handleContent(String content){

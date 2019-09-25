@@ -22,11 +22,9 @@ public class UdpServer {
         final EventLoopGroup workerGroup = new NioEventLoopGroup(3);
         final EventLoopGroup group = new NioEventLoopGroup(2);
         try {
-            ConnectionService connectionService = new ConnectionService();
-            Peer peer = new Peer(connectionService);
             final Bootstrap peerBoostrap = new Bootstrap();
             peerBoostrap.group(workerGroup).channel(NioDatagramChannel.class)
-                    .handler(new UdpServerHandler(peer))
+                    .handler(new UdpServerHandler())
                     .option(ChannelOption.SO_BROADCAST, true);
             peerBoostrap.bind(Constants.SERVER_PORT).sync().channel().closeFuture().await();
         } catch (Exception e) {

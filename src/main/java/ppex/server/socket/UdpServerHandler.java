@@ -6,24 +6,20 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.apache.log4j.Logger;
-import ppex.proto.content.ContentMessage;
-import ppex.proto.content.NormalContentMessage;
-import ppex.server.myturn.Connection;
-import ppex.server.myturn.Peer;
+import ppex.proto.ContentMessage;
 import ppex.proto.Message;
+import ppex.proto.NormalContentMessage;
+import ppex.server.myturn.Connection;
 import ppex.utils.MessageUtil;
-import sun.misc.MessageUtils;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private Logger logger = Logger.getLogger(UdpServerHandler.class);
 
-    private final Peer peer;
 
     private ContentMessage contentMessage;
 
-    public UdpServerHandler(Peer peer) {
-        this.peer = peer;
+    public UdpServerHandler() {
         contentMessage = new NormalContentMessage();
     }
 
@@ -43,7 +39,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("---->channel inactive:" + ctx.channel().remoteAddress());
         final Connection connection = getSessionAttribute(ctx).get();
-        peer.handleConnectionClosed(connection);
     }
 
     @Override
@@ -56,12 +51,11 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         logger.error(cause);
         cause.printStackTrace();
         ctx.close();
-        peer.handleConnectionClosed(getSessionAttribute(ctx).get());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
-        Message msg = MessageUtil.bytebuf2Msg(datagramPacket.content());
+        Message msg = MessageUtil.packet2Msg(datagramPacket);
         if (msg != null) {
             logger.warn("---->channelRead0:" + msg.toString() + " from :" + datagramPacket.sender());
             msg.setContent("server recv from" + datagramPacket.sender().toString());
