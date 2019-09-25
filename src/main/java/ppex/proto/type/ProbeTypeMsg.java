@@ -3,6 +3,7 @@ package ppex.proto.type;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import ppex.client.entity.Client;
+import ppex.utils.Constants;
 import ppex.utils.Identity;
 
 import java.net.InetSocketAddress;
@@ -19,11 +20,11 @@ public class ProbeTypeMsg implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal())
                 throw new Exception("Identity wrong:" + pmsg.toString());
             else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-                handleServer1FromClientMsg(ctx,pmsg.getStep());
+                handleServer1FromClientMsg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                handleServer2Port1FromClientMsg(ctx,pmsg.getStep());
+                handleServer2Port1FromClientMsg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
-                handleServer2Port2FromClientMsg(ctx,pmsg.getStep());
+                handleServer2Port2FromClientMsg(ctx,pmsg);
             } else {
                 throw new Exception("unknown probe msg!" + pmsg.toString());
             }
@@ -31,11 +32,11 @@ public class ProbeTypeMsg implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
                 throw new Exception("Identity wrong:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-                handleClientFromServer1Msg(ctx,pmsg.getStep());
+                handleClientFromServer1Msg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                handleServer2Port1FromServer1Msg(ctx,pmsg.getStep());
+                handleServer2Port1FromServer1Msg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
-                handleServer2Port2FromServer1Msg(ctx,pmsg.getStep());
+                handleServer2Port2FromServer1Msg(ctx,pmsg);
             } else {
                 throw new Exception("unknown probe msg" + pmsg.toString());
             }
@@ -43,11 +44,11 @@ public class ProbeTypeMsg implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
                 throw new Exception("Identity wrong:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-                handleClientFromServer2Port1Msg(ctx,pmsg.getStep());
+                handleClientFromServer2Port1Msg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-                handleServer1FromServer2Port1Msg(ctx,pmsg.getStep());
+                handleServer1FromServer2Port1Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
-                handleServer2Port2FromServer2Port1Msg(ctx,pmsg.getStep());
+                handleServer2Port2FromServer2Port1Msg(ctx,pmsg);
             } else {
                 throw new Exception("unknown probe msg" + pmsg.toString());
             }
@@ -55,11 +56,11 @@ public class ProbeTypeMsg implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
                 throw new Exception("Identity wrong:" + pmsg.toString());
             }else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
-                handleClientFromServer2Port2Msg(ctx,pmsg.getStep());
+                handleClientFromServer2Port2Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
-                handleServer1FromServer2Port2Msg(ctx,pmsg.getStep());
+                handleServer1FromServer2Port2Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()){
-                handleServer2Port1FromServer2Port2Msg(ctx,pmsg.getStep());
+                handleServer2Port1FromServer2Port2Msg(ctx,pmsg);
             }else{
                 throw new Exception("unknown probe msg" + pmsg.toString());
             }
@@ -69,55 +70,61 @@ public class ProbeTypeMsg implements TypeMessageHandler {
     }
 
     //client端处理消息
-    private void handleClientFromServer1Msg(ChannelHandlerContext ctx, byte step) {
-        if (step == Step.ONE.ordinal()){
+    private void handleClientFromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
+        if (msg.getStep() == Step.ONE.ordinal()){
+            if (msg.getInetSocketAddress().getHostString().equals(Client.getInstance().local_address) && msg.getInetSocketAddress().getPort() == Constants.PORT1){
+                Client.getInstance().NAT_TYPE = Client.NATTYPE.PUBLIC_NETWORK.ordinal();
+            }
         }
     }
 
-    private void handleClientFromServer2Port1Msg(ChannelHandlerContext ctx, byte step) {
+    private void handleClientFromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
 
     }
 
-    private void handleClientFromServer2Port2Msg(ChannelHandlerContext ctx,byte step){
+    private void handleClientFromServer2Port2Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 
     //server1处理消息
-    private void handleServer1FromClientMsg(ChannelHandlerContext ctx, byte step) {
+    private void handleServer1FromClientMsg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
+        if (msg.getStep() == Step.ONE.ordinal()){
+            //向client发回去包,并且向server2:port1发包
+
+        }
+    }
+
+    private void handleServer1FromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
 
     }
 
-    private void handleServer1FromServer2Port1Msg(ChannelHandlerContext ctx, byte step) {
-
-    }
-
-    private void handleServer1FromServer2Port2Msg(ChannelHandlerContext ctx,byte step){
+    private void handleServer1FromServer2Port2Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 
     //Server2:Port1处理消息
-    private void handleServer2Port1FromClientMsg(ChannelHandlerContext ctx, byte step) {
+    private void handleServer2Port1FromClientMsg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
 
     }
 
-    private void handleServer2Port1FromServer1Msg(ChannelHandlerContext ctx, byte step) {
+    private void handleServer2Port1FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
 
     }
 
-    private void handleServer2Port1FromServer2Port2Msg(ChannelHandlerContext ctx,byte step){
+    private void handleServer2Port1FromServer2Port2Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 
     //Server2:Port2处理消息
-    private void handleServer2Port2FromClientMsg(ChannelHandlerContext ctx,byte step){
+    private void handleServer2Port2FromClientMsg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 
-    private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx,byte step){
+    private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 
-    private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,byte step){
+    private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
 
     }
 

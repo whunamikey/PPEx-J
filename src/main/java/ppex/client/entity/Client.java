@@ -19,7 +19,8 @@ public class Client {
         UNKNOWN,
         PORT_RESTRICT_CONE_NAT,
         RESTRICT_CONE_NAT,
-        FULL_CONE_NAT
+        FULL_CONE_NAT,
+        PUBLIC_NETWORK
     }
 
     public String local_address = null;
