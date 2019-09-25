@@ -10,7 +10,7 @@ public class Constants {
     public static String SERVER_LOCAL = "localhost";
     public static String SERVER_HOST1 = "119.139.199.217";
     public static String SERVER_HOST2 = "116.24.66.177";
-    public static int CLIENT_PORT = 9122;
-    public static int SERVER_PORT1 = 9123;
-    public static int SERVER_PORT2 = 9124;
+
+    public static int PORT1 = 9123;
+    public static int PORT2 = 9124;
 }

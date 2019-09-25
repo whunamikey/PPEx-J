@@ -1,10 +1,11 @@
 package ppex.proto;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 
 public interface MessageHandler {
 
-    default void handleDatagramPacket(DatagramPacket packet) throws Exception{
+    default void handleDatagramPacket(ChannelHandlerContext ctc,DatagramPacket packet) throws Exception{
         System.out.println("handle pack:" + packet.toString());
     }
 }

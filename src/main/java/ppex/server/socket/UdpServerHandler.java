@@ -44,7 +44,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
-            msgHandler.handleDatagramPacket(datagramPacket);
+            msgHandler.handleDatagramPacket(channelHandlerContext,datagramPacket);
         }catch (Exception e){
             logger.warn("---->ChannelRead0 exception:" + e.getMessage());
             System.out.println("server recv msg error");
