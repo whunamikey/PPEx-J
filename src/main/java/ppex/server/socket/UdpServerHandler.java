@@ -1,4 +1,4 @@
-package ppex.socket.udp;
+package ppex.server.socket;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -6,8 +6,8 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.apache.log4j.Logger;
-import ppex.myturn.Connection;
-import ppex.myturn.Peer;
+import ppex.server.myturn.Connection;
+import ppex.server.myturn.Peer;
 import ppex.proto.Message;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {

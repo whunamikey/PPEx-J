@@ -1,6 +1,6 @@
 package ppex;
 
-import ppex.socket.udp.UdpClient;
+import ppex.client.socket.UdpClient;
 
 public class Client {
     public static void main(String[] args){

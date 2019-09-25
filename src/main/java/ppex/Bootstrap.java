@@ -1,7 +1,7 @@
 package ppex;
 
-import ppex.socket.udp.UdpClient;
-import ppex.socket.udp.UdpServer;
+import ppex.client.socket.UdpClient;
+import ppex.server.socket.UdpServer;
 
 public class Bootstrap {
 

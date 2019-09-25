@@ -1,4 +1,4 @@
-package ppex.myturn;
+package ppex.server.myturn;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;

@@ -1,4 +1,4 @@
-package ppex.socket.udp;
+package ppex.client.socket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -23,7 +23,6 @@ public class UdpClient {
             Channel ch = bootstrap.bind(Constants.CLIENT_PORT).sync().channel();
 
             Message msg = new Message();
-            msg.setType(Short.valueOf(Message.MsgType.MSG_TYPE_TEXT.ordinal()+""));
             msg.setVersion(Constants.MSG_VERION);
             msg.setContent("msg from client");
 

@@ -1,4 +1,4 @@
-package ppex.socket.udp;
+package ppex.client.socket;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

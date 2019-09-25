@@ -1,4 +1,4 @@
-package ppex.myturn;
+package ppex.server.myturn;
 
 import java.util.Collection;
 import java.util.Collections;

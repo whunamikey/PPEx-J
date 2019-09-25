@@ -1,7 +1,7 @@
 package ppex.utils;
 
 public class Constants {
-    public static short MSG_VERION = 1;
+    public static byte MSG_VERION = 1;
 
     public static int SEND_BUFSIZE=1024;
     public static int RECV_BUFSIZE=1024;
