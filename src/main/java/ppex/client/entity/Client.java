@@ -1,5 +1,7 @@
 package ppex.client.entity;
 
+import java.net.InetSocketAddress;
+
 public class Client {
 
     private static Client instance =null;
@@ -25,7 +27,8 @@ public class Client {
 
     public String local_address = null;
     public int NAT_TYPE = NATTYPE.UNKNOWN.ordinal();
-    public String NAT_FROM_SERVER1 = null;
-    public String NAT_FROM_SERVER2 = null;
+    public InetSocketAddress SERVER1;
+    public InetSocketAddress SERVER2P1;
+    public InetSocketAddress SERVER2P2;
 
 }

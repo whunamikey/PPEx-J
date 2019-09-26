@@ -5,17 +5,25 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
+import ppex.client.entity.Client;
+import ppex.server.entity.Server;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class UdpServer {
 
     private Logger logger = Logger.getLogger(UdpServer.class);
 
     public void startUdpServer(int identity) {
-        logger.info("---->UdpServer start");
 
+        initServer();
+
+        logger.info("---->UdpServer start");
         final EventLoopGroup workerGroup = new NioEventLoopGroup(3);
         final EventLoopGroup group = new NioEventLoopGroup(2);
         try {
@@ -35,4 +43,19 @@ public class UdpServer {
             workerGroup.shutdownGracefully();
         }
     }
+
+    private void initServer(){
+        try {
+            Server.getInstance();
+            InetAddress address = InetAddress.getLocalHost();//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
+            String hostAddress = address.getHostAddress();//192.168.0.121
+            Server.getInstance().local_address = address.getHostAddress();
+            Server.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1,Constants.PORT1);
+            Server.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT1);
+            Server.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT2);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

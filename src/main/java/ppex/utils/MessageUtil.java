@@ -7,9 +7,14 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
+import org.bouncycastle.pqc.math.linearalgebra.IntUtils;
+import ppex.client.entity.Client;
 import ppex.proto.Message;
 import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
+
+import java.net.InetSocketAddress;
 
 public class MessageUtil {
 
@@ -43,21 +48,33 @@ public class MessageUtil {
         return msg;
     }
 
+    public static DatagramPacket msg2Packet(Message message,InetSocketAddress inetSocketAddress){
+        return new DatagramPacket(msg2ByteBuf(message),inetSocketAddress);
+    }
+
     public static DatagramPacket msg2Packet(Message message, String host, int port) {
         return new DatagramPacket(msg2ByteBuf(message), SocketUtils.socketAddress(host, port));
     }
 
-    public static DatagramPacket typemsg2Packet(TypeMessage typeMessage, String host, int port){
+    public static DatagramPacket typemsg2Packet(TypeMessage typeMessage,InetSocketAddress inetSocketAddress){
         Message msg = new Message();
         msg.setContent(typeMessage);
-        return msg2Packet(msg,host,port);
+        return msg2Packet(msg,inetSocketAddress);
+    }
+
+    public static DatagramPacket typemsg2Packet(TypeMessage typeMessage, String host, int port){
+        return typemsg2Packet(typeMessage,SocketUtils.socketAddress(host,port));
+    }
+
+    public static DatagramPacket probemsg2Packet(ProbeTypeMsg msg, InetSocketAddress address){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_PROBE.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Packet(typeMessage,address);
     }
 
     public static DatagramPacket probemsg2Packet(ProbeTypeMsg probeTypeMsg,String host,int port){
-        TypeMessage typeMessage = new TypeMessage();
-        typeMessage.setType(TypeMessage.Type.MSG_TYPE_PROBE.ordinal());
-        typeMessage.setBody(JSON.toJSONString(probeTypeMsg));
-        return typemsg2Packet(typeMessage,host,port);
+        return probemsg2Packet(probeTypeMsg,SocketUtils.socketAddress(host,port));
     }
 
     public static Message packet2Msg(DatagramPacket packet) {
@@ -73,8 +90,33 @@ public class MessageUtil {
     public static ProbeTypeMsg packet2Probemsg(DatagramPacket packet){
         TypeMessage tmsg = packet2Typemsg(packet);
         ProbeTypeMsg pmsg = JSON.parseObject(tmsg.getBody(),ProbeTypeMsg.class);
+        pmsg.setFromInetSocketAddress(packet.sender());
         return pmsg;
     }
+
+    public static ProbeTypeMsg makeClientStepOneProbeTypeMsg(String host,int port){
+        return makeClientStepOneProbeTypeMsg(SocketUtils.socketAddress(host,port));
+    }
+
+    public static ProbeTypeMsg makeClientStepOneProbeTypeMsg(InetSocketAddress inetSocketAddress){
+        ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),inetSocketAddress);
+        probeTypeMsg.setType(ProbeTypeMsg.Type.FROM_CLIENT.ordinal());
+        probeTypeMsg.setStep(ByteUtil.int2byteArr(ProbeTypeMsg.Step.ONE.ordinal())[3]);
+        return probeTypeMsg;
+    }
+
+    public static ProbeTypeMsg makeClientStepTwoProbeTypeMsg(String host,int port){
+        return makeClientStepTwoProbeTypeMsg(SocketUtils.socketAddress(host,port));
+    }
+
+    public static ProbeTypeMsg makeClientStepTwoProbeTypeMsg(InetSocketAddress inetSocketAddress){
+        ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),inetSocketAddress);
+        probeTypeMsg.setType(ProbeTypeMsg.Type.FROM_CLIENT.ordinal());
+        probeTypeMsg.setStep(ByteUtil.int2byteArr(ProbeTypeMsg.Step.TWO.ordinal())[3]);
+        return probeTypeMsg;
+    }
+
+
 
 
 

@@ -3,7 +3,6 @@ package ppex.proto;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
-import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
 import ppex.utils.MessageUtil;
@@ -22,7 +21,12 @@ public class StandardMessageHandler implements MessageHandler {
 
     private void init() {
         handlers = new HashMap<>(10,0.9f);
-        handlers.put(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsg());
+    }
+
+    public void addTypeMessageHandler(Integer type,TypeMessageHandler handler){
+        if (handlers != null){
+            handlers.put(type,handler);
+        }
     }
 
     @Override

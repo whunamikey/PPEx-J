@@ -8,14 +8,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import ppex.client.entity.Client;
-import ppex.proto.type.ProbeTypeMsg;
-import ppex.proto.type.TypeMessage;
+import ppex.client.process.DetectProcess;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
-import ppex.utils.MessageUtil;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 public class UdpClient {
@@ -32,14 +29,19 @@ public class UdpClient {
                     .option(ChannelOption.SO_BROADCAST,true)
                     .handler(new UdpClientHandler());
             Channel ch = bootstrap.bind(Constants.PORT1).sync().channel();
+            //            InetSocketAddress address = SocketUtils.socketAddress("127.0.0.1",9123);
+//            ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),address);
+//            ch.writeAndFlush(MessageUtil.probemsg2Packet(probeTypeMsg,Constants.SERVER_LOCAL_IP,Constants.PORT1));
 
-            InetSocketAddress address = SocketUtils.socketAddress("127.0.0.1",9123);
-            ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),address);
-            ch.writeAndFlush(MessageUtil.probemsg2Packet(probeTypeMsg,Constants.SERVER_LOCAL_IP,Constants.PORT1));
+//            ch.writeAndFlush(MessageUtil.probemsg2Packet(MessageUtil.makeClientStepOneProbeTypeMsg(Client.getInstance().local_address,Constants.PORT1),Client.getInstance().SERVER1));
+//            if (!ch.closeFuture().await(15000)){
+//                System.out.println("查询超时");
+//            }
 
-            if (!ch.closeFuture().await(15000)){
-                System.out.println("查询超时");
-            }
+            //开始DetectProcess
+            DetectProcess.getInstance().setChannel(ch);
+            DetectProcess.getInstance().startDetect();
+
         }catch (Exception e){
             e.printStackTrace();
         }finally {
@@ -53,6 +55,9 @@ public class UdpClient {
             InetAddress address = InetAddress.getLocalHost();//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
             String hostAddress = address.getHostAddress();//192.168.0.121
             Client.getInstance().local_address = address.getHostAddress();
+            Client.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1,Constants.PORT1);
+            Client.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT1);
+            Client.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT2);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
