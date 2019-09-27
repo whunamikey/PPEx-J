@@ -30,5 +30,6 @@ public class Client {
     public InetSocketAddress SERVER1;
     public InetSocketAddress SERVER2P1;
     public InetSocketAddress SERVER2P2;
+    public InetSocketAddress STEP_ONE_NAT_ADDRESS;
 
 }

@@ -39,13 +39,13 @@ public class DetectProcess {
         try {
             one_send2s1();
             while (!stop && step_one_running) {
-                if (stop){
-
-                }
                 Thread.sleep(2000);
+                //收不到第一阶段的回应,例如S2P1的信息,就进行第二阶段
+                stop = true;
             }
             two_send2s2p1();
             while (!stop && step_two_running) {
+
                 Thread.sleep(2000);
             }
         }catch (Exception e){

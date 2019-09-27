@@ -38,8 +38,9 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
             if (msg.getFromInetSocketAddress().getHostString().equals(Client.getInstance().local_address) && msg.getFromInetSocketAddress().getPort() == Constants.PORT1) {
                 Client.getInstance().NAT_TYPE = Client.NATTYPE.PUBLIC_NETWORK.ordinal();
-                DetectProcess.getInstance().setOne_from_server1(true);
                 DetectProcess.getInstance().setStop(true);
+            }else{
+                Client.getInstance().STEP_ONE_NAT_ADDRESS = msg.getRecordInetSocketAddress();
             }
         }
     }
@@ -51,16 +52,22 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
                 DetectProcess.getInstance().setStop(true);
             } else {
                 Client.getInstance().NAT_TYPE = Client.NATTYPE.FULL_CONE_NAT.ordinal();
-                DetectProcess.getInstance().setOne_from_server2p1(true);
+                DetectProcess.getInstance().setStop(true);
+            }
+        }else if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            if (!msg.getRecordInetSocketAddress().equals(Client.getInstance().STEP_ONE_NAT_ADDRESS)){
+                Client.getInstance().NAT_TYPE = Client.NATTYPE.SYMMETIC_NAT.ordinal();
                 DetectProcess.getInstance().setStop(true);
             }
         }
+
     }
 
     private void handleClientFromServer2Port2Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
         LOGGER.info("client handle msg recv from s2p2:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
             Client.getInstance().NAT_TYPE = Client.NATTYPE.RESTRICT_CONE_NAT.ordinal();
+            DetectProcess.getInstance().setStop(true);
         }
     }
 
