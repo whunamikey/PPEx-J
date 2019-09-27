@@ -84,28 +84,44 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     //Server2:Port1处理消息
     private void handleServer2Port1FromClientMsg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
-
+        LOGGER.info("s2p1 handle msg recv from client:" + msg.toString());
+        if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            //向Client发回去包,向S2P2发送包
+            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
+            msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
+            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+        }
     }
 
     private void handleServer2Port1FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
-
+        LOGGER.info("s2p1 handle msg from server1:" + msg.toString());
+        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
+            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+        }
     }
 
     private void handleServer2Port1FromServer2Port2Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
-
+        //暂时没有s2p2发给s2p1
     }
 
     //Server2:Port2处理消息
     private void handleServer2Port2FromClientMsg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
-
+        //暂时没有client发给s2p2
     }
 
     private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
-
+        //暂时没有s1发给s2p2
     }
 
     private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
-
+        LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
+        if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P2);
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+        }
     }
 
 
