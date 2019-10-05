@@ -19,7 +19,19 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         if (msg.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
             return;
         ProbeTypeMsg pmsg = JSON.parseObject(msg.getBody(),ProbeTypeMsg.class);
-        if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()){
+        if(pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()){
+            if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
+                throw new Exception("Wroing ProbeTypeMsg:" + msg.toString());
+            }else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
+                handleServer1FromClientMsg(ctx,pmsg);
+            }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()){
+                handleServer2Port1FromClientMsg(ctx,pmsg);
+            }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
+                handleServer2Port2FromClientMsg(ctx,pmsg);
+            }else {
+                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+            }
+        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()){
             if(Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
                 throw new Exception("Wrong ProbeTypeMsg:" + msg.toString());
             }else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
