@@ -24,22 +24,24 @@ public class ServerCommunication {
     }
 
     public void startCommunicationProcess(DatagramPacket packet) {
-        EventLoopGroup group = new NioEventLoopGroup(1);
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group).channel(NioDatagramChannel.class)
-                    .option(ChannelOption.SO_BROADCAST, true)
-                    .handler(new UdpClientHandler());
-            Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
-            ch.writeAndFlush(packet);
-            if (!ch.closeFuture().await(15000)) {
-                System.out.println("查询超时");
+        new Thread(() -> {
+            EventLoopGroup group = new NioEventLoopGroup(1);
+            try {
+                Bootstrap bootstrap = new Bootstrap();
+                bootstrap.group(group).channel(NioDatagramChannel.class)
+                        .option(ChannelOption.SO_BROADCAST, true)
+                        .handler(new UdpClientHandler());
+                Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
+                ch.writeAndFlush(packet);
+                if (!ch.closeFuture().await(15000)) {
+                    System.out.println("查询超时");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                group.shutdownGracefully();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
-        }
+        }).start();
     }
 
 }
