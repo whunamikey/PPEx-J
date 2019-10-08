@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.apache.log4j.Logger;
 import ppex.client.socket.UdpClientHandler;
 import ppex.utils.Constants;
+import ppex.utils.Identity;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -45,11 +46,16 @@ public class ServerCommunication {
                 bootstrap.group(group).channel(NioDatagramChannel.class)
                         .option(ChannelOption.SO_BROADCAST, true)
                         .handler(new UdpClientHandler());
-                Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
+                Channel channel = null;
+                if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal() || Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
+                    channel = bootstrap.bind(Constants.PORT3).sync().channel();
+                }else{
+                    channel = bootstrap.bind(Constants.PORT4).sync().channel();
+                }
                 while (!stop) {
                     if (msgQueue.size() > 0) {
-                        ch.writeAndFlush(msgQueue.poll());
-                        if (!ch.closeFuture().await(15000)) {
+                        channel.writeAndFlush(msgQueue.poll());
+                        if (!channel.closeFuture().await(15000)) {
                             System.out.println("查询超时");
                             continue;
                         }
@@ -66,7 +72,7 @@ public class ServerCommunication {
         }).start();
     }
 
-    public void addMsg(DatagramPacket packet){
+    public void addMsg(DatagramPacket packet) {
         this.msgQueue.add(packet);
         this.msgQueue.notifyAll();
     }
