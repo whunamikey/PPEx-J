@@ -10,6 +10,8 @@ import ppex.server.entity.Server;
 import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
 
+import java.net.InetSocketAddress;
+
 public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
@@ -78,11 +80,13 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         LOGGER.info("s1 handle msg recv from client:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
             //向client发回去包,并且向server2:port1发包
+            //19-10-8优化,向Server2:Port2发包
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER1);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P1));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P1));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 
@@ -110,6 +114,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private void handleServer2Port1FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
         LOGGER.info("s2p1 handle msg from server1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
+            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
         }
@@ -125,12 +130,20 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     }
 
     private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
-        //暂时没有s1发给s2p2
+        //第一阶段从Server1:Port1发送到的数据
+        if (msg.getType() == ProbeTypeMsg.Step.ONE.ordinal()){
+            InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
+            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
+            msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
+            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P2);
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,inetSocketAddress));
+        }
     }
 
     private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER2P2);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
         }

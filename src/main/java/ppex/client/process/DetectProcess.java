@@ -2,6 +2,7 @@ package ppex.client.process;
 
 import io.netty.channel.Channel;
 import ppex.client.entity.Client;
+import ppex.proto.type.ProbeTypeMsg;
 import ppex.utils.Constants;
 import ppex.utils.MessageUtil;
 
@@ -41,11 +42,6 @@ public class DetectProcess {
     public void startDetect() {
         try {
             one_send2s1();
-            while (!stop) {
-                Thread.sleep(2000);
-                //收不到第一阶段的回应,例如S2P1的信息,就进行第二阶段
-                stop = true;
-            }
             two_send2s2p1();
             while (!stop) {
                 Thread.sleep(2000);
