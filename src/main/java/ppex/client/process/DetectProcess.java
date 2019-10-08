@@ -58,6 +58,7 @@ public class DetectProcess {
 
     public void two_send2s2p1() throws Exception {
         this.channel.writeAndFlush(MessageUtil.probemsg2Packet(MessageUtil.makeClientStepTwoProbeTypeMsg(Client.getInstance().local_address, Constants.PORT1), Client.getInstance().SERVER2P1));
+        System.out.println("send2s2p1...");
     }
 
     public boolean isOne_from_server1() {

@@ -41,6 +41,7 @@ public class UdpClient {
             //开始DetectProcess
             DetectProcess.getInstance().setChannel(ch);
             DetectProcess.getInstance().startDetect();
+//            ch.writeAndFlush(MessageUtil.probemsg2Packet(MessageUtil.makeClientStepOneProbeTypeMsg(Client.getInstance().local_address, Constants.PORT1), Client.getInstance().SERVER2P1));
             if (!ch.closeFuture().await(15000)){
                 System.out.println("查询超时");
             }
