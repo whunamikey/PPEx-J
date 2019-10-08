@@ -42,7 +42,6 @@ public class UdpServer {
 //                peerBoostrap.bind(Constants.PORT2).sync().channel().closeFuture().await();
                 channel = peerBoostrap.bind(Constants.PORT2).sync().channel();
             }
-            ServerCommunication.getInstance().setChannel(channel);
             channel.closeFuture().await();
         } catch (Exception e) {
             e.printStackTrace();

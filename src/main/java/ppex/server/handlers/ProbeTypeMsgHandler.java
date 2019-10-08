@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.client.process.ServerCommunication;
+import ppex.proto.Message;
 import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
@@ -91,7 +92,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             //todo 这里报错,崩溃
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().sendMsg2S2P2(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 
@@ -113,7 +114,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().sendMsg2S2P2(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 
