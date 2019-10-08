@@ -5,16 +5,19 @@ import ppex.client.entity.Client;
 import ppex.utils.Constants;
 import ppex.utils.MessageUtil;
 
+
+/**
+ * Device探测自己的NAT类型
+ *根据工作原理.md里面的记录.19-10-8对第一阶段和第二阶段的优化记录.
+ * 第一阶段和第二阶段的探测就不用隔开一段时间,需要Server1:Port1向Server2:Port2发送包
+ */
 public class DetectProcess {
 
     public boolean stop = false;
-    public boolean step_one_running = true;
-    public boolean step_two_running = true;
-
 
     private byte step;
     private boolean one_from_server1 = false;           //是否已经从server1返回信息
-    private boolean one_from_server2p1 = false;         //是否已经从server2p1返回信息
+    private boolean one_from_server2p2 = false;         //是否已经从server2p1返回信息
     private boolean two_from_server2p1 = false;         //是否已经从Server2p1返回信息
     private boolean two_from_server2p2 = false;         //是否已经从Server2p2返回信息
 
@@ -38,14 +41,13 @@ public class DetectProcess {
     public void startDetect() {
         try {
             one_send2s1();
-            while (!stop && step_one_running) {
+            while (!stop) {
                 Thread.sleep(2000);
                 //收不到第一阶段的回应,例如S2P1的信息,就进行第二阶段
                 stop = true;
             }
             two_send2s2p1();
-            while (!stop && step_two_running) {
-
+            while (!stop) {
                 Thread.sleep(2000);
             }
         }catch (Exception e){
@@ -69,14 +71,6 @@ public class DetectProcess {
         this.one_from_server1 = one_from_server1;
     }
 
-    public boolean isOne_from_server2p1() {
-        return one_from_server2p1;
-    }
-
-    public void setOne_from_server2p1(boolean one_from_server2p1) {
-        this.one_from_server2p1 = one_from_server2p1;
-    }
-
     public boolean isStop() {
         return stop;
     }
@@ -85,19 +79,4 @@ public class DetectProcess {
         this.stop = stop;
     }
 
-    public boolean isStep_one_running() {
-        return step_one_running;
-    }
-
-    public void setStep_one_running(boolean step_one_running) {
-        this.step_one_running = step_one_running;
-    }
-
-    public boolean isStep_two_running() {
-        return step_two_running;
-    }
-
-    public void setStep_two_running(boolean step_two_running) {
-        this.step_two_running = step_two_running;
-    }
 }
