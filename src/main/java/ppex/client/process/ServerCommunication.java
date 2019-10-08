@@ -54,7 +54,8 @@ public class ServerCommunication {
                             continue;
                         }
                     } else {
-                        msgQueue.wait(1000);
+//                        msgQueue.wait(1000);
+                        Thread.sleep(1000);
                     }
                 }
             } catch (Exception e) {
