@@ -41,7 +41,9 @@ public class UdpClient {
             //开始DetectProcess
             DetectProcess.getInstance().setChannel(ch);
             DetectProcess.getInstance().startDetect();
-
+            if (!ch.closeFuture().await(15000)){
+                System.out.println("查询超时");
+            }
         }catch (Exception e){
             e.printStackTrace();
         }finally {

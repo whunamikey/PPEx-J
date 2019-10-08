@@ -48,6 +48,24 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
             msgHandler.handleDatagramPacket(channelHandlerContext,datagramPacket);
+
+            //保留测试用
+//            TypeMessage msg = MessageUtil.packet2Typemsg(datagramPacket);
+//            ProbeTypeMsg pmsg = JSON.parseObject(msg.getBody(),ProbeTypeMsg.class);
+//            pmsg.setFromInetSocketAddress(datagramPacket.sender());
+//            if (pmsg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
+//                //向client发回去包,并且向server2:port1发包
+//                //19-10-8优化,向Server2:Port2发包
+//                pmsg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
+//                pmsg.setRecordInetSocketAddress(pmsg.getFromInetSocketAddress());
+//                pmsg.setFromInetSocketAddress(Server.getInstance().SERVER1);
+////                channelHandlerContext.writeAndFlush(MessageUtil.probemsg2Packet(pmsg,pmsg.getRecordInetSocketAddress()));
+////                channelHandlerContext.channel().writeAndFlush(new DatagramPacket())
+//                DatagramPacket returnMsg = MessageUtil.probemsg2Packet(pmsg,datagramPacket.sender());
+//                System.out.println("datagram sender:" + datagramPacket.sender().toString() + " record:" + pmsg.getRecordInetSocketAddress().toString() + " rece:" + datagramPacket.recipient().toString());
+//                channelHandlerContext.writeAndFlush(returnMsg);
+//                System.out.println("write to client");
+//            }
         }catch (Exception e){
             logger.warn("---->ChannelRead0 exception:" + e.getMessage());
             System.out.println("server recv msg error");

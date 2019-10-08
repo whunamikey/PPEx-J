@@ -2,6 +2,7 @@ package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
@@ -17,10 +18,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
 
     @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg) throws Exception{
+    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, DatagramPacket packet) throws Exception{
         if (msg.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
             return;
         ProbeTypeMsg pmsg = JSON.parseObject(msg.getBody(),ProbeTypeMsg.class);
+        pmsg.setFromInetSocketAddress(packet.sender());
         if(pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()){
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
                 throw new Exception("Wroing ProbeTypeMsg:" + msg.toString());
@@ -85,8 +87,9 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER1);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P1));
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P1));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 

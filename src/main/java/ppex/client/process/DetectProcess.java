@@ -43,9 +43,10 @@ public class DetectProcess {
         try {
             one_send2s1();
             two_send2s2p1();
-            while (!stop) {
-                Thread.sleep(2000);
-            }
+//            while (!stop) {
+//                System.out.println("Client sleep 2000");
+//                Thread.sleep(2000);
+//            }
         }catch (Exception e){
             e.printStackTrace();
         }
