@@ -92,7 +92,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             //todo 这里报错,崩溃
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 
@@ -114,7 +115,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 

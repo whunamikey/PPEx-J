@@ -7,10 +7,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import org.apache.log4j.Logger;
 import ppex.client.socket.UdpClientHandler;
 import ppex.utils.Constants;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 public class ServerCommunication {
+    private Logger LOGGER = Logger.getLogger(ServerCommunication.class);
     private static ServerCommunication instance = null;
 
     private ServerCommunication() {
@@ -23,8 +28,17 @@ public class ServerCommunication {
         return instance;
     }
 
-    public void startCommunicationProcess(DatagramPacket packet) {
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
+    private Queue<DatagramPacket> msgQueue = new ConcurrentLinkedDeque<>();
+    private boolean stop = false;
+
+
+    public void startCommunicationProcess() {
         new Thread(() -> {
+            LOGGER.info("ServerCommunicationProcess thread running");
             EventLoopGroup group = new NioEventLoopGroup(1);
             try {
                 Bootstrap bootstrap = new Bootstrap();
@@ -32,9 +46,16 @@ public class ServerCommunication {
                         .option(ChannelOption.SO_BROADCAST, true)
                         .handler(new UdpClientHandler());
                 Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
-                ch.writeAndFlush(packet);
-                if (!ch.closeFuture().await(15000)) {
-                    System.out.println("查询超时");
+                while (!stop) {
+                    if (msgQueue.size() > 0) {
+                        ch.writeAndFlush(msgQueue.poll());
+                        if (!ch.closeFuture().await(15000)) {
+                            System.out.println("查询超时");
+                            continue;
+                        }
+                    } else {
+                        msgQueue.wait(1000);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -42,6 +63,11 @@ public class ServerCommunication {
                 group.shutdownGracefully();
             }
         }).start();
+    }
+
+    public void addMsg(DatagramPacket packet){
+        this.msgQueue.add(packet);
+        this.msgQueue.notifyAll();
     }
 
 }
