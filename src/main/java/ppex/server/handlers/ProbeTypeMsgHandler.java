@@ -87,10 +87,10 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             //19-10-8优化,向Server2:Port2发包
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
-            msg.setFromInetSocketAddress(Server.getInstance().SERVER1);
+            msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
             //todo 这里报错,崩溃
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));
 //            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
@@ -112,9 +112,9 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             //向Client发回去包,向S2P2发送包
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
-            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
+            msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P1());
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));
 //            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
@@ -124,7 +124,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         LOGGER.info("s2p1 handle msg from server1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
-            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
+            msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P1());
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
         }
     }
@@ -145,7 +145,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
-            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P2);
+            msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P2());
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,inetSocketAddress));
         }
     }
@@ -154,7 +154,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
-            msg.setFromInetSocketAddress(Server.getInstance().SERVER2P2);
+            msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P2());
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
         }
     }

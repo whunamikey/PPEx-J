@@ -54,13 +54,17 @@ public class UdpServer {
 
     private void initServer() {
         try {
+            logger.info("initServer run");
             Server.getInstance();
             InetAddress address = InetAddress.getLocalHost();//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
             String hostAddress = address.getHostAddress();//192.168.0.121
             Server.getInstance().local_address = address.getHostAddress();
-            Server.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1);
-            Server.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1);
-            Server.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2);
+//            Server.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1);
+//            Server.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1);
+//            Server.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2);
+            Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1,Constants.PORT1));
+            Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT1));
+            Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT2));
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
