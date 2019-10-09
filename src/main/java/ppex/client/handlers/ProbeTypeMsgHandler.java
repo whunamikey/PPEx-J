@@ -40,37 +40,31 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         LOGGER.info("client handle msg recv from s1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
             if (msg.getFromInetSocketAddress().getHostString().equals(Client.getInstance().local_address) && msg.getFromInetSocketAddress().getPort() == Constants.PORT1) {
-                Client.getInstance().NAT_TYPE = Client.NATTYPE.PUBLIC_NETWORK.ordinal();
-                DetectProcess.getInstance().setStop(true);
+                DetectProcess.getInstance().isPublicNetwork = true;
             }else{
-                Client.getInstance().STEP_ONE_NAT_ADDRESS = msg.getRecordInetSocketAddress();
+                DetectProcess.getInstance().NAT_ADDRESS_FROM_S1 = msg.getRecordInetSocketAddress();
             }
         }
     }
 
     private void handleClientFromServer2Port1Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
         LOGGER.info("client handle msg recv from s2p1:" + msg.toString());
-        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
-            if (Client.getInstance().NAT_TYPE == Client.NATTYPE.PUBLIC_NETWORK.ordinal()) {
-                DetectProcess.getInstance().setStop(true);
-            } else {
-                Client.getInstance().NAT_TYPE = Client.NATTYPE.FULL_CONE_NAT.ordinal();
-                DetectProcess.getInstance().setStop(true);
-            }
-        }else if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
-            if (!msg.getRecordInetSocketAddress().equals(Client.getInstance().STEP_ONE_NAT_ADDRESS)){
-                Client.getInstance().NAT_TYPE = Client.NATTYPE.SYMMETIC_NAT.ordinal();
-                DetectProcess.getInstance().setStop(true);
+        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
+            DetectProcess.getInstance().NAT_ADDRESS_FROM_S2P1 = msg.getRecordInetSocketAddress();
+            if (DetectProcess.getInstance().NAT_ADDRESS_FROM_S1.equals(DetectProcess.getInstance().NAT_ADDRESS_FROM_S2P1)){
+                DetectProcess.getInstance().NAT_ADDRESS_SAME = true;
+            }else{
+                DetectProcess.getInstance().NAT_ADDRESS_SAME = false;
             }
         }
-
     }
 
     private void handleClientFromServer2Port2Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
         LOGGER.info("client handle msg recv from s2p2:" + msg.toString());
-        if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
-            Client.getInstance().NAT_TYPE = Client.NATTYPE.RESTRICT_CONE_NAT.ordinal();
-            DetectProcess.getInstance().setStop(true);
+        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
+            DetectProcess.getInstance().setOne_from_server2p2(true);
+        }else if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            DetectProcess.getInstance().setTwo_from_server2p2(true);
         }
     }
 

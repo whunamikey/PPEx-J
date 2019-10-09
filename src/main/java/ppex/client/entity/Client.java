@@ -17,8 +17,8 @@ public class Client {
     }
 
     public enum NATTYPE{
-        SYMMETIC_NAT,
         UNKNOWN,
+        SYMMETIC_NAT,
         PORT_RESTRICT_CONE_NAT,
         RESTRICT_CONE_NAT,
         FULL_CONE_NAT,
@@ -30,6 +30,8 @@ public class Client {
     public InetSocketAddress SERVER1;
     public InetSocketAddress SERVER2P1;
     public InetSocketAddress SERVER2P2;
-    public InetSocketAddress STEP_ONE_NAT_ADDRESS;
+
+
+
 
 }

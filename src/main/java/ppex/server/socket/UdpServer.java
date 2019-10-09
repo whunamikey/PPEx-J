@@ -23,8 +23,6 @@ public class UdpServer {
 
         initServer();
 
-//        ServerCommunication.getInstance().startCommunicationProcess();
-
         logger.info("---->UdpServer start");
         final EventLoopGroup workerGroup = new NioEventLoopGroup(3);
         final EventLoopGroup group = new NioEventLoopGroup(2);

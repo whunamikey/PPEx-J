@@ -28,23 +28,14 @@ public class UdpClient {
             bootstrap.group(group).channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST,true)
                     .handler(new UdpClientHandler());
-            Channel ch = bootstrap.bind(Constants.PORT4).sync().channel();
-            //            InetSocketAddress address = SocketUtils.socketAddress("127.0.0.1",9123);
-//            ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),address);
-//            ch.writeAndFlush(MessageUtil.probemsg2Packet(probeTypeMsg,Constants.SERVER_LOCAL_IP,Constants.PORT1));
-
-//            ch.writeAndFlush(MessageUtil.probemsg2Packet(MessageUtil.makeClientStepOneProbeTypeMsg(Client.getInstance().local_address,Constants.PORT1),Client.getInstance().SERVER1));
-//            if (!ch.closeFuture().await(15000)){
-//                System.out.println("查询超时");
-//            }
+            Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
 
             //开始DetectProcess
             DetectProcess.getInstance().setChannel(ch);
             DetectProcess.getInstance().startDetect();
-//            ch.writeAndFlush(MessageUtil.probemsg2Packet(MessageUtil.makeClientStepOneProbeTypeMsg(Client.getInstance().local_address, Constants.PORT1), Client.getInstance().SERVER2P1));
-            if (!ch.closeFuture().await(15000)){
-                System.out.println("查询超时");
-            }
+            Client.getInstance().NAT_TYPE = DetectProcess.getInstance().getClientNATType().ordinal();
+            System.out.println("Client NAT type is :" + Client.getInstance().NAT_TYPE);
+
         }catch (Exception e){
             e.printStackTrace();
         }finally {

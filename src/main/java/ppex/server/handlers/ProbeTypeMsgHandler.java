@@ -39,11 +39,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if(Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
                 throw new Exception("Wrong ProbeTypeMsg:" + msg.toString());
             }else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
-                handleServer1FromClientMsg(ctx,pmsg);
+//                handleServer1FromClientMsg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()){
-                handleServer1FromServer2Port1Msg(ctx,pmsg);
+                handleServer2Port1FromServer1Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
-                handleServer1FromServer2Port2Msg(ctx,pmsg);
+                handleServer2Port2FromServer1Msg(ctx,pmsg);
             }else{
                 throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -51,11 +51,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if(Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()){
                 throw new Exception("Wrong ProbeTypeMsg:" + msg.toString());
             }else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
-                handleServer2Port1FromClientMsg(ctx,pmsg);
+//                handleServer2Port1FromClientMsg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
-                handleServer2Port1FromServer1Msg(ctx,pmsg);
+                handleServer1FromServer2Port1Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
-                handleServer2Port1FromServer2Port2Msg(ctx,pmsg);
+                handleServer2Port2FromServer2Port1Msg(ctx,pmsg);
             }else{
                 throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -63,11 +63,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if(Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()){
                 throw new Exception("Wrong ProbeTypeMsg:" + msg.toString());
             }else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()){
-                handleServer2Port2FromClientMsg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()){
-                handleServer2Port2FromServer1Msg(ctx,pmsg);
             }else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()){
-                handleServer2Port2FromServer2Port1Msg(ctx,pmsg);
             }else{
                 throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -86,11 +83,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));
-//            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-//            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-//            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));               //这里发回给Client
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));            //这里发给S2P2
         }
     }
 
@@ -110,20 +104,13 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P1());
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));
-//            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-//            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));           //这里发回给Client
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));        //这里发给S2P2
         }
     }
 
     private void handleServer2Port1FromServer1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg) {
-        LOGGER.info("s2p1 handle msg from server1:" + msg.toString());
-        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()){
-            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
-            msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P1());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-        }
+        //暂时不会有s1发送给s2p1
     }
 
     private void handleServer2Port1FromServer2Port2Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
@@ -150,9 +137,10 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,ProbeTypeMsg msg){
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()){
+            InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P2());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,inetSocketAddress));
         }
     }
 
