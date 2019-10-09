@@ -15,6 +15,11 @@ import ppex.utils.Constants;
  * --    0x01   --+--contentlength--+--   content   --+
  *----------------+-----------------+-----------------+
  *
+ * 2019-10-9.加入msg id 64位和 current 64位和total 64位(未实现.todo)
+ * -----8bits-----+-----64bits---+-----64bits----+----64bits-------+------32bits-------+-----content-----+
+ * --    0x01   --+    msg id    +     current   +     total       +-- contentlength --+--   content   --+
+ * ---------------+--------------+---------------+-----------------+-------------------+-----------------+
+ *
  */
 public class Message {
     public static final int VERSIONLENGTH = 1;
