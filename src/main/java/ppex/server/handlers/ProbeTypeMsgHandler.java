@@ -88,12 +88,12 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER1);
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
             //todo 这里报错,崩溃
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 
@@ -113,10 +113,10 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().SERVER2P1);
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
+            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().startCommunicationProcess(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
-            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
+//            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
         }
     }
 

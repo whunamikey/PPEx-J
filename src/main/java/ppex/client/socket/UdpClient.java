@@ -28,7 +28,7 @@ public class UdpClient {
             bootstrap.group(group).channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST,true)
                     .handler(new UdpClientHandler());
-            Channel ch = bootstrap.bind(Constants.PORT1).sync().channel();
+            Channel ch = bootstrap.bind(Constants.PORT4).sync().channel();
             //            InetSocketAddress address = SocketUtils.socketAddress("127.0.0.1",9123);
 //            ProbeTypeMsg probeTypeMsg = new ProbeTypeMsg(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),address);
 //            ch.writeAndFlush(MessageUtil.probemsg2Packet(probeTypeMsg,Constants.SERVER_LOCAL_IP,Constants.PORT1));
