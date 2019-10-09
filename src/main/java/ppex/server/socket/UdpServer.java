@@ -8,7 +8,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
-import ppex.client.process.ServerCommunication;
 import ppex.server.entity.Server;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
