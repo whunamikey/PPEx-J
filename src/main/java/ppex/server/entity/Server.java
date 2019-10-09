@@ -7,7 +7,7 @@ public class Server {
     private Server(){}
     public static Server getInstance(){
         if (instance == null)
-            return new Server();
+            instance = new Server();
         return instance;
     }
 

@@ -90,6 +90,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
 //            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,msg.getRecordInetSocketAddress()));
             //todo 这里报错,崩溃
+            LOGGER.info("s1 address:" + Server.getInstance().getSERVER1() + " s2p1:" +Server.getInstance().getSERVER2P1() + " s2p2:" + Server.getInstance().getSERVER2P2());
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().getSERVER2P2()));
 //            ctx.channel().writeAndFlush(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
 //            ServerCommunication.getInstance().addMsg(MessageUtil.probemsg2Packet(msg,Server.getInstance().SERVER2P2));
