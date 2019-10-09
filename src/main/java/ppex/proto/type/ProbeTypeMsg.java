@@ -75,7 +75,9 @@ public class ProbeTypeMsg implements TypeMessageHandler {
     public String toString() {
         return "ProbeTypeMsg{" +
                 "type=" + type +
-                ", inetSocketAddress=" + fromInetSocketAddress +
+                ", step=" + step +
+                ", fromInetSocketAddress=" + fromInetSocketAddress +
+                ", recordInetSocketAddress=" + recordInetSocketAddress +
                 '}';
     }
 }
