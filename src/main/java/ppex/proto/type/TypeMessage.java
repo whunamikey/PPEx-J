@@ -1,8 +1,16 @@
 package ppex.proto.type;
 
+/**
+ *
+ * -----32bits-----+-----body------+
+ * --    type    --+--   body    --+
+ * ---------------+----------------+
+ *
+ */
+
 public class TypeMessage {
 
-    public static enum Type {
+    public enum Type {
         MSG_TYPE_PROBE,
         MSG_TYPE_TXT,
     }

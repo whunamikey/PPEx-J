@@ -16,7 +16,6 @@ import ppex.utils.Constants;
  *----------------+-----------------+-----------------+
  *
  */
-
 public class Message {
     public static final int VERSIONLENGTH = 1;
     public static final int CONTENTLENGTH = 4;
