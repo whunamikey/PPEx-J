@@ -1,9 +1,10 @@
 package ppex.server.handlers;
 
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.type.ProbeTypeMsg;
+import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
 import ppex.server.entity.Server;
 import ppex.utils.Identity;
@@ -16,8 +17,9 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
 
     @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
-        ProbeTypeMsg pmsg = MessageUtil.packet2Probemsg(packet);
+    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress address) throws Exception {
+        ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
+        pmsg.setFromInetSocketAddress(address);
         if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
                 throw new Exception("Wroing ProbeTypeMsg:" + pmsg.toString());
