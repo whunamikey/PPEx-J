@@ -2,6 +2,7 @@ package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.log4j.Logger;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
@@ -13,9 +14,12 @@ import java.net.InetSocketAddress;
 
 public class ThroughTypeMsgHandler implements TypeMessageHandler {
 
+    private static Logger LOGGER = Logger.getLogger(ThroughTypeMsgHandler.class);
+
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromaddress) throws Exception {
 //        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
+        LOGGER.info("server handle ThroughTypeMsg");
         ThroughTypeMsg ttmsg = JSON.parseObject(typeMessage.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_INFO.ordinal()) {
             handleSaveInfo(ctx,ttmsg,fromaddress);
@@ -29,6 +33,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     }
 
     private void handleSaveInfo(ChannelHandlerContext ctx,ThroughTypeMsg ttmsg,InetSocketAddress address) {
+        LOGGER.info("server handle through msg saveinfo:" + ttmsg.toString());
         ThroughTypeMsg.SAVEINFO saveinfo = JSON.parseObject(ttmsg.getContent(), ThroughTypeMsg.SAVEINFO.class);
         Connection connection = new Connection(saveinfo);
         ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
@@ -43,6 +48,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     }
 
     private void handleGetInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
+        LOGGER.info("server handle through msg getinfo:" + ttmsg.toString());
         ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
         ThroughTypeMsg.RECVINFO recvinfo = ttmsg.new RECVINFO(ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal(),ConnectionService.getInstance().getAllConnectionId());
         ttmsg.setContent(JSON.toJSONString(recvinfo));
@@ -50,6 +56,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     }
 
     private void handleConnect(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
+        LOGGER.info("server handle through msg connect:" + ttmsg.toString());
         long id = Long.parseLong(ttmsg.getContent());
         if (ConnectionService.getInstance().hasConnection(id)) {
             //todo 19-10-10.检测两边nattype类型,然后进行尝试

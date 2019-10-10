@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
+import ppex.client.process.ThroughProcess;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 
@@ -30,11 +31,15 @@ public class UdpClient {
                     .handler(new UdpClientHandler());
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
 
-            //开始DetectProcess
+            //1.探测阶段.开始DetectProcess
             DetectProcess.getInstance().setChannel(ch);
             DetectProcess.getInstance().startDetect();
             Client.getInstance().NAT_TYPE = DetectProcess.getInstance().getClientNATType().ordinal();
             System.out.println("Client NAT type is :" + Client.getInstance().NAT_TYPE);
+
+            //2.穿越阶段
+            ThroughProcess.getInstance().setChannel(ch);
+            ThroughProcess.getInstance().sendSaveInfo();
 
         }catch (Exception e){
             e.printStackTrace();
