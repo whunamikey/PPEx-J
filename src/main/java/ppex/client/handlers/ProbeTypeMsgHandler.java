@@ -47,6 +47,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
                 DetectProcess.getInstance().isPublicNetwork = true;
             }else{
                 DetectProcess.getInstance().NAT_ADDRESS_FROM_S1 = msg.getRecordInetSocketAddress();
+                Client.getInstance().address = msg.getRecordInetSocketAddress();
             }
         }
     }

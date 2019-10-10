@@ -25,15 +25,15 @@ public class ConnectionService {
     //server id ->connection
     private final Map<Long,Connection> connections = new HashMap<>(10,0.9f);
 
-    public void addConnection(final Connection connection){
+    public boolean addConnection(final Connection connection){
         final String peerName = connection.getPeerName();
         final Connection previousConnection = connections.put(connection.getId(),connection);
-
         if (previousConnection != null){
             System.out.println("Already existing connection to " + peerName + " is closed.");
-
+            return false;
+        }else{
+            return true;
         }
-
     }
 
     public boolean hasConnection(long id){
@@ -43,6 +43,10 @@ public class ConnectionService {
     public String getAllConnectionId(){
         List<Long> ids = connections.keySet().stream().sorted().collect(Collectors.toList());
         return JSON.toJSONString(ids);
+    }
+
+    public List<Long> getAllConnectionIds(){
+        return connections.keySet().stream().sorted().collect(Collectors.toList());
     }
 
     public boolean removeConnection(final Connection connection){

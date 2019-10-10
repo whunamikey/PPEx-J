@@ -1,6 +1,7 @@
 package ppex.proto.type;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * 19-10-8 暂定
@@ -20,7 +21,9 @@ public class ThroughTypeMsg {
 
     //RECVTYPE为RECVINFO下面的type类型值,目前暂时有Id集合的JSON字符串,为GET_INFO的返回信息.RESPONSE是返回的一般信息反馈
     public enum RECVTYPE {
-        IDS,
+        SAVE_INFO,
+        GET_INFO,
+        CONNECT,
         RESPONSE,
     }
 
@@ -48,6 +51,10 @@ public class ThroughTypeMsg {
         public int nattype;
         public String peerName;
         public InetSocketAddress address;
+    }
+
+    public class GET_INFO{
+        public List<Long> ids;
     }
 
     public class CONNECT{
