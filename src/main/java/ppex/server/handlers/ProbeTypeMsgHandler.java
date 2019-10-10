@@ -18,6 +18,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress address) throws Exception {
+        if (typeMessage.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
+            return;
         ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
         pmsg.setFromInetSocketAddress(address);
         if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
