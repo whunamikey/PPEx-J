@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import ppex.client.handlers.ProbeTypeMsgHandler;
+import ppex.client.handlers.ThroughTypeMsgHandler;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
 import ppex.proto.type.TypeMessage;
@@ -16,6 +17,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     public UdpClientHandler() {
         msgHandler = new StandardMessageHandler();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),new ProbeTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(),new ThroughTypeMsgHandler());
     }
 
     @Override

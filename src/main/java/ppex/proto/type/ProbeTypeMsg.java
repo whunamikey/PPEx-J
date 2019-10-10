@@ -1,12 +1,8 @@
 package ppex.proto.type;
 
-import org.apache.log4j.Logger;
-
 import java.net.InetSocketAddress;
 
 public class ProbeTypeMsg implements TypeMessageHandler {
-
-    private Logger LOGGER = Logger.getLogger(ProbeTypeMsg.class);
 
     public enum Type {
         FROM_CLIENT,

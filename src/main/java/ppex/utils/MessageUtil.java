@@ -9,6 +9,7 @@ import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
 import ppex.proto.Message;
 import ppex.proto.type.ProbeTypeMsg;
+import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 
 import java.net.InetSocketAddress;
@@ -74,6 +75,17 @@ public class MessageUtil {
         return probemsg2Packet(probeTypeMsg,SocketUtils.socketAddress(host,port));
     }
 
+    public static DatagramPacket throughmsg2Packet(ThroughTypeMsg msg,InetSocketAddress address){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Packet(typeMessage,address);
+    }
+
+    public static DatagramPacket throughmsg2Packet(ThroughTypeMsg msg,String host,int port){
+        return throughmsg2Packet(msg,SocketUtils.socketAddress(host,port));
+    }
+
     public static Message packet2Msg(DatagramPacket packet) {
         return bytebuf2Msg(packet.content());
     }
@@ -90,6 +102,13 @@ public class MessageUtil {
         pmsg.setFromInetSocketAddress(packet.sender());
         return pmsg;
     }
+
+    public static ThroughTypeMsg packet2ThroughMsg(DatagramPacket packet){
+        TypeMessage tmsg = packet2Typemsg(packet);
+        ThroughTypeMsg ttmsg = JSON.parseObject(tmsg.getBody(),ThroughTypeMsg.class);
+        return ttmsg;
+    }
+
 
     public static ProbeTypeMsg makeClientStepOneProbeTypeMsg(String host,int port){
         return makeClientStepOneProbeTypeMsg(SocketUtils.socketAddress(host,port));

@@ -34,7 +34,7 @@ public class StandardMessageHandler implements MessageHandler {
         try {
             LOGGER.info("Standard handle datagram packet");
             TypeMessage msg = MessageUtil.packet2Typemsg(packet);
-            handlers.get(msg.getType()).handleTypeMessage(ctx,msg,packet);
+            handlers.get(msg.getType()).handleTypeMessage(ctx,packet);
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("handle datagram packet error" + e.getMessage());

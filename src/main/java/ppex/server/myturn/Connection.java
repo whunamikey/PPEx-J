@@ -4,29 +4,42 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.Message;
+import ppex.proto.type.ThroughTypeMsg;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
 
 public class Connection {
 
-    private Logger logger = Logger.getLogger(Connection.class);
+    private static Logger LOGGER = Logger.getLogger(Connection.class);
 
+    private long id;                                    //暂时用id来识别每一个connection
     private InetSocketAddress inetSocketAddress;
     private ChannelHandlerContext ctx;
     private String peerName;
+    private int NATTYPE;
+
+    public Connection(ThroughTypeMsg.SAVEINFO saveinfo){
+        this.NATTYPE = saveinfo.nattype;
+        this.id = saveinfo.id;
+        this.peerName = saveinfo.peerName;
+        this.inetSocketAddress = saveinfo.address;
+    }
 
     public Connection(ChannelHandlerContext ctx) {
         this.ctx = ctx;
         if (null != ctx.channel() && null != ctx.channel().remoteAddress()) {
             this.inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-            logger.info("---->New:inetSocketAddress:" + inetSocketAddress.toString());
+            LOGGER.info("---->New:inetSocketAddress:" + inetSocketAddress.toString());
         }
     }
 
-    public void setChannelHandlerContext(ChannelHandlerContext ctx,InetSocketAddress inetSocketAddress) {
-        this.ctx = ctx;
-        this.inetSocketAddress = inetSocketAddress;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public void setPeerName(String peerName) {
@@ -41,14 +54,7 @@ public class Connection {
         if (ctx != null) {
             ctx.writeAndFlush(new DatagramPacket(MessageUtil.msg2ByteBuf(msg), inetSocketAddress));
         } else {
-            logger.info("can not send msg to " + peerName);
-        }
-    }
-
-    public void close() {
-        if (ctx != null) {
-            ctx.close();
-            ctx = null;
+            LOGGER.info("can not send msg to " + peerName);
         }
     }
 

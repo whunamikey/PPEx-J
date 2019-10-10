@@ -12,6 +12,7 @@ public class TypeMessage {
 
     public enum Type {
         MSG_TYPE_PROBE,
+        MSG_TYPE_THROUGH,
         MSG_TYPE_TXT,
     }
 

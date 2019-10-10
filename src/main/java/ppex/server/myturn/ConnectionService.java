@@ -1,29 +1,52 @@
 package ppex.server.myturn;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ConnectionService {
 
+    private static Logger LOGGER = Logger.getLogger(ConnectionService.class);
 
-    //server name ->connection
-    private final Map<String,Connection> connections = new HashMap<>();
+    private static ConnectionService instance = null;
+
+    private ConnectionService() {
+    }
+
+    public static ConnectionService getInstance(){
+        if (instance == null)
+            instance = new ConnectionService();
+        return instance;
+    }
+
+    //server id ->connection
+    private final Map<Long,Connection> connections = new HashMap<>(10,0.9f);
 
     public void addConnection(final Connection connection){
         final String peerName = connection.getPeerName();
-        final Connection previousConnection = connections.put(peerName,connection);
+        final Connection previousConnection = connections.put(connection.getId(),connection);
 
         if (previousConnection != null){
-            previousConnection.close();
             System.out.println("Already existing connection to " + peerName + " is closed.");
+
         }
+
+    }
+
+    public boolean hasConnection(long id){
+        return connections.containsKey(id);
+    }
+
+    public String getAllConnectionId(){
+        List<Long> ids = connections.keySet().stream().sorted().collect(Collectors.toList());
+        return JSON.toJSONString(ids);
     }
 
     public boolean removeConnection(final Connection connection){
-        final boolean removed = connections.remove(connection.getPeerName()) != null;
+        final boolean removed = connections.remove(connection.getId()) != null;
         if (removed){
             System.out.println(connection.getPeerName() + " connection is removed from connections.");
         }else{
@@ -36,12 +59,12 @@ public class ConnectionService {
         return connections.size();
     }
 
-    public boolean isConnectedTo(final String peerName){
-        return connections.containsKey(peerName);
+    public boolean isConnectedTo(final long peerId){
+        return connections.containsKey(peerId);
     }
 
-    public Connection getConnection(final String peerName){
-        return connections.get(peerName);
+    public Connection getConnection(final long peerId){
+        return connections.get(peerId);
     }
 
     public Collection<Connection> getConnections(){

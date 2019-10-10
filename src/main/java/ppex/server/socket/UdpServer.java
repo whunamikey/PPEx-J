@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
 import ppex.server.entity.Server;
+import ppex.server.myturn.ConnectionService;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 
@@ -62,6 +63,9 @@ public class UdpServer {
             Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1,Constants.PORT1));
             Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT1));
             Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT2));
+
+            ConnectionService.getInstance();
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

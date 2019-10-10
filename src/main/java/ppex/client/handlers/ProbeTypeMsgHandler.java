@@ -1,15 +1,14 @@
 package ppex.client.handlers;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
 import ppex.proto.type.ProbeTypeMsg;
-import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
 import ppex.utils.Constants;
+import ppex.utils.MessageUtil;
 
 
 public class ProbeTypeMsgHandler implements TypeMessageHandler {
@@ -17,13 +16,12 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
 
     @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, DatagramPacket packet) throws Exception{
-        if (msg.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
-            return;
-        ProbeTypeMsg pmsg = JSON.parseObject(msg.getBody(),ProbeTypeMsg.class);
-        pmsg.setFromInetSocketAddress(packet.sender());
+    public void handleTypeMessage(ChannelHandlerContext ctx,DatagramPacket packet) throws Exception{
+//        ProbeTypeMsg pmsg = JSON.parseObject(msg.getBody(),ProbeTypeMsg.class);
+//        pmsg.setFromInetSocketAddress(packet.sender());
+        ProbeTypeMsg pmsg = MessageUtil.packet2Probemsg(packet);
         if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()){
-            throw new Exception("Wrong ProbeTypeMsg:" + msg.toString());
+            throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
         }else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()){
             handleClientFromServer1Msg(ctx,pmsg);
         } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal()){
