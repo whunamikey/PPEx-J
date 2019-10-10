@@ -46,31 +46,6 @@ public class ThroughTypeMsg {
         this.content = content;
     }
 
-    public class SAVEINFO {
-        public long id;
-        public int nattype;
-        public String peerName;
-        public InetSocketAddress address;
-    }
-
-    public class GET_INFO{
-        public List<Long> ids;
-    }
-
-    public class CONNECT{
-        private long from;
-        private long to;
-    }
-
-    public class RECVINFO {
-        public RECVINFO(int type,String recvinfos){
-            this.type = type;
-            this.recvinfos = recvinfos;
-        }
-        public int type;
-        public String recvinfos;
-    }
-
     @Override
     public String toString() {
         return "ThroughTypeMsg{" +

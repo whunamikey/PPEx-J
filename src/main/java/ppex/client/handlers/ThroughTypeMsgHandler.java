@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.client.process.ThroughProcess;
+import ppex.proto.entity.through.RECVINFO;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
@@ -19,7 +20,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         ThroughTypeMsg ttmsg = JSON.parseObject(msg.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() != ThroughTypeMsg.ACTION.RECV_INFO.ordinal())
             return;
-        ThroughTypeMsg.RECVINFO recvinfo = JSON.parseObject(ttmsg.getContent(), ThroughTypeMsg.RECVINFO.class);
+        RECVINFO recvinfo = JSON.parseObject(ttmsg.getContent(), RECVINFO.class);
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_INFO.ordinal()) {
             handleSaveInfoFromServer(recvinfo);
         } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_INFO.ordinal()) {
@@ -31,19 +32,19 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
-    private void handleSaveInfoFromServer(ThroughTypeMsg.RECVINFO recvinfo) {
-        if (recvinfo.type != ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal()){
+    private void handleSaveInfoFromServer(RECVINFO recvinfo) {
+        if (recvinfo.type != ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal()) {
             return;
         }
-        if (!recvinfo.recvinfos.equals("success")){
+        if (!recvinfo.recvinfos.equals("success")) {
             ThroughProcess.getInstance().sendSaveInfo();
-        }else{
+        } else {
             //todo 做心跳连接
             ThroughProcess.getInstance().getIDSInfoFromServer();
         }
     }
 
-    private void handleGetInfoFromServer(ThroughTypeMsg.RECVINFO recvinfo){
+    private void handleGetInfoFromServer(RECVINFO recvinfo) {
         if (recvinfo.type != ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal())
             return;
         System.out.println("all ids:" + recvinfo.recvinfos);
@@ -51,12 +52,12 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         ThroughProcess.getInstance().connectOthrePeer(2);
     }
 
-    private void handleConnectFromServer(ThroughTypeMsg.RECVINFO recvinfo){
+    private void handleConnectFromServer(RECVINFO recvinfo) {
         if (recvinfo.type != ThroughTypeMsg.RECVTYPE.CONNECT.ordinal())
             return;
-        if (recvinfo.recvinfos.equals("fail")){
+        if (recvinfo.recvinfos.equals("fail")) {
             LOGGER.info("connect fail");
-        }else{
+        } else {
             //todo 服务端还没实现nattype类型尝试
         }
     }

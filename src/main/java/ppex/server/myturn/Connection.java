@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.Message;
-import ppex.proto.type.ThroughTypeMsg;
+import ppex.proto.entity.through.SAVEINFO;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
@@ -19,7 +19,7 @@ public class Connection {
     private String peerName;
     private int NATTYPE;
 
-    public Connection(ThroughTypeMsg.SAVEINFO saveinfo){
+    public Connection(SAVEINFO saveinfo){
         this.NATTYPE = saveinfo.nattype;
         this.id = saveinfo.id;
         this.peerName = saveinfo.peerName;

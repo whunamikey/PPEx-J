@@ -3,6 +3,8 @@ package ppex.server.handlers;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
+import ppex.proto.entity.through.RECVINFO;
+import ppex.proto.entity.through.SAVEINFO;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
@@ -22,7 +24,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         LOGGER.info("server handle ThroughTypeMsg");
         ThroughTypeMsg ttmsg = JSON.parseObject(typeMessage.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_INFO.ordinal()) {
-            handleSaveInfo(ctx,ttmsg,fromaddress);
+            handleSaveInfo(ctx, ttmsg, fromaddress);
         } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_INFO.ordinal()) {
             handleGetInfo(ctx, ttmsg, fromaddress);
         } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT.ordinal()) {
@@ -32,25 +34,25 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
-    private void handleSaveInfo(ChannelHandlerContext ctx,ThroughTypeMsg ttmsg,InetSocketAddress address) {
+    private void handleSaveInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg saveinfo:" + ttmsg.toString());
-        ThroughTypeMsg.SAVEINFO saveinfo = JSON.parseObject(ttmsg.getContent(), ThroughTypeMsg.SAVEINFO.class);
+        SAVEINFO saveinfo = JSON.parseObject(ttmsg.getContent(), SAVEINFO.class);
         Connection connection = new Connection(saveinfo);
         ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-        ThroughTypeMsg.RECVINFO recvinfo = null;
+        RECVINFO recvinfo = null;
         if (ConnectionService.getInstance().addConnection(connection)) {
-            recvinfo = ttmsg.new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(),"success");
-        }else{
-            recvinfo = ttmsg.new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(),"fail");
+            recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "success");
+        } else {
+            recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "fail");
         }
         ttmsg.setContent(JSON.toJSONString(recvinfo));
-        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,address));
+        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
     }
 
     private void handleGetInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg getinfo:" + ttmsg.toString());
         ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-        ThroughTypeMsg.RECVINFO recvinfo = ttmsg.new RECVINFO(ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal(),ConnectionService.getInstance().getAllConnectionId());
+        RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal(), ConnectionService.getInstance().getAllConnectionId());
         ttmsg.setContent(JSON.toJSONString(recvinfo));
         ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
     }
@@ -63,7 +65,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
 
         } else {
             ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-            ThroughTypeMsg.RECVINFO recvinfo = ttmsg.new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
+            RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
             ttmsg.setContent(JSON.toJSONString(recvinfo));
             ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
         }
