@@ -7,4 +7,12 @@ public class RECVINFO {
     }
     public int type;
     public String recvinfos;
+
+    @Override
+    public String toString() {
+        return "RECVINFO{" +
+                "type=" + type +
+                ", recvinfos='" + recvinfos + '\'' +
+                '}';
+    }
 }

@@ -36,38 +36,50 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
 
     private void handleSaveInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg saveinfo:" + ttmsg.toString());
-        SAVEINFO saveinfo = JSON.parseObject(ttmsg.getContent(), SAVEINFO.class);
-        Connection connection = new Connection(saveinfo);
-        ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-        RECVINFO recvinfo = null;
-        if (ConnectionService.getInstance().addConnection(connection)) {
-            recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "success");
-        } else {
-            recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "fail");
+        try {
+            SAVEINFO saveinfo = JSON.parseObject(ttmsg.getContent(), SAVEINFO.class);
+            Connection connection = new Connection(saveinfo);
+            ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
+            RECVINFO recvinfo = null;
+            if (ConnectionService.getInstance().addConnection(connection)) {
+                recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "success");
+            } else {
+                recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal(), "fail");
+            }
+            ttmsg.setContent(JSON.toJSONString(recvinfo));
+            ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        ttmsg.setContent(JSON.toJSONString(recvinfo));
-        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
     }
 
     private void handleGetInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg getinfo:" + ttmsg.toString());
-        ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-        RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal(), ConnectionService.getInstance().getAllConnectionId());
-        ttmsg.setContent(JSON.toJSONString(recvinfo));
-        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+        try {
+            ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
+            RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal(), ConnectionService.getInstance().getAllConnectionId());
+            ttmsg.setContent(JSON.toJSONString(recvinfo));
+            ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void handleConnect(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg connect:" + ttmsg.toString());
-        long id = Long.parseLong(ttmsg.getContent());
-        if (ConnectionService.getInstance().hasConnection(id)) {
-            //todo 19-10-10.检测两边nattype类型,然后进行尝试
+        try {
+            long id = Long.parseLong(ttmsg.getContent());
+            if (ConnectionService.getInstance().hasConnection(id)) {
+                //todo 19-10-10.检测两边nattype类型,然后进行尝试
 
-        } else {
-            ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-            RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
-            ttmsg.setContent(JSON.toJSONString(recvinfo));
-            ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+            } else {
+                ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
+                RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
+                ttmsg.setContent(JSON.toJSONString(recvinfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

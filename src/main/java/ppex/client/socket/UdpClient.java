@@ -7,6 +7,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
+import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
 import ppex.client.process.ThroughProcess;
@@ -15,8 +16,11 @@ import ppex.utils.Identity;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 
 public class UdpClient {
+
+    private static Logger LOGGER = Logger.getLogger(UdpClient.class);
 
     public void startClient(){
 
@@ -40,6 +44,11 @@ public class UdpClient {
             //2.穿越阶段
             ThroughProcess.getInstance().setChannel(ch);
             ThroughProcess.getInstance().sendSaveInfo();
+
+            while(true){
+                TimeUnit.SECONDS.sleep(1);
+                LOGGER.info("client while...");
+            }
 
         }catch (Exception e){
             e.printStackTrace();

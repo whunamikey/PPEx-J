@@ -58,7 +58,7 @@ public class DetectProcess {
 //                System.out.println("Client sleep 2000");
 //                Thread.sleep(2000);
 //            }
-            if (!channel.closeFuture().await(20000)){
+            if (!channel.closeFuture().await(2000)){
                 System.out.println("查询超时");
             }
         } catch (Exception e) {
