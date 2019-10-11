@@ -9,7 +9,7 @@ public class Constants {
     public static String SERVER_LOCAL_IP = "127.0.0.1";
     public static String SERVER_LOCAL = "localhost";
     public static String SERVER_HOST1 = "119.139.199.127";
-    public static String SERVER_HOST2 = "183.15.179.56";
+    public static String SERVER_HOST2 = "183.15.178.211";
 //    public static String SERVER_HOST1 = "10.5.11.162";
 //    public static String SERVER_HOST2 = "10.5.11.55";
 
