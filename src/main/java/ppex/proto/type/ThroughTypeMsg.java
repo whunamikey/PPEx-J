@@ -1,8 +1,5 @@
 package ppex.proto.type;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
 /**
  * 19-10-8 暂定
  * action 0 为保存connection信息,包括id,peername,nattype,ip address..content内容为id,peername,nattype,ipaddress

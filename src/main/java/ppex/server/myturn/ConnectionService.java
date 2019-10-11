@@ -16,66 +16,65 @@ public class ConnectionService {
     private ConnectionService() {
     }
 
-    public static ConnectionService getInstance(){
+    public static ConnectionService getInstance() {
         if (instance == null)
             instance = new ConnectionService();
         return instance;
     }
 
     //server id ->connection
-    private final Map<Long,Connection> connections = new HashMap<>(10,0.9f);
+    private final Map<Long, Connection> connections = new HashMap<>(10, 0.9f);
 
-    public boolean addConnection(final Connection connection){
+    public boolean addConnection(final Connection connection) {
         final String peerName = connection.getPeerName();
-        final Connection previousConnection = connections.put(connection.getId(),connection);
-        if (previousConnection != null){
+        final Connection previousConnection = connections.put(connection.getId(), connection);
+        if (previousConnection != null) {
+            //todo 关闭之前的connection
             System.out.println("Already existing connection to " + peerName + " is closed.");
-            return false;
-        }else{
-            return true;
         }
+        return true;
     }
 
-    public boolean hasConnection(long id){
+    public boolean hasConnection(long id) {
         return connections.containsKey(id);
     }
 
-    public String getAllConnectionId(){
+    public String getAllConnectionId() {
         List<Long> ids = connections.keySet().stream().sorted().collect(Collectors.toList());
         return JSON.toJSONString(ids);
     }
 
-    public List<Long> getAllConnectionIds(){
+    public List<Long> getAllConnectionIds() {
         return connections.keySet().stream().sorted().collect(Collectors.toList());
     }
 
-    public boolean removeConnection(final Connection connection){
+    public boolean removeConnection(final Connection connection) {
         final boolean removed = connections.remove(connection.getId()) != null;
-        if (removed){
+        if (removed) {
             System.out.println(connection.getPeerName() + " connection is removed from connections.");
-        }else{
+        } else {
             System.out.println(connection.getPeerName() + " is not removed since not found in connections.");
         }
         return removed;
     }
 
-    public int getNumberOfConnection(){
+    public int getNumberOfConnection() {
         return connections.size();
     }
 
-    public boolean isConnectedTo(final long peerId){
+    public boolean isConnectedTo(final long peerId) {
         return connections.containsKey(peerId);
     }
 
-    public Connection getConnection(final long peerId){
+    public Connection getConnection(final long peerId) {
         return connections.get(peerId);
     }
 
-    public Collection<Connection> getConnections(){
+    public Collection<Connection> getConnections() {
         return Collections.unmodifiableCollection(connections.values());
     }
 
-    public void connectTo(String host, int port, CompletableFuture<Void> futureNotify){
+    public void connectTo(String host, int port, CompletableFuture<Void> futureNotify) {
 
     }
 

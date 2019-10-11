@@ -38,6 +38,7 @@ public class UdpClient {
             //1.探测阶段.开始DetectProcess
             DetectProcess.getInstance().setChannel(ch);
             DetectProcess.getInstance().startDetect();
+
             Client.getInstance().NAT_TYPE = DetectProcess.getInstance().getClientNATType().ordinal();
             System.out.println("Client NAT type is :" + Client.getInstance().NAT_TYPE);
 
@@ -45,10 +46,10 @@ public class UdpClient {
             ThroughProcess.getInstance().setChannel(ch);
             ThroughProcess.getInstance().sendSaveInfo();
 
-            while(true){
-                TimeUnit.SECONDS.sleep(1);
-                LOGGER.info("client while...");
-            }
+//            while(true){
+//                TimeUnit.SECONDS.sleep(1);
+//                LOGGER.info("client while...");
+//            }
 
         }catch (Exception e){
             e.printStackTrace();

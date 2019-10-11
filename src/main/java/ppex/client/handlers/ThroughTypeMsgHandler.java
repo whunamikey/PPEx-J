@@ -17,23 +17,23 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, InetSocketAddress address) throws Exception {
 //        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
-        LOGGER.info("client handle ThroughTypemsg:"+ msg.getBody());
+        LOGGER.info("client handle ThroughTypemsg:" + msg.getBody());
         ThroughTypeMsg ttmsg = JSON.parseObject(msg.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() != ThroughTypeMsg.ACTION.RECV_INFO.ordinal())
             return;
         RECVINFO recvinfo = JSON.parseObject(ttmsg.getContent(), RECVINFO.class);
-        if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_INFO.ordinal()) {
+        if (recvinfo.type == ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal()) {
             handleSaveInfoFromServer(ctx,recvinfo);
-        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_INFO.ordinal()) {
+        } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal()) {
             handleGetInfoFromServer(ctx,recvinfo);
-        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT.ordinal()) {
+        } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.CONNECT.ordinal()) {
             handleConnectFromServer(recvinfo);
         } else {
             throw new Exception("Unkown through msg action:" + ttmsg.toString());
         }
     }
 
-    private void handleSaveInfoFromServer(ChannelHandlerContext ctx,RECVINFO recvinfo) {
+    private void handleSaveInfoFromServer(ChannelHandlerContext ctx, RECVINFO recvinfo) {
         LOGGER.info("client handle ThroughTypeMsg saveinfo from server:" + recvinfo.toString());
         if (recvinfo.type != ThroughTypeMsg.RECVTYPE.SAVE_INFO.ordinal()) {
             return;
@@ -47,13 +47,13 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
-    private void handleGetInfoFromServer(ChannelHandlerContext ctx,RECVINFO recvinfo) {
+    private void handleGetInfoFromServer(ChannelHandlerContext ctx, RECVINFO recvinfo) {
         LOGGER.info("client handle ThroughTypeMsg getInfo from server:" + recvinfo.toString());
         if (recvinfo.type != ThroughTypeMsg.RECVTYPE.GET_INFO.ordinal())
             return;
         LOGGER.info("all id:" + recvinfo.recvinfos);
         //todo 获取ids之后就开始连接
-        ThroughProcess.getInstance().connectOthrePeer(ctx,2);
+        ThroughProcess.getInstance().connectOthrePeer(ctx, 2);
     }
 
     private void handleConnectFromServer(RECVINFO recvinfo) {

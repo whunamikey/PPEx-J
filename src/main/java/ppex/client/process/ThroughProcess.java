@@ -42,10 +42,8 @@ public class ThroughProcess {
             saveinfo.peerName = Client.getInstance().peerName;
             saveinfo.id = Client.getInstance().id;
             throughTypeMsg.setContent(JSON.toJSONString(saveinfo));
-            if (channel.isOpen()) {
-                this.channel.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
-            }
-            if (!channel.closeFuture().await(2000)){
+            this.channel.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
+            if (!channel.closeFuture().await(2000)) {
                 System.out.println("查询超时");
             }
         } catch (Exception e) {
