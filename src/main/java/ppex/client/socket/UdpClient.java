@@ -2,10 +2,13 @@ package ppex.client.socket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
@@ -32,6 +35,12 @@ public class UdpClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group).channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST,true)
+                    .handler(new ChannelInitializer<DatagramChannel>() {
+                        @Override
+                        protected void initChannel(DatagramChannel datagramChannel) throws Exception {
+                            datagramChannel.pipeline().addLast(new IdleStateHandler(0,0,5));
+                        }
+                    })
                     .handler(new UdpClientHandler());
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
 

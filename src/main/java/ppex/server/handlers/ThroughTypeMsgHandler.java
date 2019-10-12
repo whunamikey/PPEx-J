@@ -3,6 +3,7 @@ package ppex.server.handlers;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
+import ppex.proto.entity.through.CONNECT;
 import ppex.proto.entity.through.RECVINFO;
 import ppex.proto.entity.through.SAVEINFO;
 import ppex.proto.type.ThroughTypeMsg;
@@ -68,8 +69,16 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     private void handleConnect(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg connect:" + ttmsg.toString());
         try {
-            long id = Long.parseLong(ttmsg.getContent());
-            if (ConnectionService.getInstance().hasConnection(id)) {
+//            long id = Long.parseLong(ttmsg.getContent());
+            CONNECT connect = JSON.parseObject(ttmsg.getContent(),CONNECT.class);
+            if (!ConnectionService.getInstance().hasConnection(connect.getFrom()) || !ConnectionService.getInstance().hasConnection(connect.getTo())){
+                ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
+                RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(),"fail");
+                ttmsg.setContent(JSON.toJSONString(recvinfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,address));
+                return;
+            }
+            if (ConnectionService.getInstance().hasConnection(connect.getTo())) {
                 //todo 19-10-10.检测两边nattype类型,然后进行尝试
 
             } else {

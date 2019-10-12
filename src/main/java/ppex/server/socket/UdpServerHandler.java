@@ -3,6 +3,7 @@ package ppex.server.socket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
@@ -12,26 +13,26 @@ import ppex.server.handlers.ThroughTypeMsgHandler;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private Logger logger = Logger.getLogger(UdpServerHandler.class);
+    private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
 
     private MessageHandler msgHandler;
 
     public UdpServerHandler() {
         msgHandler = new StandardMessageHandler();
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(),new ProbeTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(),new ThroughTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        logger.info("---->channel Active");
+        LOGGER.info("---->channel Active");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("---->channel inactive:" + ctx.channel().remoteAddress());
+        LOGGER.info("---->channel inactive:" + ctx.channel().remoteAddress());
     }
 
     @Override
@@ -41,7 +42,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error(cause);
+        LOGGER.error(cause);
         cause.printStackTrace();
         ctx.close();
     }
@@ -49,7 +50,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
-            msgHandler.handleDatagramPacket(channelHandlerContext,datagramPacket);
+            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
 
             //保留测试用
 //            TypeMessage msg = MessageUtil.packet2Typemsg(datagramPacket);
@@ -68,9 +69,42 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 //                channelHandlerContext.writeAndFlush(returnMsg);
 //                System.out.println("write to client");
 //            }
-        }catch (Exception e){
-            logger.warn("---->ChannelRead0 exception:" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("---->ChannelRead0 exception:" + e.getMessage());
             System.out.println("server recv msg error");
         }
     }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            switch (e.state()) {
+                case ALL_IDLE:
+                    handleAllIdleEvent(ctx,e);
+                    break;
+                case READER_IDLE:
+                    handleReadIdleEvent(ctx,e);
+                    break;
+                case WRITER_IDLE:
+                    handleWriteIdleEvent(ctx,e);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void handleAllIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+        LOGGER.info(" client all idleEvent");
+    }
+
+    private void handleReadIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+        LOGGER.info("client read idleEvent");
+    }
+
+    private void handleWriteIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+        LOGGER.info("client write idleEvent");
+    }
+
 }
