@@ -78,4 +78,13 @@ public class ConnectionService {
 
     }
 
+    public void connectPeers(long from,long to){
+        if (!connections.containsKey(from) || !connections.containsKey(to)){
+            return;
+        }
+        Connection conA = connections.get(from);
+        Connection conB = connections.get(to);
+        if (conA.getNATTYPE() )
+    }
+
 }

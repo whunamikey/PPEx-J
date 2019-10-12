@@ -42,6 +42,14 @@ public class Connection {
         this.id = id;
     }
 
+    public int getNATTYPE() {
+        return NATTYPE;
+    }
+
+    public void setNATTYPE(int NATTYPE) {
+        this.NATTYPE = NATTYPE;
+    }
+
     public void setPeerName(String peerName) {
         this.peerName = peerName;
     }

@@ -78,9 +78,9 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,address));
                 return;
             }
-            if (ConnectionService.getInstance().hasConnection(connect.getTo())) {
+            if (ConnectionService.getInstance().hasConnection(connect.getTo()) && ConnectionService.getInstance().hasConnection(connect.getFrom())) {
                 //todo 19-10-10.检测两边nattype类型,然后进行尝试
-
+                ConnectionService.getInstance().connectPeers(connect.getFrom(),connect.getTo());
             } else {
                 ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
                 RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");

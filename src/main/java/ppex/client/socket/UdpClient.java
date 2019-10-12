@@ -38,7 +38,7 @@ public class UdpClient {
                     .handler(new ChannelInitializer<Channel>() {
                         @Override
                         protected void initChannel(Channel channel) throws Exception {
-                            channel.pipeline().addLast(new IdleStateHandler(0,5,0,TimeUnit.SECONDS));
+                            channel.pipeline().addLast(new IdleStateHandler(0,10,0,TimeUnit.SECONDS));
                             channel.pipeline().addLast(new UdpClientHandler());
                         }
                     });
