@@ -69,23 +69,27 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     private void handleConnect(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg connect:" + ttmsg.toString());
         try {
+            ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
 //            long id = Long.parseLong(ttmsg.getContent());
-            CONNECT connect = JSON.parseObject(ttmsg.getContent(),CONNECT.class);
-            if (!ConnectionService.getInstance().hasConnection(connect.getFrom()) || !ConnectionService.getInstance().hasConnection(connect.getTo())){
-                ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-                RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(),"fail");
-                ttmsg.setContent(JSON.toJSONString(recvinfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,address));
-                return;
-            }
-            if (ConnectionService.getInstance().hasConnection(connect.getTo()) && ConnectionService.getInstance().hasConnection(connect.getFrom())) {
-                //todo 19-10-10.检测两边nattype类型,然后进行尝试
-                ConnectionService.getInstance().connectPeers(connect.getFrom(),connect.getTo());
-            } else {
-                ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
-                RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
-                ttmsg.setContent(JSON.toJSONString(recvinfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+            CONNECT connect = JSON.parseObject(ttmsg.getContent(), CONNECT.class);
+            if (connect.getType() == CONNECT.TYPE.REQUEST_CONNECT.ordinal()) {
+                if (!ConnectionService.getInstance().hasConnection(connect.getFrom()) || !ConnectionService.getInstance().hasConnection(connect.getTo())) {
+                    //CONNECT先转换成RECVINFO下面的Content,然后RECVINFO再转换成ThroughTypeMsg下面的Content
+                    connect.setType(CONNECT.TYPE.CONNECT_ERROR.ordinal());
+                    RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), JSON.toJSONString(connect));
+                    ttmsg.setContent(JSON.toJSONString(recvinfo));
+                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+                    return;
+                }
+                if (ConnectionService.getInstance().hasConnection(connect.getTo()) && ConnectionService.getInstance().hasConnection(connect.getFrom())) {
+                    //todo 19-10-10.检测两边nattype类型,然后进行尝试
+                    ConnectionService.getInstance().connectPeers(connect.getFrom(), connect.getTo());
+                } else {
+                    ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
+                    RECVINFO recvinfo = new RECVINFO(ThroughTypeMsg.RECVTYPE.CONNECT.ordinal(), "fail");
+                    ttmsg.setContent(JSON.toJSONString(recvinfo));
+                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,6 +2,7 @@ package ppex.server.myturn;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.log4j.Logger;
+import ppex.utils.Constants;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -78,17 +79,44 @@ public class ConnectionService {
 
     }
 
+
+
     public void connectPeers(long from, long to) {
         if (!connections.containsKey(from) || !connections.containsKey(to)) {
             return;
         }
-        Connection conA = connections.get(from);
-        Connection conB = connections.get(to);
-        handleConnectPeers(conA, conB);
+        handleConnectPeers(connections.get(from), connections.get(to));
     }
 
     private void handleConnectPeers(Connection A, Connection B) {
-        switch (B.getNATTYPE()){
+        switch (Constants.NATTYPE.getByValue(B.getNATTYPE())){
+            case UNKNOWN:
+                break;
+            case PUBLIC_NETWORK:
+                //当B是公网时,直接让A发信息给B.回信息给A,带过去B的地址,让A往B发信息
+                break;
+            case FULL_CONE_NAT:
+            case RESTRICT_CONE_NAT:
+                //当B是FullConeNat和RestrictConeNat时,打洞.
+                //即服务将A的信息返回给B.B用得到A的地址给A发信息.这个操作要在A给B发信息之前进行.不然A如果发发送信息给B接收不到.
+                //B给A发信息之后,A就可以用得到B的地址给B发信息.
+                break;
+            case PORT_RESTRICT_CONE_NAT:
+                //当B是PortRestrictConeNAT时,只有A是SymmeticNat时候走平台转发,其它都是打洞,打洞参考FullConeNat和RestrictConeNat
+                if (A.getNATTYPE() == Constants.NATTYPE.SYMMETIC_NAT.getValue()){
+
+                }else{
+
+                }
+                break;
+            case SYMMETIC_NAT:
+                //当B是SymmeticNat时,只有当A是公网,FullConeNat,RestricConeNat时,采用反向穿越.剩下A是PortRrestrictConeNat和SymmeticNat时,走平台转发
+                if (A.getNATTYPE() > Constants.NATTYPE.RESTRICT_CONE_NAT.getValue()){
+                    //平台转发
+                }else{
+                    //反向穿越.即服务给A发回信息,A得到B的信息,要给B先发送包..然后B再给A发送包.
+                }
+                break;
         }
     }
 

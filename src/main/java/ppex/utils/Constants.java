@@ -1,5 +1,7 @@
 package ppex.utils;
 
+import java.util.Arrays;
+
 public class Constants {
     public static byte MSG_VERSION = 1;
 
@@ -18,11 +20,31 @@ public class Constants {
     public static int PORT3 = 9125;
 
     public enum NATTYPE{
-        UNKNOWN,
-        SYMMETIC_NAT,
-        PORT_RESTRICT_CONE_NAT,
-        RESTRICT_CONE_NAT,
-        FULL_CONE_NAT,
-        PUBLIC_NETWORK
+        UNKNOWN(0),
+        SYMMETIC_NAT(1),
+        PORT_RESTRICT_CONE_NAT(2),
+        RESTRICT_CONE_NAT(3),
+        FULL_CONE_NAT(4),
+        PUBLIC_NETWORK(5),
+        ;
+        private int value;
+        NATTYPE(int value){
+            this.value =value;
+        }
+        public Integer getValue() {
+            return value;
+        }
+        public static NATTYPE getByValue(int value){
+            for (NATTYPE type : values()){
+                if (type.getValue() == value)
+                    return type;
+            }
+            return null;
+        }
+        public static void printValus(){
+            Arrays.stream(values()).forEach( type ->{
+                System.out.println("value:" + type.getValue() + " ordinal:" + type.ordinal());
+            });
+        }
     }
 }

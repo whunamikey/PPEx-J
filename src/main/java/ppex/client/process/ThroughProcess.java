@@ -69,6 +69,7 @@ public class ThroughProcess {
             ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
             throughTypeMsg.setAction(ThroughTypeMsg.ACTION.CONNECT.ordinal());
             CONNECT connect = new CONNECT();
+            connect.setType(CONNECT.TYPE.REQUEST_CONNECT.ordinal());
             connect.setFrom(1);
             connect.setTo(2);
             throughTypeMsg.setContent(JSON.toJSONString(connect));
