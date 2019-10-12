@@ -13,6 +13,8 @@ public class TypeMessage {
     public enum Type {
         MSG_TYPE_PROBE,
         MSG_TYPE_THROUGH,
+        MSG_TYPE_HEART_PING,
+        MSG_TYPE_HEART_PONG,
         MSG_TYPE_TXT,
     }
 

@@ -35,13 +35,14 @@ public class UdpClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group).channel(NioDatagramChannel.class)
                     .option(ChannelOption.SO_BROADCAST,true)
-                    .handler(new ChannelInitializer<DatagramChannel>() {
+                    .handler(new ChannelInitializer<Channel>() {
                         @Override
-                        protected void initChannel(DatagramChannel datagramChannel) throws Exception {
-                            datagramChannel.pipeline().addLast(new IdleStateHandler(0,0,5));
+                        protected void initChannel(Channel channel) throws Exception {
+                            channel.pipeline().addLast(new IdleStateHandler(0,5,0,TimeUnit.SECONDS));
+                            channel.pipeline().addLast(new UdpClientHandler());
                         }
-                    })
-                    .handler(new UdpClientHandler());
+                    });
+//                    .handler(new UdpClientHandler());
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
 
             //1.探测阶段.开始DetectProcess
@@ -55,10 +56,10 @@ public class UdpClient {
             ThroughProcess.getInstance().setChannel(ch);
             ThroughProcess.getInstance().sendSaveInfo();
 
-//            while(true){
-//                TimeUnit.SECONDS.sleep(1);
-//                LOGGER.info("client while...");
-//            }
+            while(true){
+                TimeUnit.SECONDS.sleep(2);
+                LOGGER.info("client while...");
+            }
 
         }catch (Exception e){
             e.printStackTrace();

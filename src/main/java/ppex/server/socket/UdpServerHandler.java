@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
 import ppex.proto.type.TypeMessage;
+import ppex.server.handlers.PingTypeMsgHandler;
 import ppex.server.handlers.ProbeTypeMsgHandler;
 import ppex.server.handlers.ThroughTypeMsgHandler;
 
@@ -22,6 +23,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         msgHandler = new StandardMessageHandler();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(),new PingTypeMsgHandler());
     }
 
     @Override
@@ -96,15 +98,15 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     }
 
     private void handleAllIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
-        LOGGER.info(" client all idleEvent");
+        LOGGER.info("server all idleEvent");
     }
 
     private void handleReadIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
-        LOGGER.info("client read idleEvent");
+        LOGGER.info("server read idleEvent");
     }
 
     private void handleWriteIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
-        LOGGER.info("client write idleEvent");
+        LOGGER.info("server write idleEvent");
     }
 
 }
