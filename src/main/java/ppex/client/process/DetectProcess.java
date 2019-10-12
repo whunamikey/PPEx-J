@@ -66,21 +66,21 @@ public class DetectProcess {
         }
     }
 
-    public Client.NATTYPE getClientNATType(){
+    public Constants.NATTYPE getClientNATType(){
         //开始判断NAT类型
         if(isPublicNetwork){
-            return Client.NATTYPE.PUBLIC_NETWORK;
+            return Constants.NATTYPE.PUBLIC_NETWORK;
         }
         if (isOne_from_server2p2()){
-            return Client.NATTYPE.FULL_CONE_NAT;
+            return Constants.NATTYPE.FULL_CONE_NAT;
         }
         if (!DetectProcess.getInstance().NAT_ADDRESS_SAME){
-            return Client.NATTYPE.SYMMETIC_NAT;
+            return Constants.NATTYPE.SYMMETIC_NAT;
         }else{
             if (DetectProcess.getInstance().isTwo_from_server2p2()){
-                return Client.NATTYPE.RESTRICT_CONE_NAT;
+                return Constants.NATTYPE.RESTRICT_CONE_NAT;
             }else{
-                return Client.NATTYPE.PORT_RESTRICT_CONE_NAT;
+                return Constants.NATTYPE.PORT_RESTRICT_CONE_NAT;
             }
         }
     }

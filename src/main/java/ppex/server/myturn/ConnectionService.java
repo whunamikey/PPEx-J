@@ -78,13 +78,19 @@ public class ConnectionService {
 
     }
 
-    public void connectPeers(long from,long to){
-        if (!connections.containsKey(from) || !connections.containsKey(to)){
+    public void connectPeers(long from, long to) {
+        if (!connections.containsKey(from) || !connections.containsKey(to)) {
             return;
         }
         Connection conA = connections.get(from);
         Connection conB = connections.get(to);
-        if (conA.getNATTYPE() )
+        handleConnectPeers(conA, conB);
     }
+
+    private void handleConnectPeers(Connection A, Connection B) {
+        switch (B.getNATTYPE()){
+        }
+    }
+
 
 }

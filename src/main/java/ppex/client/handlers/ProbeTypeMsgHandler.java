@@ -2,7 +2,6 @@ package ppex.client.handlers;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
@@ -10,7 +9,6 @@ import ppex.proto.type.ProbeTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
 import ppex.utils.Constants;
-import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
 

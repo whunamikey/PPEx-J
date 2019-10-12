@@ -17,4 +17,12 @@ public class Constants {
     public static int PORT2 = 9124;
     public static int PORT3 = 9125;
 
+    public enum NATTYPE{
+        UNKNOWN,
+        SYMMETIC_NAT,
+        PORT_RESTRICT_CONE_NAT,
+        RESTRICT_CONE_NAT,
+        FULL_CONE_NAT,
+        PUBLIC_NETWORK
+    }
 }
