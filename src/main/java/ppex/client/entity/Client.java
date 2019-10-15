@@ -30,8 +30,9 @@ public class Client {
     public InetSocketAddress SERVER2P1;
     public InetSocketAddress SERVER2P2;
 
-
+    //0是直接发送消息给targetConnection.1是中断,将消息发给Server1
+    public int connectType=0;
     public Connection localConnection;
-    public Connection remoteConnection;
+    public Connection targetConnection;
 
 }

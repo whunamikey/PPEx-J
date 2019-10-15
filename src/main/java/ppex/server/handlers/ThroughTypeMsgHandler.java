@@ -88,15 +88,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                         ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connectType.source.inetSocketAddress));
                     });
 
-//                    recvInfo.recvinfos = JSON.toJSONString(connect);
-//                    ttmsg.setContent(JSON.toJSONString(recvInfo));
-//                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
-//
-//                    connect.setContent(JSON.toJSONString(connections.get(0)));
-//                    recvInfo.recvinfos = JSON.toJSONString(connect);
-//                    ttmsg.setContent(JSON.toJSONString(recvInfo));
-//                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
-
                 } else {
                     connect.setType(Connect.TYPE.CONNECT_ERROR.ordinal());
                     connect.setContent("connect error");
@@ -106,6 +97,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 }
             }else if (connect.getType() == Connect.TYPE.CONNECT_PING.ordinal()){
                 //todo 保存需要转发的connection
+
             }else if (connect.getType() == Connect.TYPE.RETURN_START_PUNCH.ordinal()){
                 ConnectType type = JSON.parseObject(connect.getContent(),ConnectType.class);
                 recvInfo.recvinfos = JSON.toJSONString(connect);

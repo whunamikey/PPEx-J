@@ -76,8 +76,8 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("client handleWriteIdle");
         //心跳包
         PingTypeMsg pingTypeMsg = new PingTypeMsg();
-        pingTypeMsg.setType(PingTypeMsg.Type.HEART.ordinal());
-        pingTypeMsg.setContent(JSON.toJSONString(Client.getInstance().localConnection));
+//        pingTypeMsg.setType(PingTypeMsg.Type.HEART.ordinal());
+//        pingTypeMsg.setContent(JSON.toJSONString(Client.getInstance().localConnection));
         ctx.writeAndFlush(MessageUtil.pingMsg2Packet(pingTypeMsg, Client.getInstance().SERVER1));
     }
     private void handleReadIdle(){

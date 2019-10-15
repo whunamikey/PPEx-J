@@ -1,9 +1,7 @@
 package ppex.server.handlers;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
-import ppex.proto.type.PingTypeMsg;
 import ppex.proto.type.PongTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
@@ -18,9 +16,8 @@ public class PingTypeMsgHandler implements TypeMessageHandler {
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromAddress) {
         LOGGER.info("server handle ping msg" + typeMessage.getBody());
-        PingTypeMsg pingTypeMsg = JSON.parseObject(typeMessage.getBody(),PingTypeMsg.class);
+//        PingTypeMsg pingTypeMsg = JSON.parseObject(typeMessage.getBody(),PingTypeMsg.class);
         PongTypeMsg pongTypeMsg = new PongTypeMsg();
-        pongTypeMsg.setContent(pingTypeMsg.getContent());
-        ctx.writeAndFlush(MessageUtil.pongMsg2Packet(pongTypeMsg,fromAddress));
+        ctx.writeAndFlush(MessageUtil.pongMsg2Packet(pongTypeMsg, fromAddress));
     }
 }

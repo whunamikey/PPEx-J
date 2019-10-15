@@ -85,7 +85,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     private void handleConnectType(ChannelHandlerContext ctx, Connect connect) {
         LOGGER.info("Client handle ConnectType:" + connect.toString());
         ConnectType type = JSON.parseObject(connect.getContent(), ConnectType.class);
-        Client.getInstance().remoteConnection = type.target;
+        Client.getInstance().targetConnection = type.target;
         ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
 
 //        PingTypeMsg pingTypeMsg = new PingTypeMsg();
@@ -145,6 +145,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         }else if (connect.getType() == Connect.TYPE.CONNECT_PONG.ordinal()){
             //todo 发送消息成功
             LOGGER.info("client 接收Connect pong");
+            Client.getInstance().connectType = 0;
         }
     }
 
