@@ -5,10 +5,13 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
-import ppex.proto.entity.through.CONNECT;
-import ppex.proto.entity.through.SAVEINFO;
+import ppex.proto.entity.through.Connect;
+import ppex.proto.entity.through.Connection;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.utils.MessageUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ThroughProcess {
 
@@ -35,13 +38,8 @@ public class ThroughProcess {
         LOGGER.info("client send save info");
         try {
             ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
-            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.SAVE_INFO.ordinal());
-            SAVEINFO saveinfo = new SAVEINFO();
-            saveinfo.address = Client.getInstance().address;
-            saveinfo.nattype = Client.getInstance().NAT_TYPE;
-            saveinfo.peerName = Client.getInstance().peerName;
-            saveinfo.id = Client.getInstance().id;
-            throughTypeMsg.setContent(JSON.toJSONString(saveinfo));
+            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.SAVE_CONNINFO.ordinal());
+            throughTypeMsg.setContent(JSON.toJSONString(Client.getInstance().localConnection));
             this.channel.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
             if (!channel.closeFuture().await(2000)) {
                 System.out.println("查询超时");
@@ -51,11 +49,11 @@ public class ThroughProcess {
         }
     }
 
-    public void getIDSInfoFromServer(ChannelHandlerContext ctx) {
+    public void getConnectionsFromServer(ChannelHandlerContext ctx) {
         LOGGER.info("client get ids from server");
         try {
             ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
-            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.GET_INFO.ordinal());
+            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.GET_CONNINFO.ordinal());
             throughTypeMsg.setContent("");
             ctx.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
         } catch (Exception e) {
@@ -63,19 +61,29 @@ public class ThroughProcess {
         }
     }
 
-    public void connectOthrePeer(ChannelHandlerContext ctx, long id) {
+    public void connectOtherPeer(ChannelHandlerContext ctx, Connection connection) {
         LOGGER.info("client connect other peer");
         try {
             ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
-            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.CONNECT.ordinal());
-            CONNECT connect = new CONNECT();
-            connect.setType(CONNECT.TYPE.REQUEST_CONNECT.ordinal());
-            connect.setFrom(1);
-            connect.setTo(2);
+            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal());
+            Connect connect = new Connect();
+            connect.setType(Connect.TYPE.REQUEST_CONNECT_SERVER.ordinal());
+            List<Connection> connections = new ArrayList<>();
+            connections.add(Client.getInstance().localConnection);
+            connections.add(connection);
+            connect.setContent(JSON.toJSONString(connections));
             throughTypeMsg.setContent(JSON.toJSONString(connect));
             ctx.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void testConnectPeer(){
+        try {
+
+        }catch (Exception e){
+
         }
     }
 

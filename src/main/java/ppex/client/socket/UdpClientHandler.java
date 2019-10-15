@@ -1,5 +1,6 @@
 package ppex.client.socket;
 
+import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -75,7 +76,8 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("client handleWriteIdle");
         //心跳包
         PingTypeMsg pingTypeMsg = new PingTypeMsg();
-        pingTypeMsg.setId(1);
+        pingTypeMsg.setType(PingTypeMsg.Type.HEART.ordinal());
+        pingTypeMsg.setContent(JSON.toJSONString(Client.getInstance().localConnection));
         ctx.writeAndFlush(MessageUtil.pingMsg2Packet(pingTypeMsg, Client.getInstance().SERVER1));
     }
     private void handleReadIdle(){

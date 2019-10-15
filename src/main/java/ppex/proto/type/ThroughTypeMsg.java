@@ -10,18 +10,18 @@ package ppex.proto.type;
 public class ThroughTypeMsg {
 
     public enum ACTION {
-        SAVE_INFO,
-        GET_INFO,
-        CONNECT,
+        SAVE_CONNINFO,
+        GET_CONNINFO,
+        CONNECT_CONN,
         RECV_INFO,
     }
 
     //RECVTYPE为RECVINFO下面的type类型值,目前暂时有Id集合的JSON字符串,为GET_INFO的返回信息.RESPONSE是返回的一般信息反馈
     //返回信息已RECVINFO作为载体.RECVINFO里面type再表示是SAVE_INFO,GET_INFO,CONNECT的返回信息.再进行对应
     public enum RECVTYPE {
-        SAVE_INFO,
-        GET_INFO,
-        CONNECT,
+        SAVE_CONNINFO,
+        GET_CONNINFO,
+        CONNECT_CONN,
         RESPONSE,
     }
 

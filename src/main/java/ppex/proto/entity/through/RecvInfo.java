@@ -1,16 +1,21 @@
 package ppex.proto.entity.through;
 
-public class RECVINFO {
-    public RECVINFO(int type,String recvinfos){
+public class RecvInfo {
+    public RecvInfo(int type, String recvinfos){
         this.type = type;
         this.recvinfos = recvinfos;
     }
+
+    public RecvInfo(int type) {
+        this.type = type;
+    }
+
     public int type;
     public String recvinfos;
 
     @Override
     public String toString() {
-        return "RECVINFO{" +
+        return "RecvInfo{" +
                 "type=" + type +
                 ", recvinfos='" + recvinfos + '\'' +
                 '}';

@@ -13,6 +13,6 @@ public class PongTypeMsgHandler implements TypeMessageHandler {
 
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromAddress) {
-        LOGGER.info("client recv pong msg");
+        LOGGER.info("client recv pong msg" + typeMessage.getBody());
     }
 }

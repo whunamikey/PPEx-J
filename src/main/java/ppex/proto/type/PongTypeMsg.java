@@ -1,16 +1,22 @@
 package ppex.proto.type;
 
 public class PongTypeMsg {
-    private long id;
+    private int type;
 
-    public PongTypeMsg() {
+    public int getType() {
+        return type;
     }
 
-    public long getId() {
-        return id;
+    public void setType(int type) {
+        this.type = type;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    private String content;
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

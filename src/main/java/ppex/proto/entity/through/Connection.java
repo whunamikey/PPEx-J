@@ -1,10 +1,9 @@
-package ppex.server.myturn;
+package ppex.proto.entity.through;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.Message;
-import ppex.proto.entity.through.SAVEINFO;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
@@ -13,17 +12,17 @@ public class Connection {
 
     private static Logger LOGGER = Logger.getLogger(Connection.class);
 
-    private long id;                                    //暂时用id来识别每一个connection
-    private InetSocketAddress inetSocketAddress;
-    private ChannelHandlerContext ctx;
-    private String peerName;
-    private int NATTYPE;
+    public String macAddress;                              //使用mac地址来识别每个Connection
+    public String peerName;
+    public InetSocketAddress inetSocketAddress;
+    public int natType;
+    public transient ChannelHandlerContext ctx;
 
-    public Connection(SAVEINFO saveinfo){
-        this.NATTYPE = saveinfo.nattype;
-        this.id = saveinfo.id;
-        this.peerName = saveinfo.peerName;
-        this.inetSocketAddress = saveinfo.address;
+    public Connection(String macAddress,InetSocketAddress inetSocketAddress,String peerName,int natType) {
+        this.macAddress = macAddress;
+        this.inetSocketAddress = inetSocketAddress;
+        this.peerName = peerName;
+        this.natType = natType;
     }
 
     public Connection(ChannelHandlerContext ctx) {
@@ -34,20 +33,12 @@ public class Connection {
         }
     }
 
-    public long getId() {
-        return id;
+    public String getMacAddress() {
+        return macAddress;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public int getNATTYPE() {
-        return NATTYPE;
-    }
-
-    public void setNATTYPE(int NATTYPE) {
-        this.NATTYPE = NATTYPE;
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
     }
 
     public void setPeerName(String peerName) {
@@ -78,7 +69,7 @@ public class Connection {
         if (obj == null || getClass() != obj.getClass())
             return false;
         Connection that = (Connection) obj;
-        return !(peerName != null ? !peerName.equals(that.peerName) : that.peerName != null);
+        return !(macAddress != null ? !macAddress.equals(that.macAddress) : that.macAddress != null);
     }
 
     @Override
