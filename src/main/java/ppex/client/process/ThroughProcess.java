@@ -49,6 +49,34 @@ public class ThroughProcess {
         }
     }
 
+    public void getConnectionsFromServer(Channel ch){
+        try {
+            ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
+            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.GET_CONNINFO.ordinal());
+            throughTypeMsg.setContent("");
+            ch.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void connectPeer(Channel channel,Connection connection){
+        try {
+            ThroughTypeMsg throughTypeMsg = new ThroughTypeMsg();
+            throughTypeMsg.setAction(ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal());
+            Connect connect = new Connect();
+            connect.setType(Connect.TYPE.REQUEST_CONNECT_SERVER.ordinal());
+            List<Connection> connections = new ArrayList<>();
+            connections.add(Client.getInstance().localConnection);
+            connections.add(connection);
+            connect.setContent(JSON.toJSONString(connections));
+            throughTypeMsg.setContent(JSON.toJSONString(connect));
+            channel.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getConnectionsFromServer(ChannelHandlerContext ctx) {
         LOGGER.info("client get ids from server");
         try {
