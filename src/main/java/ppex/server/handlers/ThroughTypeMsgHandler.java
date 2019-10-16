@@ -6,11 +6,9 @@ import org.apache.log4j.Logger;
 import ppex.proto.entity.through.Connect;
 import ppex.proto.entity.through.Connection;
 import ppex.proto.entity.through.RecvInfo;
-import ppex.proto.entity.through.connect.ConnectType;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
-import ppex.server.myturn.ConnectResult;
 import ppex.server.myturn.ConnectionService;
 import ppex.utils.MessageUtil;
 
@@ -75,35 +73,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             Connect connect = JSON.parseObject(ttmsg.getContent(), Connect.class);
             RecvInfo recvInfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal());
 
-            if (connect.getType() == Connect.TYPE.REQUEST_CONNECT_SERVER.ordinal()) {
-                List<Connection> connections = JSON.parseArray(connect.getContent(), Connection.class);
-                if (ConnectionService.getInstance().hasConnection(connections.get(0)) && ConnectionService.getInstance().hasConnection(connections.get(1))) {
-                    connect.setType(Connect.TYPE.RETURN_REQUEST_CONNECT_SERVER.ordinal());
-
-                    ConnectResult result = ConnectionService.getInstance().connectTo(connections.get(0), connections.get(1));
-                    result.getResults().stream().forEach(connectType -> {
-                        connect.setContent(JSON.toJSONString(connectType));
-                        recvInfo.recvinfos = JSON.toJSONString(connect);
-                        ttmsg.setContent(JSON.toJSONString(recvInfo));
-                        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connectType.source.inetSocketAddress));
-                    });
-
-                } else {
-                    connect.setType(Connect.TYPE.CONNECT_ERROR.ordinal());
-                    connect.setContent("connect error");
-                    recvInfo.recvinfos = JSON.toJSONString(connect);
-                    ttmsg.setContent(JSON.toJSONString(recvInfo));
-                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
-                }
-            }else if (connect.getType() == Connect.TYPE.CONNECT_PING.ordinal()){
-                //todo 保存需要转发的connection
-
-            }else if (connect.getType() == Connect.TYPE.RETURN_START_PUNCH.ordinal()){
-                ConnectType type = JSON.parseObject(connect.getContent(),ConnectType.class);
-                recvInfo.recvinfos = JSON.toJSONString(connect);
-                ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,type.target.inetSocketAddress));
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
