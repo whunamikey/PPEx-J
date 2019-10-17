@@ -10,16 +10,21 @@ public class Connect {
     public enum TYPE{
         CONNECT_PING,                               //两边之间利用PING,PONG确认打通
         CONNECT_PONG,
-        SOURCE_WAIT_TARGET_PUNCH,                   //打洞通信与反向打洞通信
-        TARGET_ALREADY_PUNCH,                       //收到该消息后立马发送ping,看是否能从Target收到pong
-        SOURCE_PUNCH_TARGET_WAIT,                   //等待ping消息到来,收到后,立马发送pong
-        CONNECT_FORWARD_BUILD,                      //请求建立转发
+        //通信类型
+        DIRECT,                                     //根据两边nattype判断类型
+        HOLE_PUNCH,
+        REVERSE,
+        FORWARD,
+
+        CONNECTING,                                //暂时保留，client发给Server，可以检测两边连接状态
+        CONNECTED,
         ;
     }
 
     private int type;
     //之前保留from和to.现在使用content保存connect包下的有关类的JSON字符串
     private String content;
+
 
     public int getType() {
         return type;
