@@ -2,7 +2,6 @@ package ppex.server.myturn;
 
 import org.apache.log4j.Logger;
 import ppex.proto.entity.through.Connection;
-import ppex.utils.Constants;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;

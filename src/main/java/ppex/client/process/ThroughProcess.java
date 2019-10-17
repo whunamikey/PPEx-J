@@ -72,6 +72,7 @@ public class ThroughProcess {
 //            connect.setContent(JSON.toJSONString(connections));
 //            throughTypeMsg.setContent(JSON.toJSONString(connect));
 //            channel.writeAndFlush(MessageUtil.throughmsg2Packet(throughTypeMsg, Client.getInstance().SERVER1));
+            //判断当前Connection与目标Connection的NATType.
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,6 +89,7 @@ public class ThroughProcess {
             e.printStackTrace();
         }
     }
+
 
     public void connectOtherPeer(ChannelHandlerContext ctx, Connection connection) {
         LOGGER.info("client connect other peer");
