@@ -72,7 +72,20 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
             Connect connect = JSON.parseObject(ttmsg.getContent(), Connect.class);
             RecvInfo recvInfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal());
-
+            //收到打洞消息
+            if (connect.getType() == Connect.TYPE.HOLE_PUNCH.ordinal()){
+                //转发消息给B
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
+            }else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()){
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                ConnectionService.getInstance().addConnecting(connect.getType(),connections);
+            }else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()){
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                ConnectionService.getInstance().addConnected(connect.getType(),connections);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
