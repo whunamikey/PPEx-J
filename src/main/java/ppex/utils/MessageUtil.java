@@ -110,6 +110,13 @@ public class MessageUtil {
         return typemsg2Packet(typeMessage,address);
     }
 
+    public static DatagramPacket fileMsg2Packet(FileTypeMsg msg,InetSocketAddress address){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_FILE.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Packet(typeMessage,address);
+    }
+
     /**
      * ----------------------------------DatagramPacket转各类TypeMessage部分----------------------------------------------------
      **/
@@ -146,6 +153,12 @@ public class MessageUtil {
         TypeMessage typeMessage = packet2Typemsg(packet);
         PongTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),PongTypeMsg.class);
         return pmsg;
+    }
+
+    public static FileTypeMsg packet2FileMsg(DatagramPacket packet){
+        TypeMessage typeMessage = packet2Typemsg(packet);
+        FileTypeMsg fmsg = JSON.parseObject(typeMessage.getBody(),FileTypeMsg.class);
+        return fmsg;
     }
 
 

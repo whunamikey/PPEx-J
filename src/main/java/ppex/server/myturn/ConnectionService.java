@@ -6,7 +6,6 @@ import ppex.proto.entity.through.ConnectMap;
 import ppex.proto.entity.through.Connection;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class ConnectionService {
@@ -27,7 +26,8 @@ public class ConnectionService {
     //server id ->connection
     private Map<String, Connection> connections = new HashMap<>(10, 0.9f);
     //保存需要申请转发的Connection
-    private Map<String,Connection> forwardConnections = new HashMap<>(10,0.9f);
+    private Map<String,Connection> forwardSrcConnections = new HashMap<>(10,0.9f);
+    private Map<String,Connection> forwardTgtConnections = new HashMap<>(10,0.9f);
     //正在连接的两个
     private List<ConnectMap> connectingList = new ArrayList<>();
     //已经建立连接的两个
@@ -85,8 +85,17 @@ public class ConnectionService {
     }
 
     public boolean addConnected(ConnectMap connectMap){
+        addForwardConnection(connectMap);
         return connectedList.add(connectMap);
     }
 
+    public boolean addForwardConnection(ConnectMap connectMap){
+        if (connectMap.getConnectType() == Connect.TYPE.FORWARD.ordinal()){
+            forwardSrcConnections.put(connectMap.getConnections().get(0).macAddress,connectMap.getConnections().get(0));
+            forwardTgtConnections.put(connectMap.getConnections().get(1).macAddress,connectMap.getConnections().get(1));
+            return true;
+        }
+        return false;
+    }
 
 }

@@ -67,7 +67,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     }
 
     private void handleConnect(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
-        LOGGER.info("server handle through msg connect:" + ttmsg.toString());
         try {
             ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
             Connect connect = JSON.parseObject(ttmsg.getContent(), Connect.class);
@@ -75,31 +74,40 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             //收到打洞消息
             List<Connection> connections = JSON.parseArray(connect.getContent(), Connection.class);
             if (connect.getType() == Connect.TYPE.HOLE_PUNCH.ordinal()) {
+                LOGGER.info("server handle connect hole_punch msg :" + connect.toString());
                 //转发消息给B
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
             } else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()) {
+                LOGGER.info("server handle connect connecting msg :" + connect.toString());
                 ConnectionService.getInstance().addConnecting(connect.getType(), connections);
             } else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()) {
+                LOGGER.info("server handle connect connected msg :" + connect.toString());
                 ConnectionService.getInstance().addConnected(connect.getType(), connections);
             } else if (connect.getType() == Connect.TYPE.RETURN_HOLE_PUNCH.ordinal()) {
                 //转回给A
+                LOGGER.info("server handle connect return_hole_punch msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
             } else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()) {
+                LOGGER.info("server handle connect reverse msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
             } else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()) {
+                LOGGER.info("server handle connect forward msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
             } else if (connect.getType() == Connect.TYPE.RETURN_FORWARD.ordinal()) {
+                LOGGER.info("server handle connect return_forward msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
+            }else{
+                throw new Exception("Unknow connect operate :" + connect.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();

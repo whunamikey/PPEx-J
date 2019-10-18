@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
 import ppex.proto.type.TypeMessage;
+import ppex.server.handlers.FileTypeMsgHandler;
 import ppex.server.handlers.PingTypeMsgHandler;
 import ppex.server.handlers.ProbeTypeMsgHandler;
 import ppex.server.handlers.ThroughTypeMsgHandler;
@@ -24,6 +25,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(),new PingTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(),new FileTypeMsgHandler());
     }
 
     @Override
