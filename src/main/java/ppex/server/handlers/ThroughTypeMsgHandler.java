@@ -3,6 +3,7 @@ package ppex.server.handlers;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
+import ppex.proto.Message;
 import ppex.proto.entity.through.Connect;
 import ppex.proto.entity.through.Connection;
 import ppex.proto.entity.through.RecvInfo;
@@ -85,6 +86,22 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             }else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()){
                 List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
                 ConnectionService.getInstance().addConnected(connect.getType(),connections);
+            }else if (connect.getType() == Connect.TYPE.RETURN_HOLE_PUNCH.ordinal()){
+                //转回给A
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(0).inetSocketAddress));
+            }else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()){
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
+            }else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()){
+                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
             }
         } catch (Exception e) {
             e.printStackTrace();
