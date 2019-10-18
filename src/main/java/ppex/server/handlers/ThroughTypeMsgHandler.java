@@ -74,34 +74,33 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             Connect connect = JSON.parseObject(ttmsg.getContent(), Connect.class);
             RecvInfo recvInfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal());
             //收到打洞消息
-            if (connect.getType() == Connect.TYPE.HOLE_PUNCH.ordinal()){
+            List<Connection> connections = JSON.parseArray(connect.getContent(), Connection.class);
+            if (connect.getType() == Connect.TYPE.HOLE_PUNCH.ordinal()) {
                 //转发消息给B
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
-            }else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()){
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
-                ConnectionService.getInstance().addConnecting(connect.getType(),connections);
-            }else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()){
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
-                ConnectionService.getInstance().addConnected(connect.getType(),connections);
-            }else if (connect.getType() == Connect.TYPE.RETURN_HOLE_PUNCH.ordinal()){
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()) {
+                ConnectionService.getInstance().addConnecting(connect.getType(), connections);
+            } else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()) {
+                ConnectionService.getInstance().addConnected(connect.getType(), connections);
+            } else if (connect.getType() == Connect.TYPE.RETURN_HOLE_PUNCH.ordinal()) {
                 //转回给A
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(0).inetSocketAddress));
-            }else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()){
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()) {
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
-            }else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()){
-                List<Connection> connections = JSON.parseArray(connect.getContent(),Connection.class);
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()) {
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,connections.get(1).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.RETURN_FORWARD.ordinal()) {
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
             }
         } catch (Exception e) {
             e.printStackTrace();
