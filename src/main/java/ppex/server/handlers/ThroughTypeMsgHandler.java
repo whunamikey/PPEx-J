@@ -6,11 +6,9 @@ import org.apache.log4j.Logger;
 import ppex.proto.entity.through.Connect;
 import ppex.proto.entity.through.Connection;
 import ppex.proto.entity.through.RecvInfo;
-import ppex.proto.entity.through.connect.ConnectType;
 import ppex.proto.type.ThroughTypeMsg;
 import ppex.proto.type.TypeMessage;
 import ppex.proto.type.TypeMessageHandler;
-import ppex.server.myturn.ConnectResult;
 import ppex.server.myturn.ConnectionService;
 import ppex.utils.MessageUtil;
 
@@ -74,35 +72,34 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             ttmsg.setAction(ThroughTypeMsg.ACTION.RECV_INFO.ordinal());
             Connect connect = JSON.parseObject(ttmsg.getContent(), Connect.class);
             RecvInfo recvInfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal());
-
-            if (connect.getType() == Connect.TYPE.REQUEST_CONNECT_SERVER.ordinal()) {
-                List<Connection> connections = JSON.parseArray(connect.getContent(), Connection.class);
-                if (ConnectionService.getInstance().hasConnection(connections.get(0)) && ConnectionService.getInstance().hasConnection(connections.get(1))) {
-                    connect.setType(Connect.TYPE.RETURN_REQUEST_CONNECT_SERVER.ordinal());
-
-                    ConnectResult result = ConnectionService.getInstance().connectTo(connections.get(0), connections.get(1));
-                    result.getResults().stream().forEach(connectType -> {
-                        connect.setContent(JSON.toJSONString(connectType));
-                        recvInfo.recvinfos = JSON.toJSONString(connect);
-                        ttmsg.setContent(JSON.toJSONString(recvInfo));
-                        ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connectType.source.inetSocketAddress));
-                    });
-
-                } else {
-                    connect.setType(Connect.TYPE.CONNECT_ERROR.ordinal());
-                    connect.setContent("connect error");
-                    recvInfo.recvinfos = JSON.toJSONString(connect);
-                    ttmsg.setContent(JSON.toJSONString(recvInfo));
-                    ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
-                }
-            }else if (connect.getType() == Connect.TYPE.CONNECT_PING.ordinal()){
-                //todo 保存需要转发的connection
-
-            }else if (connect.getType() == Connect.TYPE.RETURN_START_PUNCH.ordinal()){
-                ConnectType type = JSON.parseObject(connect.getContent(),ConnectType.class);
+            //收到打洞消息
+            List<Connection> connections = JSON.parseArray(connect.getContent(), Connection.class);
+            if (connect.getType() == Connect.TYPE.HOLE_PUNCH.ordinal()) {
+                //转发消息给B
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg,type.target.inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()) {
+                ConnectionService.getInstance().addConnecting(connect.getType(), connections);
+            } else if (connect.getType() == Connect.TYPE.CONNECTED.ordinal()) {
+                ConnectionService.getInstance().addConnected(connect.getType(), connections);
+            } else if (connect.getType() == Connect.TYPE.RETURN_HOLE_PUNCH.ordinal()) {
+                //转回给A
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()) {
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()) {
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+            } else if (connect.getType() == Connect.TYPE.RETURN_FORWARD.ordinal()) {
+                recvInfo.recvinfos = JSON.toJSONString(connect);
+                ttmsg.setContent(JSON.toJSONString(recvInfo));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
             }
         } catch (Exception e) {
             e.printStackTrace();

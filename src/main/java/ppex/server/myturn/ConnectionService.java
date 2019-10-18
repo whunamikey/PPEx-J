@@ -2,9 +2,8 @@ package ppex.server.myturn;
 
 import org.apache.log4j.Logger;
 import ppex.proto.entity.through.Connect;
+import ppex.proto.entity.through.ConnectMap;
 import ppex.proto.entity.through.Connection;
-import ppex.proto.entity.through.connect.ConnectType;
-import ppex.utils.Constants;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +28,10 @@ public class ConnectionService {
     private Map<String, Connection> connections = new HashMap<>(10, 0.9f);
     //保存需要申请转发的Connection
     private Map<String,Connection> forwardConnections = new HashMap<>(10,0.9f);
+    //正在连接的两个
+    private List<ConnectMap> connectingList = new ArrayList<>();
+    //已经建立连接的两个
+    private List<ConnectMap> connectedList = new ArrayList<>();
 
     public boolean addConnection(final Connection connection) {
         final String peerName = connection.getPeerName();
@@ -69,67 +72,20 @@ public class ConnectionService {
         return Collections.unmodifiableCollection(connections.values());
     }
 
-    public void connectTo(String host, int port, CompletableFuture<Void> futureNotify) {
 
+    public boolean addConnecting(Connect.TYPE type,List<Connection> connections){
+        return addConnecting(type.ordinal(),connections);
     }
-    public ConnectResult connectTo(Connection A,Connection B){
-        return handleConnectPeers(A,B);
+    public boolean addConnecting(int type,List<Connection> connections){
+        return connectingList.add(new ConnectMap(type,connections));
     }
 
-    //组织一个数据结构ConnectResult,里面放着A的连接和B的连接
-    private ConnectResult handleConnectPeers(Connection A, Connection B) {
-        ConnectResult connectResult = new ConnectResult();
-        List<ConnectType> results = new ArrayList<>();
-        ConnectType typeA = new ConnectType();
-        ConnectType typeB = new ConnectType();
-        typeA.source = A;
-        typeA.target = B;
-        typeB.source = B;
-        typeB.target = A;
-        switch (Constants.NATTYPE.getByValue(B.natType)){
-            case UNKNOWN:
-                break;
-            case PUBLIC_NETWORK:
-                //当B是公网时,直接让A发信息给B.回信息给A,带过去B的地址,让A往B发信息
-                typeA.connectType = ConnectType.Type.DIRECT_SEND.ordinal();
-                typeB.connectType = ConnectType.Type.WAIT_DIRECT_SEND.ordinal();
-                break;
-            case FULL_CONE_NAT:
-            case RESTRICT_CONE_NAT:
-                //当B是FullConeNat和RestrictConeNat时,打洞.
-                //B往A的公网地址发信息后,也往服务发送打洞消息,然后服务转给A,A开始往B发送信息.
-                //即服务将A的信息返回给B.B用得到A的地址给A发信息.这个操作要在A给B发信息之前进行.不然A如果发发送信息给B接收不到.
-                //B给A发信息之后,A就可以用得到B的地址给B发信息.
-                typeA.connectType = ConnectType.Type.WAIT_PUNCH.ordinal();
-                typeB.connectType = ConnectType.Type.START_PUNCH.ordinal();
-                break;
-            case PORT_RESTRICT_CONE_NAT:
-                //当B是PortRestrictConeNAT时,只有A是SymmeticNat时候走平台转发,其它都是打洞,打洞参考FullConeNat和RestrictConeNat
-                if (A.natType == Constants.NATTYPE.SYMMETIC_NAT.getValue()){
-                    typeA.connectType = ConnectType.Type.PLATFORM_FORWARD.ordinal();
-                    typeB.connectType = ConnectType.Type.PLATFORM_FORWARD.ordinal();
-                }else{
-                    typeA.connectType = ConnectType.Type.WAIT_PUNCH.ordinal();
-                    typeB.connectType = ConnectType.Type.START_PUNCH.ordinal();
-                }
-                break;
-            case SYMMETIC_NAT:
-                //当B是SymmeticNat时,只有当A是公网,FullConeNat,RestricConeNat时,采用反向穿越.剩下A是PortRrestrictConeNat和SymmeticNat时,走平台转发
-                if (A.natType > Constants.NATTYPE.RESTRICT_CONE_NAT.getValue()){
-                    //平台转发
-                    typeA.connectType = ConnectType.Type.PLATFORM_FORWARD.ordinal();
-                    typeB.connectType = ConnectType.Type.PLATFORM_FORWARD.ordinal();
-                }else{
-                    //反向穿越.即服务给A发回信息,A得到B的信息,要给B先发送包..然后B再给A发送包.
-                    typeA.connectType = ConnectType.Type.START_PUNCH.ordinal();
-                    typeB.connectType = ConnectType.Type.WAIT_PUNCH.ordinal();
-                }
-                break;
-        }
-        results.add(typeA);
-        results.add(typeB);
-        connectResult.setResults(results);
-        return connectResult;
+    public boolean addConnected(int type,List<Connection> connections){
+        return addConnected(new ConnectMap(type,connections));
+    }
+
+    public boolean addConnected(ConnectMap connectMap){
+        return connectedList.add(connectMap);
     }
 
 

@@ -8,12 +8,18 @@ package ppex.proto.entity.through;
 public class Connect {
 
     public enum TYPE{
-        CONNECT_ERROR,
-        REQUEST_CONNECT_SERVER,            //一般是Client发给Server,请求与某个建立连接
-        RETURN_REQUEST_CONNECT_SERVER,       //Server通过判断类型后返回Client,让该Client将包发到某个地址
-        RETURN_START_PUNCH,                 //Server收到打洞消息返回
-        CONNECT_PING,                       //连接消息和响应
+        CONNECT_PING,                               //两边之间利用PING,PONG确认打通
         CONNECT_PONG,
+        //通信类型
+        DIRECT,                                     //根据两边nattype判断类型
+        HOLE_PUNCH,
+        RETURN_HOLE_PUNCH,
+        REVERSE,
+        FORWARD,
+        RETURN_FORWARD,
+
+        CONNECTING,                                //暂时保留，client发给Server，可以检测两边连接状态
+        CONNECTED,
         ;
     }
 
