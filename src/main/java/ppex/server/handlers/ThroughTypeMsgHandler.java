@@ -3,7 +3,6 @@ package ppex.server.handlers;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
-import ppex.proto.Message;
 import ppex.proto.entity.through.Connect;
 import ppex.proto.entity.through.Connection;
 import ppex.proto.entity.through.RecvInfo;
