@@ -10,6 +10,7 @@ import ppex.client.entity.Client;
 import ppex.client.handlers.PongTypeMsgHandler;
 import ppex.client.handlers.ProbeTypeMsgHandler;
 import ppex.client.handlers.ThroughTypeMsgHandler;
+import ppex.client.handlers.TxtTypeMsgHandler;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
 import ppex.proto.type.PingTypeMsg;
@@ -28,6 +29,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PONG.ordinal(),new PongTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(),new TxtTypeMsgHandler());
     }
 
     @Override
