@@ -8,10 +8,7 @@ import org.apache.log4j.Logger;
 import ppex.proto.MessageHandler;
 import ppex.proto.StandardMessageHandler;
 import ppex.proto.type.TypeMessage;
-import ppex.server.handlers.FileTypeMsgHandler;
-import ppex.server.handlers.PingTypeMsgHandler;
-import ppex.server.handlers.ProbeTypeMsgHandler;
-import ppex.server.handlers.ThroughTypeMsgHandler;
+import ppex.server.handlers.*;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
@@ -24,8 +21,9 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         msgHandler = new StandardMessageHandler();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(),new PingTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(),new FileTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(), new PingTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(), new FileTypeMsgHandler());
+        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(), new TxtTypeMsgHandler());
     }
 
     @Override
@@ -85,13 +83,13 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {
                 case ALL_IDLE:
-                    handleAllIdleEvent(ctx,e);
+                    handleAllIdleEvent(ctx, e);
                     break;
                 case READER_IDLE:
-                    handleReadIdleEvent(ctx,e);
+                    handleReadIdleEvent(ctx, e);
                     break;
                 case WRITER_IDLE:
-                    handleWriteIdleEvent(ctx,e);
+                    handleWriteIdleEvent(ctx, e);
                     break;
                 default:
                     break;
@@ -99,15 +97,15 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         }
     }
 
-    private void handleAllIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+    private void handleAllIdleEvent(ChannelHandlerContext ctx, IdleStateEvent e) {
         LOGGER.info("server all idleEvent");
     }
 
-    private void handleReadIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+    private void handleReadIdleEvent(ChannelHandlerContext ctx, IdleStateEvent e) {
         LOGGER.info("server read idleEvent");
     }
 
-    private void handleWriteIdleEvent(ChannelHandlerContext ctx,IdleStateEvent e){
+    private void handleWriteIdleEvent(ChannelHandlerContext ctx, IdleStateEvent e) {
         LOGGER.info("server write idleEvent");
     }
 
