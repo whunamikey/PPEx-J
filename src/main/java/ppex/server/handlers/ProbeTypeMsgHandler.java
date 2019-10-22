@@ -24,7 +24,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         pmsg.setFromInetSocketAddress(address);
         if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-                throw new Exception("Wroing ProbeTypeMsg:" + pmsg.toString());
+                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
                 handleServer1FromClientMsg(ctx, pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {

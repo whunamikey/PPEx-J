@@ -22,7 +22,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromaddress) throws Exception {
 //        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
-        LOGGER.info("server handle ThroughTypeMsg");
         ThroughTypeMsg ttmsg = JSON.parseObject(typeMessage.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_CONNINFO.ordinal()) {
             handleSaveInfo(ctx, ttmsg, fromaddress);

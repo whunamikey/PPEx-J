@@ -20,7 +20,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, InetSocketAddress address) throws Exception {
 //        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
-        LOGGER.info("client handle ThroughTypemsg:" + msg.getBody());
         ThroughTypeMsg ttmsg = JSON.parseObject(msg.getBody(), ThroughTypeMsg.class);
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.RECV_INFO.ordinal()) {
             RecvInfo recvinfo = JSON.parseObject(ttmsg.getContent(), RecvInfo.class);

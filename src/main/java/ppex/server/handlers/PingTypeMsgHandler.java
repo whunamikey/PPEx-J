@@ -15,7 +15,6 @@ public class PingTypeMsgHandler implements TypeMessageHandler {
 
     @Override
     public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromAddress) {
-        LOGGER.info("server handle ping msg" + typeMessage.getBody());
 //        PingTypeMsg pingTypeMsg = JSON.parseObject(typeMessage.getBody(),PingTypeMsg.class);
         PongTypeMsg pongTypeMsg = new PongTypeMsg();
         ctx.writeAndFlush(MessageUtil.pongMsg2Packet(pongTypeMsg, fromAddress));

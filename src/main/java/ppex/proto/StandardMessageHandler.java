@@ -32,7 +32,6 @@ public class StandardMessageHandler implements MessageHandler {
     @Override
     public void handleDatagramPacket(ChannelHandlerContext ctx,DatagramPacket packet) throws Exception {
         try {
-            LOGGER.info("Standard handle datagram packet");
             TypeMessage msg = MessageUtil.packet2Typemsg(packet);
             handlers.get(msg.getType()).handleTypeMessage(ctx,msg,packet.sender());
         } catch (Exception e) {
