@@ -1,11 +1,11 @@
-package ppex.proto;
+package ppex.proto.msg;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
-import ppex.proto.type.TypeMessage;
-import ppex.proto.type.TypeMessageHandler;
+import ppex.proto.msg.type.TypeMessage;
 import ppex.utils.MessageUtil;
+import ppex.proto.msg.type.TypeMessageHandler;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package ppex.proto.entity.through;
+package ppex.proto.msg.entity.through;
 
 public class RecvInfo {
     public RecvInfo(int type, String recvinfos){

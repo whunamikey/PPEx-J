@@ -1,4 +1,4 @@
-package ppex.proto.entity.through;
+package ppex.proto.msg.entity.through;
 
 /**
  * 因为是客户端和服务端共用.所以比较麻烦

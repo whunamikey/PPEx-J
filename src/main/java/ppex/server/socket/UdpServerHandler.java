@@ -5,9 +5,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
-import ppex.proto.MessageHandler;
-import ppex.proto.StandardMessageHandler;
-import ppex.proto.type.TypeMessage;
+import ppex.proto.msg.MessageHandler;
+import ppex.proto.msg.StandardMessageHandler;
+import ppex.proto.msg.type.TypeMessage;
 import ppex.server.handlers.*;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {

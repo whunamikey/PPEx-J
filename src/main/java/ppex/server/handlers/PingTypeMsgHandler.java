@@ -2,9 +2,9 @@ package ppex.server.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
-import ppex.proto.type.PongTypeMsg;
-import ppex.proto.type.TypeMessage;
-import ppex.proto.type.TypeMessageHandler;
+import ppex.proto.msg.type.PongTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;

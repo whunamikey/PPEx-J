@@ -2,9 +2,9 @@ package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
-import ppex.proto.type.FileTypeMsg;
-import ppex.proto.type.TypeMessage;
-import ppex.proto.type.TypeMessageHandler;
+import ppex.proto.msg.type.FileTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;

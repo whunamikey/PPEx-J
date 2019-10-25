@@ -5,9 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
-import ppex.proto.type.ProbeTypeMsg;
-import ppex.proto.type.TypeMessage;
-import ppex.proto.type.TypeMessageHandler;
+import ppex.proto.msg.type.ProbeTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.utils.Constants;
 
 import java.net.InetSocketAddress;

@@ -1,4 +1,4 @@
-package ppex.proto;
+package ppex.proto.msg;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;

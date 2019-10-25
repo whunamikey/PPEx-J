@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.client.process.ThroughProcess;
-import ppex.proto.entity.through.Connect;
-import ppex.proto.entity.through.Connection;
-import ppex.proto.entity.through.RecvInfo;
-import ppex.proto.type.ThroughTypeMsg;
-import ppex.proto.type.TypeMessage;
-import ppex.proto.type.TypeMessageHandler;
+import ppex.proto.msg.entity.through.Connect;
+import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.through.RecvInfo;
+import ppex.proto.msg.type.ThroughTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.msg.type.TypeMessageHandler;
 
 import java.net.InetSocketAddress;
 import java.util.List;

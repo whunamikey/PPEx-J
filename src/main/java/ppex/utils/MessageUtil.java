@@ -7,8 +7,8 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
-import ppex.proto.Message;
-import ppex.proto.type.*;
+import ppex.proto.msg.Message;
+import ppex.proto.msg.type.*;
 
 import java.net.InetSocketAddress;
 
@@ -99,7 +99,7 @@ public class MessageUtil {
         return pingMsg2Packet(msg, SocketUtils.socketAddress(host, port));
     }
 
-    public static DatagramPacket pongMsg2Packet(PongTypeMsg msg,String host,int port){
+    public static DatagramPacket pongMsg2Packet(PongTypeMsg msg, String host, int port){
         return pongMsg2Packet(msg,SocketUtils.socketAddress(host,port));
     }
 

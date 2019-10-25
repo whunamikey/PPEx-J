@@ -1,6 +1,5 @@
 package ppex.client.socket;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -11,10 +10,10 @@ import ppex.client.handlers.PongTypeMsgHandler;
 import ppex.client.handlers.ProbeTypeMsgHandler;
 import ppex.client.handlers.ThroughTypeMsgHandler;
 import ppex.client.handlers.TxtTypeMsgHandler;
-import ppex.proto.MessageHandler;
-import ppex.proto.StandardMessageHandler;
-import ppex.proto.type.PingTypeMsg;
-import ppex.proto.type.TypeMessage;
+import ppex.proto.msg.MessageHandler;
+import ppex.proto.msg.StandardMessageHandler;
+import ppex.proto.msg.type.PingTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
 import ppex.utils.MessageUtil;
 
 

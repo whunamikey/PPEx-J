@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
 import ppex.client.process.ThroughProcess;
-import ppex.proto.entity.through.Connection;
+import ppex.proto.msg.entity.through.Connection;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 

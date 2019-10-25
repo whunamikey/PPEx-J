@@ -1,8 +1,6 @@
-package ppex.proto.entity.through;
+package ppex.proto.msg.entity.through;
 
 import java.util.List;
-
-import ppex.proto.entity.through.Connection;
 
 //保存何种方式连接的两个Connection
 public class ConnectMap {

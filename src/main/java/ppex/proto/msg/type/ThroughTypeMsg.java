@@ -1,4 +1,4 @@
-package ppex.proto.type;
+package ppex.proto.msg.type;
 
 /**
  * 19-10-8 暂定

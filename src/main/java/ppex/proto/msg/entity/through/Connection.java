@@ -1,9 +1,9 @@
-package ppex.proto.entity.through;
+package ppex.proto.msg.entity.through;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
-import ppex.proto.Message;
+import ppex.proto.msg.Message;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;

@@ -1,4 +1,4 @@
-package ppex.proto.type;
+package ppex.proto.msg.type;
 
 import java.net.InetSocketAddress;
 
