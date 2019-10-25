@@ -2,8 +2,13 @@ package ppex.server.socket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
+import io.netty.channel.epoll.EpollDatagramChannel;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
@@ -15,40 +20,55 @@ import ppex.utils.Identity;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Vector;
 
 public class UdpServer {
 
     private Logger logger = Logger.getLogger(UdpServer.class);
+
+    private Bootstrap bootstrap;
+    private EventLoopGroup group;
+    private List<Channel> channels = new Vector<>();
 
     public void startUdpServer(int identity) {
 
         initServer();
 
         logger.info("---->UdpServer start");
-        final EventLoopGroup workerGroup = new NioEventLoopGroup(3);
-        final EventLoopGroup group = new NioEventLoopGroup(2);
-        try {
-            final Bootstrap peerBoostrap = new Bootstrap();
-            peerBoostrap.group(workerGroup).channel(NioDatagramChannel.class)
-                    .handler(new UdpServerHandler())
-                    .option(ChannelOption.SO_BROADCAST, true);
-            Channel channel = null;
-            if (identity == Identity.Type.SERVER1.ordinal() || identity == Identity.Type.SERVER2_PORT1.ordinal()) {
-//                peerBoostrap.bind(Constants.PORT1).sync().channel().closeFuture().await();
-                channel = peerBoostrap.bind(Constants.PORT1).sync().channel();
-            } else if (identity == Identity.Type.SERVER2_PORT2.ordinal()) {
-//                peerBoostrap.bind(Constants.PORT2).sync().channel().closeFuture().await();
-                channel = peerBoostrap.bind(Constants.PORT2).sync().channel();
-            }
-            channel.closeFuture().await();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+        bootstrap = new Bootstrap();
+        int cpunum = Runtime.getRuntime().availableProcessors();
+        boolean epoll = Epoll.isAvailable();
+        if (epoll) {
+            bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
         }
+        group = epoll ? new EpollEventLoopGroup(cpunum) : new NioEventLoopGroup(cpunum);
+        Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+        bootstrap.channel(channelCls);
+        bootstrap.group(group);
+        bootstrap.handler(new UdpServerHandler());
+        bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
+//        for (int i =0;i < cpunum;i++){            //开启多个绑定
+//
+//        }
+        if (identity == Identity.Type.SERVER1.ordinal() || identity == Identity.Type.SERVER2_PORT1.ordinal()) {
+            ChannelFuture future = bootstrap.bind(Constants.PORT1);
+            Channel channel = future.channel();
+            channels.add(channel);
+        } else if (identity == Identity.Type.SERVER2_PORT2.ordinal()) {
+            ChannelFuture future = bootstrap.bind(Constants.PORT2);
+            Channel channel = future.channel();
+            channels.add(channel);
+        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
     }
 
+    public void stop() {
+        channels.forEach(channel -> channel.close());
+        if (group != null) {
+            group.shutdownGracefully();
+        }
+    }
 
     private void initServer() {
         try {
@@ -60,9 +80,9 @@ public class UdpServer {
 //            Server.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1);
 //            Server.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1);
 //            Server.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2);
-            Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1,Constants.PORT1));
-            Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT1));
-            Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2,Constants.PORT2));
+            Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1));
+            Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1));
+            Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2));
 
             ConnectionService.getInstance();
 
