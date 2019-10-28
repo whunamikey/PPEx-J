@@ -21,18 +21,18 @@ public class Fragment {
         return fragment;
     }
 
-    private int conv;
-    private byte cmd;                       //命令
-    private short frgid;                    //message分片后的fragmentid
-    private int wnd;                        //剩余接收窗口大小
-    private long ts;                        //message发送的时间戳
-    private long sn;                        //message分片fragment的序号
-    private long una;                       //待接收消息序号,接收滑动窗口左端
-    private long resendts;                  //下次超时重传时间戳
-    private int rto;                        //该分片的超时重传等待时间
-    private int fastack;                    //收到ack时计算该分片被跳过的累计次数,即该分片后面都接收到了,达到一定次数,重传它
-    private int xmit;                       //发送分片的次数,每发送一次加1
-    private long ackMask;
-    private ByteBuf data;
+    public int conv;
+    public byte cmd;                       //命令
+    public short frgid;                    //message分片后的fragmentid
+    public int wnd;                        //剩余接收窗口大小
+    public long ts;                        //message发送的时间戳
+    public long sn;                        //message分片fragment的序号
+    public long una;                       //待接收消息序号,接收滑动窗口左端
+    public long resendts;                  //下次超时重传时间戳
+    public int rto;                        //该分片的超时重传等待时间
+    public int fastack;                    //收到ack时计算该分片被跳过的累计次数,即该分片后面都接收到了,达到一定次数,重传它
+    public int xmit;                       //发送分片的次数,每发送一次加1
+    public long ackMask;
+    public ByteBuf data;
 
 }

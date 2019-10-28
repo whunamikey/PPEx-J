@@ -29,6 +29,44 @@ public class Pcp {
     //待发送窗口和接收窗口
     private Queue<Fragment> snd_queue,rcv_queue;
 
+    public Pcp(int conv) {
+        this.conv = conv;
+    }
+
+    public void release(){
+
+    }
+
+    public int send(ByteBuf buf){
+        int len = buf.readableBytes();
+        if (len == 0){
+            return -1;
+        }
+        int count;
+        if (len <= mss){
+            count = 1;
+        }else{
+            count = (len + mss - 1) / mss;
+        }
+        if (count > 255){
+            return -2;
+        }
+        if (count == 0)
+            count = 1;
+        for (int i = 0;i < count;i ++){
+            int size = len > mss ? mss : len;
+            Fragment frg = Fragment.createFragment(buf.readRetainedSlice(size));
+            frg.frgid = (short) (count - i - 1);
+            snd_queue.add(frg);
+            len = buf.readableBytes();
+        }
+        return 0;
+    }
+
+    public void setMtu(int mtu){
+        this.mtu = mtu;
+        this.mss = mtu;
+    }
 
 
 
