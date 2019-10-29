@@ -15,8 +15,12 @@ public class StandardMessageHandler implements MessageHandler {
     private Logger LOGGER = Logger.getLogger(StandardMessageHandler.class);
     private Map<Integer, TypeMessageHandler> handlers;
 
-    public StandardMessageHandler() {
+    private StandardMessageHandler() {
         init();
+    }
+
+    public static StandardMessageHandler New(){
+        return new StandardMessageHandler();
     }
 
     private void init() {

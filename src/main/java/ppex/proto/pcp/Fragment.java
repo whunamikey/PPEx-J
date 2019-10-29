@@ -1,6 +1,7 @@
 package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.Recycler;
 
 public class Fragment {
@@ -11,14 +12,44 @@ public class Fragment {
             return new Fragment(handle);
         }
     };
-    private Fragment(Recycler.Handle<Fragment> recyclerHandler){
+
+    private Fragment(Recycler.Handle<Fragment> recyclerHandler) {
         this.recyclerHandler = recyclerHandler;
     }
 
-    public static Fragment createFragment(ByteBuf data){
+    public static Fragment createFragment(ByteBuf data) {
         Fragment fragment = RECYCLER.get();
         fragment.data = data;
         return fragment;
+    }
+
+    public static Fragment createFragment(ByteBufAllocator allocator, int size) {
+        Fragment fragment = RECYCLER.get();
+        if (size == 0) {
+            fragment.data = allocator.ioBuffer(0, 0);
+        } else {
+            fragment.data = allocator.ioBuffer(size);
+        }
+        return fragment;
+    }
+
+    public void recycler(boolean releaseBuffer) {
+        conv = 0;
+        cmd = 0;
+        frgid = 0;
+        wnd = 0;
+        ts = 0;
+        sn = 0;
+        una = 0;
+        resendts = 0;
+        rto = 0;
+        fastack = 0;
+        xmit = 0;
+        ackMask = 0;
+        if (releaseBuffer)
+            data.release();
+        data = null;
+        recyclerHandler.recycle(this);
     }
 
     public int conv;
@@ -34,5 +65,13 @@ public class Fragment {
     public int xmit;                       //发送分片的次数,每发送一次加1
     public long ackMask;
     public ByteBuf data;
+    private int ackMaskSize;
 
+    public int getAckMaskSize() {
+        return ackMaskSize;
+    }
+
+    public void setAckMaskSize(int ackMaskSize) {
+        this.ackMaskSize = ackMaskSize;
+    }
 }

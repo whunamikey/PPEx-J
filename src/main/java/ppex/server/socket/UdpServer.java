@@ -17,6 +17,7 @@ import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
+import ppex.utils.tpool.DisruptorExectorPool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -29,6 +30,7 @@ public class UdpServer {
 
     private Bootstrap bootstrap;
     private EventLoopGroup group;
+    private DisruptorExectorPool disruptorExectorPool;
     private List<Channel> channels = new Vector<>();
 
     public void startUdpServer(int identity) {
@@ -38,6 +40,13 @@ public class UdpServer {
         logger.info("---->UdpServer start");
         bootstrap = new Bootstrap();
         int cpunum = Runtime.getRuntime().availableProcessors();
+
+        //线程池初始化
+        disruptorExectorPool = new DisruptorExectorPool();
+        for (int i = 0;i < cpunum;i ++){
+            disruptorExectorPool.createDisruptorProcessor("disruptor:" +i);
+        }
+
         boolean epoll = Epoll.isAvailable();
         if (epoll) {
             bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
@@ -46,7 +55,7 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        bootstrap.handler(new UdpServerHandler());
+        bootstrap.handler(new UdpServerHandler(null,disruptorExectorPool));
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //

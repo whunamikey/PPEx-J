@@ -8,22 +8,30 @@ import org.apache.log4j.Logger;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.pcp.PcpListener;
 import ppex.server.handlers.*;
+import ppex.utils.tpool.DisruptorExectorPool;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
-
     private MessageHandler msgHandler;
 
-    public UdpServerHandler() {
-        msgHandler = new StandardMessageHandler();
+    private PcpListener pcpListener;
+    private DisruptorExectorPool disruptorExectorPool;
+
+    public UdpServerHandler(PcpListener pcpListener, DisruptorExectorPool disruptorExectorPool) {
+        msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(), new PingTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(), new FileTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(), new TxtTypeMsgHandler());
+
+        this.pcpListener = pcpListener;
+        this.disruptorExectorPool = disruptorExectorPool;
+
     }
 
     @Override
