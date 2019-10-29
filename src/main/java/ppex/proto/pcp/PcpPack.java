@@ -13,8 +13,8 @@ public class PcpPack {
     private final Queue<ByteBuf> rcvList;
     private final MpscArrayQueue<ByteBuf> sndList;
 
-    public PcpPack(PcpListener pcpListener) {
-        this.pcp = new Pcp();
+    public PcpPack(int conv,PcpListener pcpListener) {
+        this.pcp = new Pcp(conv);
         sndList = new MpscArrayQueue<>(2 << 11);
         rcvList = new SpscArrayQueue<>(2 << 11);
     }
@@ -23,6 +23,8 @@ public class PcpPack {
     public void send(ByteBuf byteBuf){
         
     }
+
+
 
 
 }
