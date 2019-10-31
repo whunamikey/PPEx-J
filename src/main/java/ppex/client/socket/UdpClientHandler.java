@@ -1,5 +1,6 @@
 package ppex.client.socket;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -12,9 +13,17 @@ import ppex.client.handlers.ThroughTypeMsgHandler;
 import ppex.client.handlers.TxtTypeMsgHandler;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
+import ppex.proto.msg.entity.Connection;
 import ppex.proto.msg.type.PingTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
+import ppex.proto.pcp.IChannelManager;
+import ppex.proto.pcp.PcpListener;
+import ppex.proto.pcp.PcpOutput;
+import ppex.proto.pcp.PcpPack;
+import ppex.utils.Constants;
 import ppex.utils.MessageUtil;
+import ppex.utils.tpool.DisruptorExectorPool;
+import ppex.utils.tpool.IMessageExecutor;
 
 
 public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -23,29 +32,42 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private MessageHandler msgHandler;
 
-    public UdpClientHandler() {
-//        msgHandler = new StandardMessageHandler();
+    private PcpListener pcpListener;
+    private DisruptorExectorPool disruptorExectorPool;
+    private IChannelManager channelManager;
+
+    public UdpClientHandler(PcpListener pcpListener, DisruptorExectorPool disruptorExectorPool, IChannelManager channelManager) {
         msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PONG.ordinal(),new PongTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(),new TxtTypeMsgHandler());
+
+        this.pcpListener = pcpListener;
+        this.disruptorExectorPool = disruptorExectorPool;
+        this.channelManager = channelManager;
+
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
-            System.out.println("Client channel read0 from:" + datagramPacket.sender().toString());
-            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
+            Channel channel = channelHandlerContext.channel();
+            LOGGER.info("ClientHandler channel local:" + channel.localAddress() + " remote:" + channel.remoteAddress());
+            PcpPack pcpPack = channelManager.get(channel,datagramPacket.sender());
+            if (pcpPack == null){
+                Connection connection = new Connection("",datagramPacket.sender(),"From1", Constants.NATTYPE.UNKNOWN.ordinal(),channel);
+                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+                PcpOutput pcpOutput = new ClientOutput();
+                pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
+                channelManager.New(channel,pcpPack);
+            }
+            pcpPack.read(datagramPacket);
+
+//            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        Message msg = MessageUtil.packet2Msg(datagramPacket);
-//        if (msg != null){
-//            System.out.println("client recv:" + msg.toString() + " from:" + datagramPacket.sender());
-//        }else{
-//            System.out.println("client recv error");
-//        }
     }
 
     @Override

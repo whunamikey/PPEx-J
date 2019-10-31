@@ -139,6 +139,58 @@ public class MessageUtil {
     }
 
     /**
+     * ----------------------------------各类TypeMessage转ByteBuf部分----------------------------------------------------
+     **/
+
+    public static ByteBuf typemsg2Bytebuf(TypeMessage typeMessage) {
+        Message msg = new Message();
+        msg.setContent(typeMessage);
+        return msg2ByteBuf(msg);
+    }
+
+    public static ByteBuf probemsg2Bytebuf(ProbeTypeMsg msg) {
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_PROBE.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    public static ByteBuf throughmsg2Bytebuf(ThroughTypeMsg msg) {
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    public static ByteBuf pingMsg2Bytebuf(PingTypeMsg msg) {
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    public static ByteBuf pongMsg2Bytebuf(PongTypeMsg msg){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_HEART_PONG.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    public static ByteBuf fileMsg2Packet(FileTypeMsg msg){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_FILE.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    public static ByteBuf txtMsg2packet(TxtTypeMsg msg){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_TXT.ordinal());
+        typeMessage.setBody(JSON.toJSONString(msg));
+        return typemsg2Bytebuf(typeMessage);
+    }
+
+    /**
      * ----------------------------------DatagramPacket转各类TypeMessage部分----------------------------------------------------
      **/
     public static Message packet2Msg(DatagramPacket packet) {
@@ -212,6 +264,16 @@ public class MessageUtil {
         probeTypeMsg.setType(ProbeTypeMsg.Type.FROM_CLIENT.ordinal());
         probeTypeMsg.setStep(ByteUtil.int2byteArr(ProbeTypeMsg.Step.TWO.ordinal())[3]);
         return probeTypeMsg;
+    }
+
+    /**
+     * ---------------------------测试
+     */
+    public static ByteBuf makeTestBytebuf(String content){
+        byte[] bytes = content.getBytes(CharsetUtil.UTF_8);
+        ByteBuf msgBuf = Unpooled.directBuffer(bytes.length);
+        msgBuf.writeBytes(bytes);
+        return msgBuf;
     }
 
 

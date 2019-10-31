@@ -5,6 +5,7 @@ import io.netty.channel.socket.DatagramPacket;
 import ppex.proto.pcp.IChannelManager;
 import ppex.proto.pcp.PcpPack;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Map;
@@ -20,7 +21,12 @@ public class ClientChannelManager implements IChannelManager {
 
     @Override
     public PcpPack get(Channel channel, DatagramPacket msg) {
-        return pcpPackMap.get(msg.sender());
+        return get(channel,msg.sender());
+    }
+
+    @Override
+    public PcpPack get(Channel channel, InetSocketAddress sender) {
+        return pcpPackMap.get(sender);
     }
 
     @Override
