@@ -90,7 +90,7 @@ public class Pcp {
     //conv 会话,mtu最大传输单元大小,mss最大分节大小.mtu减去头部分
     private int conv;
     private int mtu = IKCP_MTU_DEF;
-    private int mss = this.mtu - IKCP_HEAD;
+    private int mss = this.mtu - IKCP_OVERHEAD;
     //snd_una 已发送但未确认,snd_nxt下次发送下标,rcv_nxt,下次接收下标
     private long snd_una, snd_nxt, rcv_nxt;
     //ts_recent,ts_lastack 上次ack时间,ts_ssthresh 慢启动门限
@@ -385,7 +385,7 @@ public class Pcp {
 
     public int input(ByteBuf data, boolean regular, long current) {
         long oldSnduna = snd_una;
-        if (data == null || data.readableBytes() < IKCP_HEAD) {
+        if (data == null || data.readableBytes() < IKCP_OVERHEAD) {
             return -1;
         }
         long latest = 0;
@@ -398,7 +398,7 @@ public class Pcp {
             long ts, sn, una, ackMask;
             byte cmd;
             Fragment frg;
-            if (data.readableBytes() < IKCP_HEAD) {
+            if (data.readableBytes() < IKCP_OVERHEAD) {
                 break;
             }
             conv = data.readIntLE();
@@ -825,7 +825,7 @@ public class Pcp {
 
     public void setMtu(int mtu) {
         this.mtu = mtu;
-        this.mss = mtu - IKCP_HEAD;
+        this.mss = mtu - IKCP_OVERHEAD;
     }
 
     public int getMss() {
