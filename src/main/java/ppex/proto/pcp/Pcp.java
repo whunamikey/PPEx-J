@@ -104,7 +104,7 @@ public class Pcp {
     private int snd_wnd = IKCP_WND_SND;
     private int rcv_wnd = IKCP_WND_RCV;
     private int rmt_wnd = IKCP_WND_RCV;
-    private int cwnd, probe;
+    private int cwnd=IKCP_WND_SND, probe;
     //current 当前时间,interval 间隔,ts_flush 发送时间戳,
     private int interval = IKCP_INTERVAL;
     private int ts_flush = IKCP_INTERVAL;
@@ -117,7 +117,7 @@ public class Pcp {
     //拥塞控制量
     private int incr;
     //是否关闭拥塞控制窗口
-    private boolean nocwnd;
+    private boolean nocwnd=false;
     //快速重传,超过几个ack就重传.
     private int fastresend;
     //当前开始时间戳
@@ -751,7 +751,7 @@ public class Pcp {
 
 
     private int wndUnused() {
-        int tmp = rcvQueue.size() - rcv_wnd;
+        int tmp = rcv_wnd - rcvQueue.size();
         return tmp < 0 ? 0 : tmp;
     }
 

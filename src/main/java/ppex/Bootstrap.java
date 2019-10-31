@@ -8,8 +8,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
 //        System.out.println("haha");
-//        startServer();
-        System.out.println("id:" + LongIDUtil.getCurrentId());
+        startServer();
     }
 
     public static void startServer() {
