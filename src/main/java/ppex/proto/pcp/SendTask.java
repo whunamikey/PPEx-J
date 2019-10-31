@@ -2,12 +2,15 @@ package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.Recycler;
+import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import ppex.utils.tpool.ITask;
 
 import java.io.IOException;
 
 public class SendTask implements ITask {
+
+    private static Logger LOGGER = Logger.getLogger(SendTask.class);
 
     private final Recycler.Handle<SendTask> recyclerHandler;
     private static final Recycler<SendTask> RECYCLER = new Recycler<SendTask>() {
@@ -45,7 +48,8 @@ public class SendTask implements ITask {
                     e.printStackTrace();
                 }
             }
-            if (!pcpPack.canSend(false)){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
+            if (!pcpPack.canSend(false) || (pcpPack.checkFlush() && pcpPack.isFastFlush())){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
+                LOGGER.info("SendTask cansend");
                 long now = System.currentTimeMillis();
                 long next = pcpPack.flush(now);
                 pcpPack.setTsUpdate(now + next);

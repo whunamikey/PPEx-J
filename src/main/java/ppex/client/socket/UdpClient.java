@@ -88,7 +88,7 @@ public class UdpClient {
             }
 
             ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
-            channelManager.get(ch,Client.getInstance().SERVER1).write(sndbuf);
+            pcpPack.write(sndbuf);
 
 
 

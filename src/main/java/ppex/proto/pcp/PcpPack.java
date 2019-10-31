@@ -130,4 +130,10 @@ public class PcpPack {
     public ByteBuf mergeReceive(){
         return pcp.mergeRecv();
     }
+    public boolean checkFlush(){
+        return pcp.checkFlush();
+    }
+    public boolean isFastFlush(){
+        return pcp.isFastFlush();
+    }
 }

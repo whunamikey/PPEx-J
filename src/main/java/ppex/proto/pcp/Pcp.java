@@ -149,6 +149,7 @@ public class Pcp {
 
     private PcpOutput pcpOutput;
     private Connection connection;
+    private boolean fastFlush = true;
 
     public Pcp(int conv, PcpOutput pcpOutput, Connection connection) {
         this.conv = conv;
@@ -157,7 +158,7 @@ public class Pcp {
     }
 
     public int send(ByteBuf buf) {
-        LOGGER.info("send buf:" + buf.readableBytes());
+        LOGGER.info("PCP send buf:" + buf.readableBytes());
         int len = buf.readableBytes();
         if (len == 0) {
             return -1;
@@ -173,7 +174,7 @@ public class Pcp {
         for (int i = 0; i < count; i++) {
             int size = len > mss ? mss : len;
             Fragment frg = Fragment.createFragment(buf.readRetainedSlice(size));
-            frg.frgid =  (short) (count - i - 1);
+            frg.frgid = (short) (count - i - 1);
             sndQueue.add(frg);
             len = buf.readableBytes();
         }
@@ -185,7 +186,7 @@ public class Pcp {
     }
 
     public long flush(boolean ackOnly, long current) {
-        LOGGER.info("flush ackonly:" + ackOnly + " current:" + current);
+        LOGGER.info("PCP flush ackonly:" + ackOnly + " current:" + current);
         current = current - startTicks;
         Fragment fragment = Fragment.createFragment(byteBufAllocator, 0);
         fragment.conv = conv;
@@ -520,39 +521,39 @@ public class Pcp {
         return 0;
     }
 
-    public boolean canRecv(){
+    public boolean canRecv() {
         if (rcvQueue.isEmpty())
             return false;
         //todo 加上可以接收的判断条件
         Fragment frg = rcvQueue.peek();
         if (frg.frgid == 0)
             return true;
-        if (rcvQueue.size() < frg.frgid + 1){
+        if (rcvQueue.size() < frg.frgid + 1) {
             return false;
         }
         return true;
     }
 
 
-    public ByteBuf mergeRecv(){
+    public ByteBuf mergeRecv() {
         if (rcvQueue.isEmpty())
             return null;
         int peekSize = peekSize();
         if (peekSize < 0)
             return null;
         boolean recover = false;
-        if (rcvQueue.size() >= rcv_wnd){
+        if (rcvQueue.size() >= rcv_wnd) {
             recover = true;
         }
         ByteBuf byteBuf = null;
         int len = 0;
-        for(Iterator<Fragment> itr = rcvQueueItr.rewind();itr.hasNext();){
+        for (Iterator<Fragment> itr = rcvQueueItr.rewind(); itr.hasNext(); ) {
             Fragment frg = itr.next();
             len += frg.data.readableBytes();
             int frgid = frg.frgid;
             itr.remove();
-            if (byteBuf == null){
-                if (frgid == 0){
+            if (byteBuf == null) {
+                if (frgid == 0) {
                     byteBuf = frg.data;
                     frg.recycler(true);
                     break;
@@ -564,30 +565,30 @@ public class Pcp {
             if (frgid == 0)
                 break;
         }
-        assert  len == peekSize;
+        assert len == peekSize;
         moveRcvData();
-        if (rcvQueue.size() < rcv_wnd && recover){
+        if (rcvQueue.size() < rcv_wnd && recover) {
             probe |= IKCP_ASK_TELL;
         }
         return byteBuf;
     }
 
-    public int peekSize(){
+    public int peekSize() {
         if (rcvQueue.isEmpty())
             return -1;
         Fragment frg = rcvQueue.peek();
         //第一个包是一条应用层消息的最后一个分包.
-        if (frg.frgid == 0){
+        if (frg.frgid == 0) {
             return frg.data.readableBytes();
         }
-        if (rcvQueue.size() < frg.frgid + 1){
+        if (rcvQueue.size() < frg.frgid + 1) {
             return -1;
         }
         int len = 0;
-        for (Iterator<Fragment> itr = rcvQueueItr.rewind();itr.hasNext();){
+        for (Iterator<Fragment> itr = rcvQueueItr.rewind(); itr.hasNext(); ) {
             Fragment f = itr.next();
             len += f.data.readableBytes();
-            if (f.frgid == 0){
+            if (f.frgid == 0) {
                 break;
             }
         }
@@ -597,7 +598,7 @@ public class Pcp {
     private void parseAck(long sn) {
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0)
             return;
-        for (Iterator<Fragment> itr = sndBufItr.rewind(); itr.hasNext();) {
+        for (Iterator<Fragment> itr = sndBufItr.rewind(); itr.hasNext(); ) {
             Fragment frg = itr.next();
             if (sn == frg.sn) {
                 itr.remove();
@@ -675,7 +676,7 @@ public class Pcp {
     }
 
     private void moveRcvData() {
-        for (Iterator<Fragment> itr = rcvBufItr.rewind(); itr.hasNext();) {
+        for (Iterator<Fragment> itr = rcvBufItr.rewind(); itr.hasNext(); ) {
             Fragment frg = itr.next();
             if (frg.sn == rcv_nxt && rcvQueue.size() < rcv_wnd) {
                 itr.remove();
@@ -713,18 +714,18 @@ public class Pcp {
             int delta = rtt - rx_srtt;
             rx_srtt += delta >> 3;
             delta = Math.abs(delta);
-            if (rtt < rx_srtt - rx_rttval){
+            if (rtt < rx_srtt - rx_rttval) {
                 rx_rttval += (delta - rx_rttval) >> 5;
-            }else {
+            } else {
                 rx_rttval += (delta - rx_rttval) >> 4;
             }
         }
-        int rto = rx_srtt + Math.max(interval,rx_rttval << 2);
-        rx_rto = ibound(rx_minrto,rto,IKCP_RTO_MAX);
+        int rto = rx_srtt + Math.max(interval, rx_rttval << 2);
+        rx_rto = ibound(rx_minrto, rto, IKCP_RTO_MAX);
     }
 
-    private static int ibound(int lower,int middle,int upper){
-        return Math.min(Math.max(lower,middle),upper);
+    private static int ibound(int lower, int middle, int upper) {
+        return Math.min(Math.max(lower, middle), upper);
     }
 
     private void parseUna(long una) {
@@ -842,5 +843,21 @@ public class Pcp {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public boolean isFastFlush() {
+        return fastFlush;
+    }
+
+    public boolean checkFlush() {
+        if (ackcount > 0)
+            return true;
+        if (probe != 0)
+            return true;
+        if (sndBuf.size() > 0)
+            return true;
+        if (sndQueue.size() > 0)
+            return true;
+        return false;
     }
 }
