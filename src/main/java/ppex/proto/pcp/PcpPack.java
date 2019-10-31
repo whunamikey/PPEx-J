@@ -31,6 +31,7 @@ public class PcpPack {
         sndList = new MpscArrayQueue<>(2 << 11);
         rcvList = new SpscArrayQueue<>(2 << 11);
         this.iMessageExecutor = iMessageExecutor;
+        this.pcpListener = pcpListener;
     }
 
     public boolean write(Message msg){
@@ -38,6 +39,7 @@ public class PcpPack {
     }
 
     public boolean write(ByteBuf byteBuf) {
+        LOGGER.info("PcpPack write:" + byteBuf.readableBytes());
         byteBuf = byteBuf.retainedDuplicate();
         if (!sndList.offer(byteBuf)) {
             LOGGER.error("sndList full");
@@ -71,6 +73,7 @@ public class PcpPack {
     }
 
     public void read(ByteBuf buf){
+        LOGGER.info("PcpPack read:" + buf.readableBytes());
         this.rcvList.add(buf);
         notifyReadEvent();
     }
@@ -78,12 +81,21 @@ public class PcpPack {
         read(pkt.content());
     }
 
+    public void input(ByteBuf data,long current) throws Exception{
+        input(data,true,current);
+    }
+    private void input(ByteBuf data,boolean regular,long current){
+        int ret = pcp.input(data,regular,current);
+    }
+
     protected void notifyWriteEvent() {
+        LOGGER.info("PcpPack notifyWriteEvent");
         SendTask sndTask = SendTask.New(this);
         this.iMessageExecutor.execute(sndTask);
     }
 
     protected void notifyReadEvent() {
+        LOGGER.info("PcpPack notifyReadEvent");
         RecvTask recvTask = RecvTask.New(this);
         this.iMessageExecutor.execute(recvTask);
     }
@@ -106,5 +118,16 @@ public class PcpPack {
     }
     public int getInterval(){
         return pcp.getInterval();
+    }
+
+    public PcpListener getPcpListener() {
+        return pcpListener;
+    }
+
+    public boolean canRecv(){
+        return pcp.canRecv();
+    }
+    public ByteBuf mergeReceive(){
+        return pcp.mergeRecv();
     }
 }

@@ -36,7 +36,7 @@ public class Fragment {
     public void recycler(boolean releaseBuffer) {
         conv = 0;
         cmd = 0;
-//        frgid = 0;
+        frgid = 0;
         wnd = 0;
         ts = 0;
         sn = 0;
@@ -54,7 +54,7 @@ public class Fragment {
 
     public int conv;
     public byte cmd;                       //命令
-//    public short frgid;                    //message分片后的fragmentid
+    public short frgid;                    //message分片后的fragmentid
     public int wnd;                        //剩余接收窗口大小
     public long ts;                        //message发送的时间戳
     public long sn;                        //message分片fragment的序号
