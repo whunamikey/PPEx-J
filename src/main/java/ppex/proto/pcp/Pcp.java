@@ -64,7 +64,7 @@ public class Pcp {
 
     public static final int IKCP_WND_RCV = 32;
 
-    public static final int IKCP_MTU_DEF = 1400;
+    public static final int IKCP_MTU_DEF = 1474;
 
     public static final int IKCP_INTERVAL = 100;
 
@@ -335,7 +335,7 @@ public class Pcp {
                 frg.setAckMaskSize(this.ackMaskSize);
                 frg.ackMask = ackMask;
 
-                ByteBuf frgData = fragment.data;
+                ByteBuf frgData = frg.data;
                 int frgLen = frgData.readableBytes();
                 int need = IKCP_OVERHEAD + frgLen;
                 byteBuf = makeSpace(byteBuf, need);

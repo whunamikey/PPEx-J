@@ -11,11 +11,15 @@ public class ClientOutput implements PcpOutput {
     private static Logger LOGGER = Logger.getLogger(ClientOutput.class);
     @Override
     public void out(ByteBuf data, Pcp pcp) {
-        byte[] byteArray = new byte[data.capacity()];
-        data.readBytes(byteArray);
-        String result = new String(byteArray);
-        data.resetReaderIndex();
-        LOGGER.info("ClientOutput data:" + result);
+        String result;
+        if (data.hasArray()){
+            result = new String(data.array(),data.arrayOffset()+data.readerIndex(),data.readableBytes());
+        }else{
+            byte[] bytes = new byte[data.readableBytes()];
+            data.getBytes(data.readerIndex(),bytes);
+            result = new String(bytes,0,data.readableBytes());
+        }
+        LOGGER.info("ClientOutput data:" + result + " readable:" + data.readableBytes());
         Connection connection = pcp.getConnection();
         DatagramPacket tmp = new DatagramPacket(data,connection.getAddress());
         connection.getChannel().writeAndFlush(tmp);
