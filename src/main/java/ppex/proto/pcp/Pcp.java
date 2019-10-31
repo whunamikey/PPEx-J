@@ -761,10 +761,9 @@ public class Pcp {
 
     private ByteBuf makeSpace(ByteBuf buf, int space) {
         if (buf.readableBytes() + space > mtu) {
-            //发送??为什么发送
-//            output(buf,this);
+            LOGGER.info("Pcp makespace output");
+            output(buf,this);
             buf = createFlushByteBuf();
-//            buf.writerIndex()
         }
         return buf;
     }
@@ -796,8 +795,8 @@ public class Pcp {
     }
 
     private void flushBuffer(ByteBuf byteBuf) {
-        //发送出去
         if (byteBuf.readableBytes() > 0) {
+            LOGGER.info("Pcp flushBuffer");
             output(byteBuf, this);
             return;
         }

@@ -71,7 +71,7 @@ public class UdpClient {
             bootstrap.handler(new ChannelInitializer<Channel>() {
                 @Override
                 protected void initChannel(Channel channel) throws Exception {
-                    channel.pipeline().addLast(new IdleStateHandler(0, 10, 0, TimeUnit.SECONDS));
+//                    channel.pipeline().addLast(new IdleStateHandler(0, 10, 0, TimeUnit.SECONDS));
                     channel.pipeline().addLast(new UdpClientHandler(null,disruptorExectorPool,channelManager));
                 }
             });
@@ -112,7 +112,7 @@ public class UdpClient {
 
             Runtime.getRuntime().addShutdownHook(new Thread(()->stop()));
             while (true) {
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(5);
                 LOGGER.info("client while...");
             }
 

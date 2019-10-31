@@ -3,6 +3,7 @@ package ppex.utils;
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
@@ -274,6 +275,10 @@ public class MessageUtil {
         ByteBuf msgBuf = Unpooled.directBuffer(bytes.length);
         msgBuf.writeBytes(bytes);
         return msgBuf;
+    }
+
+    public static String bytebuf2Str(ByteBuf buf){
+        return ByteBufUtil.hexDump(buf);
     }
 
 
