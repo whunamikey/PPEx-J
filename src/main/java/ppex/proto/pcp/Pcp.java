@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
+import ppex.utils.MessageUtil;
 import ppex.utils.set.ReItrLinkedList;
 import ppex.utils.set.ReusableListIterator;
 
@@ -63,7 +64,7 @@ public class Pcp {
 
     public static final int IKCP_WND_RCV = 32;
 
-    public static final int IKCP_MTU_DEF = 1459;
+    public static final int IKCP_MTU_DEF = 1400;
 
     public static final int IKCP_INTERVAL = 100;
 
