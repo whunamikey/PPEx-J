@@ -5,7 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
-import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.Connection;
 import ppex.proto.msg.type.ThroughTypeMsg;
 import ppex.utils.MessageUtil;
 

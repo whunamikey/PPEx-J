@@ -3,7 +3,7 @@ package ppex.server.myturn;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.through.Connect;
 import ppex.proto.msg.entity.through.ConnectMap;
-import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.Connection;
 
 import java.util.*;
 import java.util.stream.Collectors;

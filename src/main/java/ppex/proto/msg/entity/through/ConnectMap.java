@@ -1,5 +1,7 @@
 package ppex.proto.msg.entity.through;
 
+import ppex.proto.msg.entity.Connection;
+
 import java.util.List;
 
 //保存何种方式连接的两个Connection

@@ -13,8 +13,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
+import ppex.proto.pcp.IChannelManager;
 import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
+import ppex.server.myturn.ServerChannelManager;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 import ppex.utils.tpool.DisruptorExectorPool;
@@ -32,6 +34,7 @@ public class UdpServer {
     private EventLoopGroup group;
     private DisruptorExectorPool disruptorExectorPool;
     private List<Channel> channels = new Vector<>();
+    private IChannelManager channelManager = ServerChannelManager.New();
 
     public void startUdpServer(int identity) {
 
@@ -55,7 +58,7 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        bootstrap.handler(new UdpServerHandler(null,disruptorExectorPool));
+        bootstrap.handler(new UdpServerHandler(null,disruptorExectorPool,channelManager));
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //
@@ -74,6 +77,8 @@ public class UdpServer {
 
     public void stop() {
         channels.forEach(channel -> channel.close());
+        if (disruptorExectorPool != null)
+            disruptorExectorPool.stop();
         if (group != null) {
             group.shutdownGracefully();
         }

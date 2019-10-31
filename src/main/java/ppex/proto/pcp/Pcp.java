@@ -2,6 +2,7 @@ package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import ppex.proto.msg.entity.Connection;
 import ppex.utils.set.ReItrLinkedList;
 import ppex.utils.set.ReusableListIterator;
 
@@ -59,7 +60,7 @@ public class Pcp {
 
     public static final int IKCP_WND_RCV = 32;
 
-    public static final int IKCP_MTU_DEF = 1400;
+    public static final int IKCP_MTU_DEF = 1459;
 
     public static final int IKCP_INTERVAL = 100;
 
@@ -80,11 +81,13 @@ public class Pcp {
      * up to 120 secs to probe window
      */
     public static final int IKCP_PROBE_LIMIT = 120000;
+    public static final int IKCP_HEAD = 174;
+
 
     //conv 会话,mtu最大传输单元大小,mss最大分节大小.mtu减去头部分
     private int conv;
     private int mtu = IKCP_MTU_DEF;
-    private int mss = this.mtu - IKCP_OVERHEAD;
+    private int mss = this.mtu - IKCP_HEAD;
     //snd_una 已发送但未确认,snd_nxt下次发送下标,rcv_nxt,下次接收下标
     private long snd_una, snd_nxt, rcv_nxt;
     //ts_recent,ts_lastack 上次ack时间,ts_ssthresh 慢启动门限
@@ -141,8 +144,13 @@ public class Pcp {
     private ReusableListIterator<Fragment> rcvBufItr = rcvBuf.listIterator();
     public ReusableListIterator<Fragment> sndBufItr = sndBuf.listIterator();
 
-    public Pcp(int conv) {
+    private PcpOutput pcpOutput;
+    private Connection connection;
+
+    public Pcp(int conv, PcpOutput pcpOutput, Connection connection) {
         this.conv = conv;
+        this.pcpOutput = pcpOutput;
+        this.connection = connection;
     }
 
     public int send(ByteBuf buf) {
@@ -156,15 +164,11 @@ public class Pcp {
         } else {
             count = (len + mss - 1) / mss;
         }
-//        if (count > 255){
-//            return -2;
-//        }
         if (count == 0)
             count = 1;
         for (int i = 0; i < count; i++) {
             int size = len > mss ? mss : len;
             Fragment frg = Fragment.createFragment(buf.readRetainedSlice(size));
-            frg.frgid = (short) (count - i - 1);
             sndQueue.add(frg);
             len = buf.readableBytes();
         }
@@ -278,7 +282,7 @@ public class Pcp {
         int resent = fastresend > 0 ? fastresend : Integer.MAX_VALUE;
         int change = 0;
         boolean lost = false;
-        int lostFrgs = 0,fastRetranssFrgs = 0,earlyRetransFrgs = 0;
+//        int lostFrgs = 0,fastRetranssFrgs = 0,earlyRetransFrgs = 0;
         long minrto = interval;
 
         for (Iterator<Fragment> itr = sndBufItr.rewind();itr.hasNext();){
@@ -294,14 +298,14 @@ public class Pcp {
                 frg.rto = rx_rto;
                 frg.resendts = current + frg.rto;
                 change ++;
-                fastRetranssFrgs ++;
+//                fastRetranssFrgs ++;
             }else if (frg.fastack > 0 && newFrgsCount == 0){
                 needsend = true;
                 frg.fastack = 0;
                 frg.rto = rx_rto;
                 frg.resendts = current + frg.rto;
                 change++;
-                earlyRetransFrgs ++;
+//                earlyRetransFrgs ++;
             }else if (itimediff(current,frg.resendts) >= 0){
                 needsend = true;
                 if (!nodelay){
@@ -312,7 +316,7 @@ public class Pcp {
                 frg.fastack = 0;
                 frg.resendts = current + frg.rto;
                 lost = true;
-                lostFrgs ++;
+//                lostFrgs ++;
             }
 
             if (needsend){
@@ -396,7 +400,7 @@ public class Pcp {
         int offset = buf.writerIndex();
         buf.writeIntLE(fragment.conv);
         buf.writeByte(fragment.cmd);
-        buf.writeByte(fragment.frgid);
+//        buf.writeByte(fragment.frgid);
         buf.writeShortLE(fragment.wnd);
         buf.writeIntLE((int) fragment.ts);
         buf.writeIntLE((int) fragment.sn);
@@ -420,11 +424,17 @@ public class Pcp {
 
     private void flushBuffer(ByteBuf byteBuf) {
         //发送出去
-//        if (byteBuf.readableBytes() > reserved){
-//            output(byteBuf,this);
-//            return;
-//        }
+        if (byteBuf.readableBytes() > 0){
+            output(byteBuf,this);
+            return;
+        }
         byteBuf.release();
+    }
+
+    private static void output(ByteBuf data,Pcp pcp){
+        if (data.readableBytes() == 0)
+            return;
+        pcp.pcpOutput.out(data,pcp);
     }
 
     private static int itimediff(long later, long earlier) {
@@ -442,11 +452,23 @@ public class Pcp {
 
     public void setMtu(int mtu) {
         this.mtu = mtu;
-        this.mss = mtu;
+        this.mss = mtu-IKCP_HEAD;
     }
+
+    public int getMss(){
+        return this.mss;
+    }
+
 
     private static long long2Uint(long n){
         return n & 0x00000000FFFFFFFFL;
     }
 
+    public int getInterval() {
+        return interval;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
 }

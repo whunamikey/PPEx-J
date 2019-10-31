@@ -2,6 +2,7 @@ package ppex.utils;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
@@ -15,6 +16,9 @@ import java.net.InetSocketAddress;
 public class MessageUtil {
 
     private static Logger LOGGER = Logger.getLogger(MessageUtil.class);
+
+    //分配ByteBuf类
+    private static ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
 
     public static ByteBuf msg2ByteBuf(Message msg) {
         ByteBuf msgBuf = Unpooled.directBuffer(msg.getLength() + Message.VERSIONLENGTH + Message.CONTENTLENGTH + 1);
@@ -43,6 +47,16 @@ public class MessageUtil {
         msg.setContent(content);
         return msg;
     }
+
+//    public static List<ByteBuf> msg2ByteBuf(Message msg, InetSocketAddress inetSocketAddress, int mss){
+//        ByteBuf total = msg2ByteBuf(msg);
+//        long now = System.currentTimeMillis();
+//        if (total.readableBytes() <= mss){
+//
+//        }
+//
+//        total.readableBytes();
+//    }
 
     /**
      * -------------------------------------------各类TypeMessage转DatagramPacket部分---------------------------------------------------------

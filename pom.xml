@@ -17,6 +17,7 @@
         <fastjson.version>1.2.61</fastjson.version>
         <jctools.version>2.1.2</jctools.version>
         <disruptor.version>3.4.2</disruptor.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <dependencies>
@@ -44,6 +45,12 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -24,7 +24,8 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     private MessageHandler msgHandler;
 
     public UdpClientHandler() {
-        msgHandler = new StandardMessageHandler();
+//        msgHandler = new StandardMessageHandler();
+        msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PONG.ordinal(),new PongTypeMsgHandler());

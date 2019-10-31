@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.through.Connect;
-import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.Connection;
 import ppex.proto.msg.entity.through.RecvInfo;
 import ppex.proto.msg.type.ThroughTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
@@ -77,7 +77,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 //转发消息给B
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).getAddress()));
             } else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()) {
                 LOGGER.info("server handle connect connecting msg :" + connect.toString());
                 ConnectionService.getInstance().addConnecting(connect.getType(), connections);
@@ -89,22 +89,22 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 LOGGER.info("server handle connect return_hole_punch msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).getAddress()));
             } else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()) {
                 LOGGER.info("server handle connect reverse msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).getAddress()));
             } else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()) {
                 LOGGER.info("server handle connect forward msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(1).getAddress()));
             } else if (connect.getType() == Connect.TYPE.RETURN_FORWARD.ordinal()) {
                 LOGGER.info("server handle connect return_forward msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
-                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).inetSocketAddress));
+                ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, connections.get(0).getAddress()));
             }else{
                 throw new Exception("Unknow connect operate :" + connect.toString());
             }

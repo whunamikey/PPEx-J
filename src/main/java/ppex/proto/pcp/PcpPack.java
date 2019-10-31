@@ -1,11 +1,13 @@
 package ppex.proto.pcp;
 
-import com.sun.org.apache.regexp.internal.RE;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.SpscArrayQueue;
+import ppex.proto.msg.Message;
+import ppex.proto.msg.entity.Connection;
+import ppex.utils.MessageUtil;
 import ppex.utils.tpool.IMessageExecutor;
 
 import java.util.Queue;
@@ -22,13 +24,18 @@ public class PcpPack {
 
     private long tsUpdate = -1;
 
-    public PcpPack(int conv, PcpListener pcpListener, IMessageExecutor iMessageExecutor) {
-        this.pcp = new Pcp(conv);
+    private Connection connection;
+
+    public PcpPack(int conv, PcpListener pcpListener, IMessageExecutor iMessageExecutor, Connection connection,PcpOutput pcpOutput) {
+        this.pcp = new Pcp(conv,pcpOutput,connection);
         sndList = new MpscArrayQueue<>(2 << 11);
         rcvList = new SpscArrayQueue<>(2 << 11);
         this.iMessageExecutor = iMessageExecutor;
     }
 
+    public boolean write(Message msg){
+        return write(MessageUtil.msg2ByteBuf(msg));
+    }
 
     public boolean write(ByteBuf byteBuf) {
         byteBuf = byteBuf.retainedDuplicate();
@@ -63,6 +70,14 @@ public class PcpPack {
         }
     }
 
+    public void read(ByteBuf buf){
+        this.rcvList.add(buf);
+        notifyReadEvent();
+    }
+    public void read(DatagramPacket pkt){
+        read(pkt.content());
+    }
+
     protected void notifyWriteEvent() {
         SendTask sndTask = SendTask.New(this);
         this.iMessageExecutor.execute(sndTask);
@@ -84,5 +99,12 @@ public class PcpPack {
     public PcpPack setTsUpdate(long tsUpdate) {
         this.tsUpdate = tsUpdate;
         return this;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+    public int getInterval(){
+        return pcp.getInterval();
     }
 }

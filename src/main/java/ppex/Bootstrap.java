@@ -2,12 +2,14 @@ package ppex;
 
 import ppex.server.socket.UdpServer;
 import ppex.utils.Identity;
+import ppex.utils.LongIDUtil;
 
 public class Bootstrap {
 
     public static void main(String[] args) {
-        System.out.println("haha");
-        startServer();
+//        System.out.println("haha");
+//        startServer();
+        System.out.println("id:" + LongIDUtil.getCurrentId());
     }
 
     public static void startServer() {

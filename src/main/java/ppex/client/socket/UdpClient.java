@@ -13,7 +13,8 @@ import org.apache.log4j.Logger;
 import ppex.client.entity.Client;
 import ppex.client.process.DetectProcess;
 import ppex.client.process.ThroughProcess;
-import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.Connection;
+import ppex.proto.pcp.IChannelManager;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 
@@ -27,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 public class UdpClient {
 
     private static Logger LOGGER = Logger.getLogger(UdpClient.class);
+
+    private IChannelManager channelManager = ClientChannelManager.New();
 
     public void startClient() {
 
@@ -56,7 +59,7 @@ public class UdpClient {
             System.out.println("Client NAT type is :" + Client.getInstance().NAT_TYPE);
 
             Connection connection = new Connection(Client.getInstance().MAC_ADDRESS,Client.getInstance().address,
-                    Client.getInstance().peerName,Client.getInstance().NAT_TYPE);
+                    Client.getInstance().peerName,Client.getInstance().NAT_TYPE,ch);
             Client.getInstance().localConnection = connection;
 
             //2.穿越阶段

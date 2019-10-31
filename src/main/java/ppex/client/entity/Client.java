@@ -1,6 +1,6 @@
 package ppex.client.entity;
 
-import ppex.proto.msg.entity.through.Connection;
+import ppex.proto.msg.entity.Connection;
 import ppex.utils.Constants;
 
 import java.net.InetSocketAddress;
