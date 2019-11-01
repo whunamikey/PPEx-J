@@ -91,7 +91,7 @@ public class Pcp {
     //conv 会话,mtu最大传输单元大小,mss最大分节大小.mtu减去头部分
     private int conv;
     private int mtu = IKCP_MTU_DEF;
-    private int mss = this.mtu - IKCP_OVERHEAD;
+    private int mss = this.mtu - IKCP_HEAD;
     //snd_una 已发送但未确认,snd_nxt下次发送下标,rcv_nxt,下次接收下标
     private long snd_una, snd_nxt, rcv_nxt;
     //ts_recent,ts_lastack 上次ack时间,ts_ssthresh 慢启动门限
@@ -216,7 +216,7 @@ public class Pcp {
 
         fragment.ackMask = ackMask;
         for (int i = 0; i < count; i++) {
-            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
             long sn = acklist[i * 2];
             if (sn >= rcv_nxt || count - 1 == i) {
                 fragment.sn = sn;
@@ -257,13 +257,13 @@ public class Pcp {
 
         if ((probe & IKCP_ASK_SEND) != 0) {
             fragment.cmd = IKCP_CMD_WASK;
-            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
             encodeFragment(byteBuf, fragment);
         }
 
         if ((probe & IKCP_ASK_TELL) != 0) {
             fragment.cmd = IKCP_CMD_WINS;
-            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
             encodeFragment(byteBuf, fragment);
         }
 
@@ -337,7 +337,8 @@ public class Pcp {
 
                 ByteBuf frgData = frg.data;
                 int frgLen = frgData.readableBytes();
-                int need = IKCP_OVERHEAD + frgLen;
+//                int need = IKCP_OVERHEAD + frgLen;
+                int need = IKCP_HEAD + frgLen;
                 byteBuf = makeSpace(byteBuf, need);
                 encodeFragment(byteBuf, frg);
                 if (frgLen > 0) {
@@ -825,7 +826,7 @@ public class Pcp {
 
     public void setMtu(int mtu) {
         this.mtu = mtu;
-        this.mss = mtu - IKCP_OVERHEAD;
+        this.mss = mtu - IKCP_HEAD;
     }
 
     public int getMss() {
