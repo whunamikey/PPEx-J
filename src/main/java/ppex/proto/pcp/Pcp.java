@@ -342,15 +342,6 @@ public class Pcp {
                 byteBuf = makeSpace(byteBuf, need);
                 encodeFragment(byteBuf, frg);
                 //test
-                String result;
-                if (byteBuf.hasArray()){
-                    result = new String(byteBuf.array(),byteBuf.arrayOffset()+byteBuf.readerIndex(),byteBuf.readableBytes());
-                }else{
-                    byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.getBytes(byteBuf.readerIndex(),bytes);
-                    result = new String(bytes,0,byteBuf.readableBytes());
-                }
-                LOGGER.info("pcp output frg before data:" + result + " readable:" + byteBuf.readableBytes());
                 if (frgLen > 0) {
                     byteBuf.writeBytes(frgData, frgData.readerIndex(), frgLen);
                 }
@@ -364,16 +355,6 @@ public class Pcp {
                 }
             }
         }
-
-        String result;
-        if (byteBuf.hasArray()){
-            result = new String(byteBuf.array(),byteBuf.arrayOffset()+byteBuf.readerIndex(),byteBuf.readableBytes());
-        }else{
-            byte[] bytes = new byte[byteBuf.readableBytes()];
-            byteBuf.getBytes(byteBuf.readerIndex(),bytes);
-            result = new String(bytes,0,byteBuf.readableBytes());
-        }
-        LOGGER.info("pcp output frg after data:" + result + " readable:" + byteBuf.readableBytes());
 
         flushBuffer(byteBuf);
         fragment.recycler(true);
@@ -418,14 +399,15 @@ public class Pcp {
         while (true) {
             int conv, len, wnd;
             long ts, sn, una, ackMask;
-            byte cmd;
+            byte cmd,frgid;
             Fragment frg;
             if (data.readableBytes() < IKCP_OVERHEAD) {
                 break;
             }
             conv = data.readIntLE();
             cmd = data.readByte();
-            wnd = data.readUnsignedByte();
+            frgid = data.readByte();
+            wnd = data.readUnsignedShortLE();
             ts = data.readUnsignedIntLE();
             sn = data.readUnsignedIntLE();
             una = data.readUnsignedIntLE();
@@ -482,6 +464,7 @@ public class Pcp {
                             }
                             frg.conv = conv;
                             frg.cmd = cmd;
+                            frg.frgid = frgid;
                             frg.wnd = wnd;
                             frg.ts = ts;
                             frg.sn = sn;
