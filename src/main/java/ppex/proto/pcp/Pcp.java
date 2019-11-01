@@ -91,7 +91,7 @@ public class Pcp {
     //conv 会话,mtu最大传输单元大小,mss最大分节大小.mtu减去头部分
     private int conv;
     private int mtu = IKCP_MTU_DEF;
-    private int mss = this.mtu - IKCP_HEAD;
+    private int mss = this.mtu - IKCP_OVERHEAD;
     //snd_una 已发送但未确认,snd_nxt下次发送下标,rcv_nxt,下次接收下标
     private long snd_una, snd_nxt, rcv_nxt;
     //ts_recent,ts_lastack 上次ack时间,ts_ssthresh 慢启动门限
@@ -216,7 +216,7 @@ public class Pcp {
 
         fragment.ackMask = ackMask;
         for (int i = 0; i < count; i++) {
-            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
             long sn = acklist[i * 2];
             if (sn >= rcv_nxt || count - 1 == i) {
                 fragment.sn = sn;
@@ -257,13 +257,13 @@ public class Pcp {
 
         if ((probe & IKCP_ASK_SEND) != 0) {
             fragment.cmd = IKCP_CMD_WASK;
-            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
             encodeFragment(byteBuf, fragment);
         }
 
         if ((probe & IKCP_ASK_TELL) != 0) {
             fragment.cmd = IKCP_CMD_WINS;
-            byteBuf = makeSpace(byteBuf, IKCP_HEAD);
+            byteBuf = makeSpace(byteBuf, IKCP_OVERHEAD);
             encodeFragment(byteBuf, fragment);
         }
 
@@ -338,9 +338,19 @@ public class Pcp {
                 ByteBuf frgData = frg.data;
                 int frgLen = frgData.readableBytes();
 //                int need = IKCP_OVERHEAD + frgLen;
-                int need = IKCP_HEAD + frgLen;
+                int need = IKCP_OVERHEAD + frgLen;
                 byteBuf = makeSpace(byteBuf, need);
                 encodeFragment(byteBuf, frg);
+                //test
+                String result;
+                if (byteBuf.hasArray()){
+                    result = new String(byteBuf.array(),byteBuf.arrayOffset()+byteBuf.readerIndex(),byteBuf.readableBytes());
+                }else{
+                    byte[] bytes = new byte[byteBuf.readableBytes()];
+                    byteBuf.getBytes(byteBuf.readerIndex(),bytes);
+                    result = new String(bytes,0,byteBuf.readableBytes());
+                }
+                LOGGER.info("pcp output frg before data:" + result + " readable:" + byteBuf.readableBytes());
                 if (frgLen > 0) {
                     byteBuf.writeBytes(frgData, frgData.readerIndex(), frgLen);
                 }
@@ -354,6 +364,16 @@ public class Pcp {
                 }
             }
         }
+
+        String result;
+        if (byteBuf.hasArray()){
+            result = new String(byteBuf.array(),byteBuf.arrayOffset()+byteBuf.readerIndex(),byteBuf.readableBytes());
+        }else{
+            byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.getBytes(byteBuf.readerIndex(),bytes);
+            result = new String(bytes,0,byteBuf.readableBytes());
+        }
+        LOGGER.info("pcp output frg after data:" + result + " readable:" + byteBuf.readableBytes());
 
         flushBuffer(byteBuf);
         fragment.recycler(true);
@@ -762,6 +782,7 @@ public class Pcp {
     }
 
     private ByteBuf makeSpace(ByteBuf buf, int space) {
+        LOGGER.info("pcp makespace readable:" + buf.readableBytes() + " space:" + space);
         if (buf.readableBytes() + space > mtu) {
             LOGGER.info("Pcp makespace output");
             output(buf,this);
@@ -826,7 +847,7 @@ public class Pcp {
 
     public void setMtu(int mtu) {
         this.mtu = mtu;
-        this.mss = mtu - IKCP_HEAD;
+        this.mss = mtu - IKCP_OVERHEAD;
     }
 
     public int getMss() {
