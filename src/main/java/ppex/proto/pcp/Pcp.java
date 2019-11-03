@@ -187,7 +187,7 @@ public class Pcp {
     }
 
     public long flush(boolean ackOnly, long current) {
-        LOGGER.info("PCP flush ackonly:" + ackOnly + " current:" + current);
+//        LOGGER.info("PCP flush ackonly:" + ackOnly + " current:" + current);
         current = current - startTicks;
         Fragment fragment = Fragment.createFragment(byteBufAllocator, 0);
         fragment.conv = conv;
