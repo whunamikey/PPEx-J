@@ -77,7 +77,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
                 pcpPack = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
 
-                channelManager.New(channel, pcp);
+                channelManager.New(channel, pcpPack);
                 ScheduleTask scheduleTask = new ScheduleTask(executor, pcpPack, channelManager);
                 DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
             }
