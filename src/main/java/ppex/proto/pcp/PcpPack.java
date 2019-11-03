@@ -74,8 +74,8 @@ public class PcpPack {
 
     public void read(ByteBuf buf){
         LOGGER.info("PcpPack read:" + buf.readableBytes());
-        this.rcvList.add(buf.readRetainedSlice(buf.readableBytes()));
-        buf.release();
+        this.rcvList.add(buf);
+//        buf.release();
         notifyReadEvent();
     }
     public void read(DatagramPacket pkt){

@@ -41,7 +41,7 @@ public class RecvTask implements ITask {
                     break;
                 hasRcvMessage = true;
                 pcpPack.input(byteBuf,current);
-                byteBuf.release();
+//                byteBuf.release();
             }
             if (!hasRcvMessage)
                 return;
