@@ -78,11 +78,10 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
                 PcpPack pcp = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
 
                 channelManager.New(channel, pcp);
-                pcp.read(datagramPacket);
                 ScheduleTask scheduleTask = new ScheduleTask(executor, pcp, channelManager);
                 DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
             }
-            pcpPack.read(datagramPacket);
+            pcpPack.read(datagramPacket.content());
             //2019-10-30修改.使用pcppack
 //            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
 

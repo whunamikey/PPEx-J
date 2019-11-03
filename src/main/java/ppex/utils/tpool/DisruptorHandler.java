@@ -8,7 +8,7 @@ public class DisruptorHandler {
     }
     public void execute(){
         try {
-            this.task.execute();;
+            this.task.execute();
             this.task = null;
         }catch (Throwable t){
             t.printStackTrace();

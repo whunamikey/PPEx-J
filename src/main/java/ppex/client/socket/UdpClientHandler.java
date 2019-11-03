@@ -62,7 +62,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
                 pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
                 channelManager.New(channel,pcpPack);
             }
-            pcpPack.read(datagramPacket);
+            pcpPack.read(datagramPacket.content());
 
 //            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
         } catch (Exception e) {
