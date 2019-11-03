@@ -75,10 +75,10 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 PcpOutput pcpOutput = new ServerOutput();
 
-                PcpPack pcp = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
+                pcpPack = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
 
                 channelManager.New(channel, pcp);
-                ScheduleTask scheduleTask = new ScheduleTask(executor, pcp, channelManager);
+                ScheduleTask scheduleTask = new ScheduleTask(executor, pcpPack, channelManager);
                 DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
             }
             pcpPack.read(datagramPacket.content());
@@ -103,7 +103,8 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 //                System.out.println("write to client");
 //            }
         } catch (Exception e) {
-            LOGGER.error("---->ChannelRead0 exception:" + e.getMessage());
+            e.printStackTrace();
+            LOGGER.error("---->ChannelRead0 exception:" + e.getCause());
             System.out.println("server recv msg error");
         }
     }
