@@ -47,8 +47,8 @@ public class Fragment {
         xmit = 0;
         ackMask = 0;
         //todo 2019/11/3 主动释放会异常
-//        if (releaseBuffer)
-//            data.release();
+        if (releaseBuffer)
+            data.release();
         data = null;
         recyclerHandler.recycle(this);
     }
