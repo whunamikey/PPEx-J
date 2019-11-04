@@ -58,7 +58,7 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        bootstrap.handler(new UdpServerHandler(null,disruptorExectorPool,channelManager));
+        bootstrap.handler(new UdpServerHandler(disruptorExectorPool,channelManager));
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //

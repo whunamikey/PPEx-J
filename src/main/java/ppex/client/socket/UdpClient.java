@@ -59,10 +59,10 @@ public class UdpClient {
             bootstrap = new Bootstrap();
             int cpunum = Runtime.getRuntime().availableProcessors();
             disruptorExectorPool = new DisruptorExectorPool();
-            IntStream.range(0,cpunum).forEach(val->disruptorExectorPool.createDisruptorProcessor("disruptro:" + val));
+            IntStream.range(0, cpunum).forEach(val -> disruptorExectorPool.createDisruptorProcessor("disruptro:" + val));
             boolean epoll = Epoll.isAvailable();
-            if (epoll){
-                bootstrap.option(EpollChannelOption.SO_REUSEPORT,true);
+            if (epoll) {
+                bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
             }
             group = epoll ? new EpollEventLoopGroup(cpunum) : new NioEventLoopGroup(cpunum);
             Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
@@ -72,27 +72,33 @@ public class UdpClient {
                 @Override
                 protected void initChannel(Channel channel) throws Exception {
 //                    channel.pipeline().addLast(new IdleStateHandler(0, 10, 0, TimeUnit.SECONDS));
-                    channel.pipeline().addLast(new UdpClientHandler(null,disruptorExectorPool,channelManager));
+                    channel.pipeline().addLast(new UdpClientHandler(null, disruptorExectorPool, channelManager));
                 }
             });
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
             LOGGER.info("client ch local:" + ch.localAddress() + " remote:" + ch.remoteAddress());
-            PcpPack pcpPack = channelManager.get(ch,Client.getInstance().SERVER1);
+            PcpPack pcpPack = channelManager.get(ch, Client.getInstance().SERVER1);
 
-            if (pcpPack == null){
-                Connection connection = new Connection("",Client.getInstance().SERVER1,"server1",Constants.NATTYPE.PUBLIC_NETWORK.ordinal(),ch);
+            if (pcpPack == null) {
+                Connection connection = new Connection("", Client.getInstance().SERVER1, "server1", Constants.NATTYPE.PUBLIC_NETWORK.ordinal(), ch);
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 PcpOutput pcpOutput = new ClientOutput();
-                pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
-                channelManager.New(ch,pcpPack);
+                pcpPack = new PcpPack(0x1, null, executor, connection, pcpOutput);
+                channelManager.New(ch, pcpPack);
             }
 
-            ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
-            pcpPack.write(sndbuf);
-
-
-
-
+            PcpPack finalPcpPack = pcpPack;
+            IntStream.range(0, Integer.MAX_VALUE).forEach(val -> {
+                ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
+                finalPcpPack.write(sndbuf);
+                if (val % 200 == 0) {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
 
             //1.探测阶段.开始DetectProcess
@@ -110,7 +116,7 @@ public class UdpClient {
 //            ThroughProcess.getInstance().setChannel(ch);
 //            ThroughProcess.getInstance().sendSaveInfo();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(()->stop()));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
             while (true) {
                 TimeUnit.SECONDS.sleep(5);
                 LOGGER.info("client while...");
@@ -164,12 +170,12 @@ public class UdpClient {
         return "";
     }
 
-    public void stop(){
+    public void stop() {
         channels.forEach(channel -> channel.close());
-        if (disruptorExectorPool!= null){
+        if (disruptorExectorPool != null) {
             disruptorExectorPool.stop();
         }
-        if (group != null){
+        if (group != null) {
             group.shutdownGracefully();
         }
     }

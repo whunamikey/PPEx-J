@@ -1,5 +1,6 @@
 package ppex.server.socket;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,7 +17,7 @@ import ppex.server.myturn.ServerOutput;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
-public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> implements PcpListener{
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
@@ -27,7 +28,8 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     private PcpListener pcpListener;
     private DisruptorExectorPool disruptorExectorPool;
 
-    public UdpServerHandler(PcpListener pcpListener, DisruptorExectorPool disruptorExectorPool, IChannelManager channelManager) {
+
+    public UdpServerHandler(DisruptorExectorPool disruptorExectorPool, IChannelManager channelManager) {
         msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
@@ -140,4 +142,8 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("server write idleEvent");
     }
 
+    @Override
+    public void onResponse(ByteBuf byteBuf) {
+
+    }
 }

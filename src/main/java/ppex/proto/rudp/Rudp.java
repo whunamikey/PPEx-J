@@ -1,0 +1,183 @@
+package ppex.proto.rudp;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
+import org.apache.log4j.Logger;
+import ppex.proto.msg.Message;
+import ppex.proto.msg.entity.Connection;
+import ppex.utils.MessageUtil;
+import ppex.utils.set.ReItrLinkedList;
+import ppex.utils.set.ReusableListIterator;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+
+public class Rudp {
+    private static Logger LOGGER = Logger.getLogger(Rudp.class);
+
+    public static final int NO_DEFINE_RTO = 30;
+    public static final int RTO_MIN = 100;
+    public static final int RTO_DEFAULT = 200;
+    public static final int RTO_MAX = 60000;
+
+    public static final byte CMD_PUSH = 81;
+    public static final byte CMD_ACK = 82;
+    public static final byte CMD_ASK_WIN = 83;
+    public static final byte CMD_TELL_WIN = 84;
+
+    //need to send cmd_ask_win msg
+    public static final int ASK_WIN = 1;
+    //need to send cmd_tell_win msg
+    public static final int TELL_WIN = 2;
+
+    //超过次数重传就认为连接断开
+    public static final int DEAD_LINK = 10;
+    //头部数据长度
+    public int HEAD_LEN = 45;
+    //MTU
+    public static final int MTU_DEFUALT = 1469;
+    public static final int INTERVAL = 100;
+    //接收和发送窗口长度
+    public static final int WND_SND = 32;
+    public static final int WND_RCV = 32;
+    public static final int PROBE_INIT = 7000;
+    public static final int PROBE_LIMI = 120000;
+    //超过几个就重传
+    public static final int RESEND_DEFAULT = 10;
+
+    private int mtu = MTU_DEFUALT;
+    private int mss = mtu - HEAD_LEN;
+    private long snd_una, snd_nxt, rcv_nxt;
+
+    //rtt和srtt
+    private int rx_rttval, rx_srttval;
+    private int rx_rto = RTO_DEFAULT, rx_rtomin = RTO_MIN;
+    //接收窗口等值
+    private int wnd_snd = WND_SND, wnd_rcv = WND_RCV, wnd_rmt = WND_RCV;
+    private int wnd_cur = WND_SND;
+    //探测值
+    private int probe;
+    private int interval = INTERVAL;
+    //探测时间,探测等待时间
+    private long ts_probe, ts_probe_wait;
+    //断开链接
+    private int deadLink = DEAD_LINK;
+    //拥塞控制
+    private int congest = 0;
+    //表示有几个等待ack的数量
+    private int ackcount = 0;
+    //等待发送的数据
+    private LinkedList<Frg> queue_snd = new LinkedList<>();
+    //发送后等待确认数据,与上面queue_snd对应下来
+    private ReItrLinkedList<Frg> queue_sndack = new ReItrLinkedList<>();
+    //收到有序的消息队列
+    private ReItrLinkedList<Frg> queue_rcv_order = new ReItrLinkedList<>();
+    //收到无序的消息队列
+    private ReItrLinkedList<Frg> queue_rcv_shambles = new ReItrLinkedList<>();
+
+    //发送队列以及接收队列的iterator
+    private ReusableListIterator<Frg> itr_queue_rcv_order = queue_rcv_order.listIterator();
+    private ReusableListIterator<Frg> itr_queue_rcv_shambles = queue_rcv_shambles.listIterator();
+    private ReusableListIterator<Frg> itr_queue_sndack = queue_sndack.listIterator();
+
+    //开始的时间戳
+    private long startTicks = System.currentTimeMillis();
+    //ByteBuf操作类
+    private ByteBufAllocator byteBufAllocator = PooledByteBufAllocator.DEFAULT;
+    //超过该数量重传
+    private int resend = RESEND_DEFAULT;
+
+
+    private Output output;
+    private Connection connection;
+    private long ;
+
+    public Rudp(Output output, Connection connection) {
+        this.output = output;
+        this.connection = connection;
+    }
+
+//    private static int encodeFrg(ByteBuf buf,Frg frg){
+//
+//    }
+
+    public int send(ByteBuf buf,long msgid){
+        int len = buf.readableBytes();
+        if (len == 0)
+            return -1;
+        int count = 0;
+        if (len <= mss){
+            count = 1;
+        }else{
+            count = (len + mss - 1) / mss;
+        }
+        if (count == 0)
+            count = 1;
+        for (int i =0;i < count;i++){
+            int size = len > mss ? mss : len;
+            Frg frg = Frg.createFrg(buf.readRetainedSlice(size));
+            frg.tot = (count - i - 1);
+            queue_snd.add(frg);
+            len = buf.readableBytes();
+        }
+        return 0;
+    }
+
+    public int send(Message msg){
+        LOGGER.info("Rudp send msg id:" + msg.getMsgid());
+        ByteBuf buf = MessageUtil.msg2ByteBuf(msg);
+        return send(buf,msg.getMsgid());
+    }
+
+    public long flush(boolean ackonly,long current){
+        //发送是先将queue_snd里面的数据发送
+        while(itimediff(snd_nxt,snd_una + wnd_rmt) < 0){
+            Frg frg = queue_snd.poll();
+            if (frg == null)
+                break;
+            frg.cmd = CMD_PUSH;
+            frg.sn = snd_nxt;
+            queue_sndack.add(frg);
+            snd_nxt ++;
+        }
+        for (Iterator<Frg> itr = queue_sndack.listIterator();itr.hasNext();){
+            Frg frg = itr.next();
+            boolean send = false;
+            if (frg.xmit == 0){             //第一次发送
+                send = true;
+                frg.rto = rx_rto;
+                frg.ts_resnd = current + frg.rto;
+            }else if (frg.fastack >= resend){           //每次接收ack的时候,看序号,给fastack加1.超过10个就重传
+                send = true;
+                frg.fastack = 0;
+                frg.rto = rx_rto;
+                frg.ts_resnd = current + frg.rto;
+            }else if (itimediff(current,frg.ts_resnd) >= 0){    //超过重传时间戳就开始重传
+                send = true;
+                frg.rto += rx_rto;              //rto翻倍
+                frg.fastack = 0;
+                frg.ts_resnd = current + frg.rto;
+            }
+            if (send){
+                frg.xmit ++;
+                frg.ts = current;
+                frg.wnd = wndUnuse();
+                frg.una = rcv_nxt;
+
+            }
+        }
+        return 0;
+    }
+
+
+    private int itimediff(long later,long earlier){
+        return (int)(later - earlier);
+    }
+
+    private int wndUnuse(){
+        int tmp = wnd_rcv - queue_rcv_order.size();
+        return tmp < 0 ? 0 : tmp;
+    }
+
+}

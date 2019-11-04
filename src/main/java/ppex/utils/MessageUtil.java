@@ -1,10 +1,7 @@
 package ppex.utils;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.*;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
@@ -23,6 +20,7 @@ public class MessageUtil {
 
     public static ByteBuf msg2ByteBuf(Message msg) {
         ByteBuf msgBuf = Unpooled.directBuffer(msg.getLength() + Message.VERSIONLENGTH + Message.CONTENTLENGTH + 1);
+        msgBuf.writeLongLE(msg.getMsgid());
         msgBuf.writeByte(msg.getVersion());
         msgBuf.writeInt(msg.getLength());
         byte[] bytes = msg.getContent().getBytes(CharsetUtil.UTF_8);
@@ -31,15 +29,17 @@ public class MessageUtil {
     }
 
     public static Message bytebuf2Msg(ByteBuf byteBuf) {
-        if (byteBuf.readableBytes() < (Message.VERSIONLENGTH + Message.CONTENTLENGTH)) {
+        if (byteBuf.readableBytes() < (Message.VERSIONLENGTH + Message.CONTENTLENGTH + Message.ID_LEN)) {
             return null;
         }
+        long msgid = byteBuf.readLongLE();
         byte version = byteBuf.readByte();
         if (version != Constants.MSG_VERSION) {
             return null;
         }
         int length = byteBuf.readInt();
-        Message msg = new Message();
+        Message msg = new Message(LongIDUtil.getCurrentId());
+        msg.setMsgid(msgid);
         msg.setVersion(version);
         msg.setLength(length);
         byte[] bytes = new byte[length];
@@ -71,7 +71,7 @@ public class MessageUtil {
     }
 
     public static DatagramPacket typemsg2Packet(TypeMessage typeMessage, InetSocketAddress inetSocketAddress) {
-        Message msg = new Message();
+        Message msg = new Message(LongIDUtil.getCurrentId());
         msg.setContent(typeMessage);
         return msg2Packet(msg, inetSocketAddress);
     }
@@ -144,7 +144,7 @@ public class MessageUtil {
      **/
 
     public static ByteBuf typemsg2Bytebuf(TypeMessage typeMessage) {
-        Message msg = new Message();
+        Message msg = new Message(LongIDUtil.getCurrentId());
         msg.setContent(typeMessage);
         return msg2ByteBuf(msg);
     }

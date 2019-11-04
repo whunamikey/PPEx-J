@@ -22,14 +22,17 @@ import ppex.utils.Constants;
  *
  */
 public class Message {
+    public static final int ID_LEN = 8;
     public static final int VERSIONLENGTH = 1;
     public static final int CONTENTLENGTH = 4;
 
     private byte version;
+    private long msgid;
     private int length;
     private String content;
 
-    public Message() {
+    public Message(long msgid) {
+        this.msgid = msgid;
         this.version = Constants.MSG_VERSION;
     }
 
@@ -43,6 +46,14 @@ public class Message {
 
     public int getLength() {
         return length;
+    }
+
+    public long getMsgid() {
+        return msgid;
+    }
+
+    public void setMsgid(long msgid) {
+        this.msgid = msgid;
     }
 
     public void setLength(int length) {
