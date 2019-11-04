@@ -93,8 +93,8 @@ public class PcpPack {
 
     protected void notifyWriteEvent() {
         LOGGER.info("PcpPack notifyWriteEvent");
-        SendTask sndTask = SendTask.New(this);
-        this.iMessageExecutor.execute(sndTask);
+//        SendTask sndTask = SendTask.New(this);
+//        this.iMessageExecutor.execute(sndTask);
     }
 
     protected void notifyReadEvent() {

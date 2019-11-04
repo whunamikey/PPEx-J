@@ -769,7 +769,7 @@ public class Pcp {
         LOGGER.info("pcp makespace readable:" + buf.readableBytes() + " space:" + space);
         if (buf.readableBytes() + space > mtu) {
             LOGGER.info("Pcp makespace output");
-            output(buf,this);
+//            output(buf,this);
             buf = createFlushByteBuf();
         }
         return buf;
@@ -804,17 +804,17 @@ public class Pcp {
     private void flushBuffer(ByteBuf byteBuf) {
         if (byteBuf.readableBytes() > 0) {
             LOGGER.info("Pcp flushBuffer");
-            output(byteBuf, this);
+//            output(byteBuf, this);
             return;
         }
         byteBuf.release();
     }
 
-    private static void output(ByteBuf data, Pcp pcp) {
-        if (data.readableBytes() == 0)
-            return;
-        pcp.pcpOutput.out(data, pcp);
-    }
+//    private static void output(ByteBuf data, Kcp pcp) {
+//        if (data.readableBytes() == 0)
+//            return;
+//        pcp.pcpOutput.out(data, pcp);
+//    }
 
     private static int itimediff(long later, long earlier) {
         return (int) (later - earlier);

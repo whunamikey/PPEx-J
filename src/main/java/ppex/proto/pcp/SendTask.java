@@ -22,11 +22,17 @@ public class SendTask implements ITask {
         this.recyclerHandler = recyclerHandler;
     }
 
-    private PcpPack pcpPack;
+//    private PcpPack pcpPack;
 
-    public static SendTask New(PcpPack pcpPack) {
+    private Ukcp ukcp;
+//    public static SendTask New(PcpPack pcpPack) {
+//        SendTask sendTask = RECYCLER.get();
+//        sendTask.pcpPack = pcpPack;
+//        return sendTask;
+//    }
+    public static SendTask New(Ukcp ukcp){
         SendTask sendTask = RECYCLER.get();
-        sendTask.pcpPack = pcpPack;
+        sendTask.ukcp = ukcp;
         return sendTask;
     }
 
@@ -34,23 +40,23 @@ public class SendTask implements ITask {
     public void execute() {
         try {
 
-            MpscArrayQueue<ByteBuf> queue = pcpPack.getSndList();
-            while (pcpPack.canSend(false)) {
+            MpscArrayQueue<ByteBuf> queue = ukcp.getSendList();
+            while (ukcp.canSend(false)) {
                 ByteBuf byteBuf = queue.poll();
                 if (byteBuf == null)
                     break;
                 try {
-                    this.pcpPack.send(byteBuf);
+                    this.ukcp.send(byteBuf);
                     byteBuf.release();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
-            if (!pcpPack.canSend(false) || (pcpPack.checkFlush() && pcpPack.isFastFlush())){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
+            if (!ukcp.canSend(false) || (ukcp.checkFlush() && ukcp.isFastFlush())){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
                 LOGGER.info("SendTask cansend");
                 long now = System.currentTimeMillis();
-                long next = pcpPack.flush(now);
-                pcpPack.setTsUpdate(now + next);
+                long next = ukcp.flush(now);
+                ukcp.setTsUpdate(now + next);
             }
 
         } catch (Throwable throwable) {
@@ -61,7 +67,7 @@ public class SendTask implements ITask {
     }
 
     public void release() {
-        pcpPack = null;
+        ukcp = null;
         recyclerHandler.recycle(this);
     }
 }

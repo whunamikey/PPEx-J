@@ -4,13 +4,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
-import ppex.proto.pcp.Pcp;
+import ppex.proto.pcp.Kcp;
 import ppex.proto.pcp.PcpOutput;
 
 public class ClientOutput implements PcpOutput {
     private static Logger LOGGER = Logger.getLogger(ClientOutput.class);
     @Override
-    public void out(ByteBuf data, Pcp pcp) {
+    public void out(ByteBuf data, Kcp pcp) {
 //        String result;
 //        if (data.hasArray()){
 //            result = new String(data.array(),data.arrayOffset()+data.readerIndex(),data.readableBytes());
