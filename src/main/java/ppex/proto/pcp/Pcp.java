@@ -560,7 +560,7 @@ public class Pcp {
             if (byteBuf == null) {
                 if (frgid == 0) {
                     byteBuf = frg.data;
-                    frg.recycler(true);
+//                    frg.recycler(true);
                     break;
                 }
                 byteBuf = byteBufAllocator.ioBuffer(len);
