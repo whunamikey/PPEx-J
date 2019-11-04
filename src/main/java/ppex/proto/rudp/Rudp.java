@@ -36,7 +36,7 @@ public class Rudp {
     //头部数据长度
     public int HEAD_LEN = 45;
     //MTU
-    public static final int MTU_DEFUALT = 1469;
+    public static final int MTU_DEFUALT = 1471;
     public static final int INTERVAL = 100;
     //接收和发送窗口长度
     public static final int WND_SND = 32;
@@ -91,7 +91,7 @@ public class Rudp {
 
     private Output output;
     private Connection connection;
-    private long ;
+    private long ack;
 
     public Rudp(Output output, Connection connection) {
         this.output = output;
@@ -118,6 +118,7 @@ public class Rudp {
             int size = len > mss ? mss : len;
             Frg frg = Frg.createFrg(buf.readRetainedSlice(size));
             frg.tot = (count - i - 1);
+            frg.msgid = msgid;
             queue_snd.add(frg);
             len = buf.readableBytes();
         }
@@ -132,7 +133,8 @@ public class Rudp {
 
     public long flush(boolean ackonly,long current){
         //发送是先将queue_snd里面的数据发送
-        while(itimediff(snd_nxt,snd_una + wnd_rmt) < 0){
+        int wnd_count = Math.min(wnd_snd,wnd_rmt);                      //后面加入请求server端窗口数量来控制拥塞
+        while(itimediff(snd_nxt,snd_una + wnd_count) < 0){    //这里控制数量输入，即是窗口的数量控制好了
             Frg frg = queue_snd.poll();
             if (frg == null)
                 break;
@@ -161,10 +163,18 @@ public class Rudp {
             }
             if (send){
                 frg.xmit ++;
+                if (frg.xmit >= deadLink){
+                    //todo 连接已断开
+                }
                 frg.ts = current;
                 frg.wnd = wndUnuse();
                 frg.una = rcv_nxt;
-
+                ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN+frg.data.readableBytes());
+                encodeFlushBuf(flushbuf,frg);
+                if (frg.data.readableBytes() > 0){
+                    flushbuf.writeBytes(frg.data,frg.data.readerIndex(),frg.data.readableBytes());
+                }
+                output(flushbuf);
             }
         }
         return 0;
@@ -179,5 +189,31 @@ public class Rudp {
         int tmp = wnd_rcv - queue_rcv_order.size();
         return tmp < 0 ? 0 : tmp;
     }
+
+    private void output(ByteBuf buf){
+        if (buf.readableBytes() > 0){
+            output.output(buf,this);
+            return;
+        }
+        buf.release();
+    }
+
+    private ByteBuf createEmptyByteBuf(int len){
+        return byteBufAllocator.ioBuffer(len);
+    }
+
+    private int encodeFlushBuf(ByteBuf buf,Frg frg){
+        int offset = buf.writerIndex();
+        buf.writeByte(frg.cmd);
+        buf.writeLongLE(frg.msgid);
+        buf.writeIntLE(frg.tot);
+        buf.writeIntLE(frg.wnd);
+        buf.writeLongLE(frg.ts);
+        buf.writeLongLE(frg.sn);
+        buf.writeLongLE(frg.una);
+        buf.writeIntLE(frg.data.readableBytes());
+        return buf.writerIndex() - offset;
+    }
+
 
 }

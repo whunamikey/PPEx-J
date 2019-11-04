@@ -23,9 +23,9 @@ public class Frg {
     }
 
     public ByteBuf data;
+    public byte cmd;
     public long msgid;
     public int tot;
-    public byte cmd;
     public int wnd;
     public long ts;
     public long sn;
