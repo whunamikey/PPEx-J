@@ -24,7 +24,6 @@ import ppex.proto.msg.type.TxtTypeMsg;
 import ppex.proto.pcp.IChannelManager;
 import ppex.proto.pcp.PcpOutput;
 import ppex.proto.pcp.PcpPack;
-import ppex.proto.pcp.Ukcp;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
@@ -78,19 +77,18 @@ public class UdpClient {
             });
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
             LOGGER.info("client ch local:" + ch.localAddress() + " remote:" + ch.remoteAddress());
-//            PcpPack pcpPack = channelManager.get(ch,Client.getInstance().SERVER1);
-            Ukcp ukcp = channelManager.get(ch,Client.getInstance().SERVER1);
+            PcpPack pcpPack = channelManager.get(ch,Client.getInstance().SERVER1);
 
-            if (ukcp == null){
+            if (pcpPack == null){
                 Connection connection = new Connection("",Client.getInstance().SERVER1,"server1",Constants.NATTYPE.PUBLIC_NETWORK.ordinal(),ch);
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 PcpOutput pcpOutput = new ClientOutput();
-                ukcp = new Ukcp(pcpOutput,null,executor,connection);
-                channelManager.New(ch,ukcp);
+                pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
+                channelManager.New(ch,pcpPack);
             }
 
             ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
-            ukcp.write(sndbuf);
+            pcpPack.write(sndbuf);
 
 
 

@@ -1,7 +1,7 @@
 package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.SpscArrayQueue;
@@ -40,13 +40,10 @@ public class PcpPack {
 
     public boolean write(ByteBuf byteBuf) {
         LOGGER.info("PcpPack write:" + byteBuf.readableBytes());
-//        byteBuf = byteBuf.retainedDuplicate();
-        ByteBuf newBuf = Unpooled.directBuffer(byteBuf.readableBytes());
-        newBuf.writeBytes(byteBuf);
-        byteBuf.release();
-        if (!sndList.offer(newBuf)) {
+        byteBuf = byteBuf.retainedDuplicate();
+        if (!sndList.offer(byteBuf)) {
             LOGGER.error("sndList full");
-            newBuf.release();
+            byteBuf.release();
             return false;
         }
         notifyWriteEvent();
@@ -77,10 +74,8 @@ public class PcpPack {
 
     public void read(ByteBuf buf){
         LOGGER.info("PcpPack read:" + buf.readableBytes());
-        ByteBuf newBuf = Unpooled.directBuffer(buf.readableBytes());
-        newBuf.writeBytes(buf);
+        this.rcvList.add(buf.readRetainedSlice(buf.readableBytes()));
         buf.release();
-        this.rcvList.add(newBuf);
         notifyReadEvent();
     }
 
@@ -93,8 +88,8 @@ public class PcpPack {
 
     protected void notifyWriteEvent() {
         LOGGER.info("PcpPack notifyWriteEvent");
-//        SendTask sndTask = SendTask.New(this);
-//        this.iMessageExecutor.execute(sndTask);
+        SendTask sndTask = SendTask.New(this);
+        this.iMessageExecutor.execute(sndTask);
     }
 
     protected void notifyReadEvent() {

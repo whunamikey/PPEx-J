@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import ppex.utils.tpool.ITask;
 
+
 public class SendTask implements ITask {
 
     private static Logger LOGGER = Logger.getLogger(SendTask.class);
@@ -22,17 +23,11 @@ public class SendTask implements ITask {
         this.recyclerHandler = recyclerHandler;
     }
 
-//    private PcpPack pcpPack;
+    private PcpPack pcpPack;
 
-    private Ukcp ukcp;
-//    public static SendTask New(PcpPack pcpPack) {
-//        SendTask sendTask = RECYCLER.get();
-//        sendTask.pcpPack = pcpPack;
-//        return sendTask;
-//    }
-    public static SendTask New(Ukcp ukcp){
+    public static SendTask New(PcpPack pcpPack) {
         SendTask sendTask = RECYCLER.get();
-        sendTask.ukcp = ukcp;
+        sendTask.pcpPack = pcpPack;
         return sendTask;
     }
 
@@ -40,23 +35,23 @@ public class SendTask implements ITask {
     public void execute() {
         try {
 
-            MpscArrayQueue<ByteBuf> queue = ukcp.getSendList();
-            while (ukcp.canSend(false)) {
+            MpscArrayQueue<ByteBuf> queue = pcpPack.getSndList();
+            while (pcpPack.canSend(false)) {
                 ByteBuf byteBuf = queue.poll();
                 if (byteBuf == null)
                     break;
                 try {
-                    this.ukcp.send(byteBuf);
+                    this.pcpPack.send(byteBuf);
                     byteBuf.release();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
-            if (!ukcp.canSend(false) || (ukcp.checkFlush() && ukcp.isFastFlush())){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
+            if (!pcpPack.canSend(false) || (pcpPack.checkFlush() && pcpPack.isFastFlush())){   //当发现等待ack的队列数量比窗口的数量还多.执行发送动作
                 LOGGER.info("SendTask cansend");
                 long now = System.currentTimeMillis();
-                long next = ukcp.flush(now);
-                ukcp.setTsUpdate(now + next);
+                long next = pcpPack.flush(now);
+                pcpPack.setTsUpdate(now + next);
             }
 
         } catch (Throwable throwable) {
@@ -67,7 +62,7 @@ public class SendTask implements ITask {
     }
 
     public void release() {
-        ukcp = null;
+        pcpPack = null;
         recyclerHandler.recycle(this);
     }
 }

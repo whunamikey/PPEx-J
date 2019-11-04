@@ -2,7 +2,6 @@ package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
 import ppex.utils.MessageUtil;
@@ -338,9 +337,11 @@ public class Pcp {
 
                 ByteBuf frgData = frg.data;
                 int frgLen = frgData.readableBytes();
+//                int need = IKCP_OVERHEAD + frgLen;
                 int need = IKCP_OVERHEAD + frgLen;
                 byteBuf = makeSpace(byteBuf, need);
                 encodeFragment(byteBuf, frg);
+                //test
                 if (frgLen > 0) {
                     byteBuf.writeBytes(frgData, frgData.readerIndex(), frgLen);
                 }
@@ -456,9 +457,7 @@ public class Pcp {
                         ackPush(sn, ts);
                         if (itimediff(sn, rcv_nxt) >= 0) {
                             if (len > 0) {
-                                ByteBuf newbuf = Unpooled.directBuffer(data.readableBytes());
-                                newbuf.writeBytes(data);
-                                frg = Fragment.createFragment(newbuf);
+                                frg = Fragment.createFragment(data.readRetainedSlice(len));
                                 readed = true;
                             } else {
                                 frg = Fragment.createFragment(byteBufAllocator, 0);
@@ -560,7 +559,7 @@ public class Pcp {
             itr.remove();
             if (byteBuf == null) {
                 if (frgid == 0) {
-                    byteBuf = frg.data.readRetainedSlice(frg.data.readableBytes());
+                    byteBuf = frg.data;
                     frg.recycler(true);
                     break;
                 }
@@ -769,7 +768,7 @@ public class Pcp {
         LOGGER.info("pcp makespace readable:" + buf.readableBytes() + " space:" + space);
         if (buf.readableBytes() + space > mtu) {
             LOGGER.info("Pcp makespace output");
-//            output(buf,this);
+            output(buf,this);
             buf = createFlushByteBuf();
         }
         return buf;
@@ -804,17 +803,17 @@ public class Pcp {
     private void flushBuffer(ByteBuf byteBuf) {
         if (byteBuf.readableBytes() > 0) {
             LOGGER.info("Pcp flushBuffer");
-//            output(byteBuf, this);
+            output(byteBuf, this);
             return;
         }
         byteBuf.release();
     }
 
-//    private static void output(ByteBuf data, Kcp pcp) {
-//        if (data.readableBytes() == 0)
-//            return;
-//        pcp.pcpOutput.out(data, pcp);
-//    }
+    private static void output(ByteBuf data, Pcp pcp) {
+        if (data.readableBytes() == 0)
+            return;
+        pcp.pcpOutput.out(data, pcp);
+    }
 
     private static int itimediff(long later, long earlier) {
         return (int) (later - earlier);
