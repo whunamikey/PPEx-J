@@ -2,6 +2,7 @@ package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
 import ppex.utils.MessageUtil;
@@ -455,7 +456,9 @@ public class Pcp {
                         ackPush(sn, ts);
                         if (itimediff(sn, rcv_nxt) >= 0) {
                             if (len > 0) {
-                                frg = Fragment.createFragment(data.readRetainedSlice(len));
+                                ByteBuf newbuf = Unpooled.directBuffer(data.readableBytes());
+                                newbuf.writeBytes(data);
+                                frg = Fragment.createFragment(newbuf);
                                 readed = true;
                             } else {
                                 frg = Fragment.createFragment(byteBufAllocator, 0);

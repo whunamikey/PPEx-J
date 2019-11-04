@@ -46,7 +46,6 @@ public class Fragment {
         fastack = 0;
         xmit = 0;
         ackMask = 0;
-        //todo 2019/11/3 主动释放会异常
         if (releaseBuffer)
             data.release();
         data = null;

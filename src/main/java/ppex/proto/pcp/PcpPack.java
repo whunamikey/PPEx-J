@@ -1,7 +1,7 @@
 package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.socket.DatagramPacket;
+import io.netty.buffer.Unpooled;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.SpscArrayQueue;
@@ -41,9 +41,12 @@ public class PcpPack {
     public boolean write(ByteBuf byteBuf) {
         LOGGER.info("PcpPack write:" + byteBuf.readableBytes());
 //        byteBuf = byteBuf.retainedDuplicate();
-        if (!sndList.offer(byteBuf)) {
+        ByteBuf newBuf = Unpooled.directBuffer(byteBuf.readableBytes());
+        newBuf.writeBytes(byteBuf);
+        byteBuf.release();
+        if (!sndList.offer(newBuf)) {
             LOGGER.error("sndList full");
-            byteBuf.release();
+            newBuf.release();
             return false;
         }
         notifyWriteEvent();
@@ -74,7 +77,10 @@ public class PcpPack {
 
     public void read(ByteBuf buf){
         LOGGER.info("PcpPack read:" + buf.readableBytes());
-        this.rcvList.add(buf);
+        ByteBuf newBuf = Unpooled.directBuffer(buf.readableBytes());
+        newBuf.writeBytes(buf);
+        buf.release();
+        this.rcvList.add(newBuf);
         notifyReadEvent();
     }
 
