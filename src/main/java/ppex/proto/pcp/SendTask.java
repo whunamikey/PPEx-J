@@ -6,8 +6,6 @@ import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import ppex.utils.tpool.ITask;
 
-import java.io.IOException;
-
 public class SendTask implements ITask {
 
     private static Logger LOGGER = Logger.getLogger(SendTask.class);

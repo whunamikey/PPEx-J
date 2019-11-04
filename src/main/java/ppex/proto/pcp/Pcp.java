@@ -337,11 +337,9 @@ public class Pcp {
 
                 ByteBuf frgData = frg.data;
                 int frgLen = frgData.readableBytes();
-//                int need = IKCP_OVERHEAD + frgLen;
                 int need = IKCP_OVERHEAD + frgLen;
                 byteBuf = makeSpace(byteBuf, need);
                 encodeFragment(byteBuf, frg);
-                //test
                 if (frgLen > 0) {
                     byteBuf.writeBytes(frgData, frgData.readerIndex(), frgLen);
                 }
@@ -559,7 +557,7 @@ public class Pcp {
             itr.remove();
             if (byteBuf == null) {
                 if (frgid == 0) {
-                    byteBuf = frg.data;
+                    byteBuf = frg.data.readRetainedSlice(frg.data.readableBytes());
                     frg.recycler(true);
                     break;
                 }

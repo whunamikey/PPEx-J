@@ -11,7 +11,7 @@ public class ClientOutput implements PcpOutput {
     private static Logger LOGGER = Logger.getLogger(ClientOutput.class);
     @Override
     public void out(ByteBuf data, Pcp pcp) {
-        String result;
+//        String result;
 //        if (data.hasArray()){
 //            result = new String(data.array(),data.arrayOffset()+data.readerIndex(),data.readableBytes());
 //        }else{

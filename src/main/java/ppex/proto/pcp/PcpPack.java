@@ -40,7 +40,7 @@ public class PcpPack {
 
     public boolean write(ByteBuf byteBuf) {
         LOGGER.info("PcpPack write:" + byteBuf.readableBytes());
-        byteBuf = byteBuf.retainedDuplicate();
+//        byteBuf = byteBuf.retainedDuplicate();
         if (!sndList.offer(byteBuf)) {
             LOGGER.error("sndList full");
             byteBuf.release();
@@ -74,8 +74,7 @@ public class PcpPack {
 
     public void read(ByteBuf buf){
         LOGGER.info("PcpPack read:" + buf.readableBytes());
-        this.rcvList.add(buf.readRetainedSlice(buf.readableBytes()));
-        buf.release();
+        this.rcvList.add(buf);
         notifyReadEvent();
     }
 
