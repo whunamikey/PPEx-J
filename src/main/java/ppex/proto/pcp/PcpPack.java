@@ -1,7 +1,6 @@
 package ppex.proto.pcp;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.SpscArrayQueue;

@@ -5,26 +5,31 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.util.Recycler;
 
 public class Fragment {
-    private final Recycler.Handle<Fragment> recyclerHandler;
-    private static final Recycler<Fragment> RECYCLER = new Recycler<Fragment>() {
-        @Override
-        protected Fragment newObject(Handle<Fragment> handle) {
-            return new Fragment(handle);
-        }
-    };
+//    private final Recycler.Handle<Fragment> recyclerHandler;
+//    private static final Recycler<Fragment> RECYCLER = new Recycler<Fragment>() {
+//        @Override
+//        protected Fragment newObject(Handle<Fragment> handle) {
+//            return new Fragment(handle);
+//        }
+//    };
 
-    private Fragment(Recycler.Handle<Fragment> recyclerHandler) {
-        this.recyclerHandler = recyclerHandler;
+//    private Fragment(Recycler.Handle<Fragment> recyclerHandler) {
+//        this.recyclerHandler = recyclerHandler;
+//    }
+
+
+    public Fragment() {
     }
 
     public static Fragment createFragment(ByteBuf data) {
-        Fragment fragment = RECYCLER.get();
+//        Fragment fragment = RECYCLER.get();
+        Fragment fragment = new Fragment();
         fragment.data = data;
         return fragment;
     }
 
     public static Fragment createFragment(ByteBufAllocator allocator, int size) {
-        Fragment fragment = RECYCLER.get();
+        Fragment fragment = new Fragment();
         if (size == 0) {
             fragment.data = allocator.ioBuffer(0, 0);
         } else {
@@ -49,7 +54,7 @@ public class Fragment {
         if (releaseBuffer)
             data.release();
         data = null;
-        recyclerHandler.recycle(this);
+//        recyclerHandler.recycle(this);
     }
 
     public int conv;
