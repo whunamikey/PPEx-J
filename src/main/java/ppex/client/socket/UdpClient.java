@@ -114,7 +114,7 @@ public class UdpClient {
             }
 
             RudpPack finalpack = rudpPack;
-            IntStream.range(0,1).forEach(val ->{
+            IntStream.range(0,100).forEach(val ->{
                 Message msg = MessageUtil.makeTestStr2Msg("this msg from client");
                 finalpack.write(msg);
                 if (val % 10 == 0){
