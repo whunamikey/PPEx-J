@@ -245,7 +245,7 @@ public class Rudp {
                 case CMD_ACK:
                     LOGGER.info("Rudp ACK msgid:" + msgid);
                     affirmAck(sn);
-                    affirmFastAck(sn,ts);
+                    affirmFastAck(sn, ts);
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
@@ -254,8 +254,8 @@ public class Rudp {
                         Frg frg;
                         if (len > 0) {
                             frg = Frg.createFrg(data.readRetainedSlice(len));
-                        }else{
-                            frg = Frg.createFrg(byteBufAllocator,0);
+                        } else {
+                            frg = Frg.createFrg(byteBufAllocator, 0);
                         }
                         frg.cmd = cmd;
                         frg.msgid = msgid;
@@ -312,16 +312,16 @@ public class Rudp {
         }
     }
 
-    private void affirmFastAck(long sn,long ts){
-        if (itimediff(sn,snd_una) < 0 || itimediff(sn,snd_nxt) >= 0){
+    private void affirmFastAck(long sn, long ts) {
+        if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
-        for (Iterator<Frg> itr = itr_queue_sndack.rewind();itr.hasNext();){
+        for (Iterator<Frg> itr = itr_queue_sndack.rewind(); itr.hasNext(); ) {
             Frg frg = itr.next();
-            if (itimediff(sn,frg.sn) < 0){
+            if (itimediff(sn, frg.sn) < 0) {
                 break;
-            }else if (sn != frg.sn && itimediff(frg.ts,ts) <= 0){
-                frg.fastack ++;
+            } else if (sn != frg.sn && itimediff(frg.ts, ts) <= 0) {
+                frg.fastack++;
             }
         }
     }
@@ -363,6 +363,7 @@ public class Rudp {
         }
         if (repeat) {
             //todo 消息重复,目前没有处理
+            frg.recycler(true);
         } else if (itrList == null) {
             queue_rcv_shambles.add(frg);
         } else {
@@ -386,7 +387,7 @@ public class Rudp {
     }
 
     //从queue中找出可以合成message的数据
-    public Message mergeRcvData(){
+    public Message mergeRcvData() {
         if (queue_rcv_order.isEmpty())
             return null;
         //获取申请的Bytebuf长度
@@ -394,13 +395,11 @@ public class Rudp {
         if (len < 0)
             return null;
         ByteBuf buf = null;
-        int tmpLen = 0;
-        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind();itr.hasNext();){
+        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
-            tmpLen += frg.data.readableBytes();
-            if (buf == null){
-                if (frg.tot == 0){
+            if (buf == null) {
+                if (frg.tot == 0) {
                     buf = frg.data;
                     break;
                 }
@@ -413,10 +412,12 @@ public class Rudp {
         }
         arrangeRcvData();
         Message msg = MessageUtil.bytebuf2Msg(buf);
+        if (buf != null)
+            buf.release();
         return msg;
     }
 
-    public int lenOfByteBuf(){
+    public int lenOfByteBuf() {
         if (queue_rcv_order.isEmpty())
             return -1;
         Frg frg = queue_rcv_order.peek();
@@ -425,7 +426,7 @@ public class Rudp {
         if (queue_rcv_order.size() < frg.tot + 1)
             return -1;
         int len = 0;
-        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind();itr.hasNext();){
+        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind(); itr.hasNext(); ) {
             Frg f = itr.next();
             len += f.data.readableBytes();
             if (f.tot == 0)
@@ -443,13 +444,13 @@ public class Rudp {
         return interval;
     }
 
-    public boolean canRcv(){
+    public boolean canRcv() {
         if (queue_rcv_order.isEmpty())
             return false;
         Frg frg = queue_rcv_order.peek();
         if (frg.tot == 0)
             return true;
-        if(queue_rcv_order.size() < frg.tot + 1){
+        if (queue_rcv_order.size() < frg.tot + 1) {
             return false;
         }
         return true;

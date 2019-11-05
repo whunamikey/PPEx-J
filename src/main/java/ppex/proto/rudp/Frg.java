@@ -22,6 +22,11 @@ public class Frg {
         return frg;
     }
 
+    public void recycler(boolean release){
+        if (data != null && data.refCnt() > 0)
+            data.release();
+    }
+
     public ByteBuf data;
     public byte cmd;
     public long msgid;
