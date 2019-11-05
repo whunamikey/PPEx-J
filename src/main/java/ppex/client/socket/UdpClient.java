@@ -76,7 +76,7 @@ public class UdpClient {
                 @Override
                 protected void initChannel(Channel channel) throws Exception {
 //                    channel.pipeline().addLast(new IdleStateHandler(0, 10, 0, TimeUnit.SECONDS));
-                    channel.pipeline().addLast(new UdpClientHandler(null, disruptorExectorPool, channelManager));
+                    channel.pipeline().addLast(new UdpClientHandler(null, disruptorExectorPool, addrManager));
                 }
             });
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();

@@ -11,6 +11,7 @@ import ppex.client.handlers.PongTypeMsgHandler;
 import ppex.client.handlers.ProbeTypeMsgHandler;
 import ppex.client.handlers.ThroughTypeMsgHandler;
 import ppex.client.handlers.TxtTypeMsgHandler;
+import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.entity.Connection;
@@ -20,13 +21,17 @@ import ppex.proto.pcp.IChannelManager;
 import ppex.proto.pcp.PcpListener;
 import ppex.proto.pcp.PcpOutput;
 import ppex.proto.pcp.PcpPack;
+import ppex.proto.rudp.IAddrManager;
+import ppex.proto.rudp.Output;
+import ppex.proto.rudp.ResponseListener;
+import ppex.proto.rudp.RudpPack;
 import ppex.utils.Constants;
 import ppex.utils.MessageUtil;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
 
-public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket> implements ResponseListener {
 
     private static Logger LOGGER = Logger.getLogger(UdpClientHandler.class);
 
@@ -35,8 +40,9 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     private PcpListener pcpListener;
     private DisruptorExectorPool disruptorExectorPool;
     private IChannelManager channelManager;
+    private IAddrManager addrManager;
 
-    public UdpClientHandler(PcpListener pcpListener, DisruptorExectorPool disruptorExectorPool, IChannelManager channelManager) {
+    public UdpClientHandler(PcpListener pcpListener, DisruptorExectorPool disruptorExectorPool, IAddrManager addrManager) {
         msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
@@ -45,8 +51,7 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
 
         this.pcpListener = pcpListener;
         this.disruptorExectorPool = disruptorExectorPool;
-        this.channelManager = channelManager;
-
+        this.addrManager = addrManager;
     }
 
     @Override
@@ -54,15 +59,25 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         try {
             Channel channel = channelHandlerContext.channel();
             LOGGER.info("ClientHandler channel local:" + channel.localAddress() + " remote:" + channel.remoteAddress());
-            PcpPack pcpPack = channelManager.get(channel,datagramPacket.sender());
-            if (pcpPack == null){
-                Connection connection = new Connection("",datagramPacket.sender(),"From1", Constants.NATTYPE.UNKNOWN.ordinal(),channel);
+//            PcpPack pcpPack = channelManager.get(channel,datagramPacket.sender());
+//            if (pcpPack == null){
+//                Connection connection = new Connection("",datagramPacket.sender(),"From1", Constants.NATTYPE.UNKNOWN.ordinal(),channel);
+//                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+//                PcpOutput pcpOutput = new ClientOutput();
+//                pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
+//                channelManager.New(channel,pcpPack);
+//            }
+//            pcpPack.read(datagramPacket.content());
+
+            RudpPack rudpPack = addrManager.get(datagramPacket.sender());
+            if (rudpPack == null){
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
-                PcpOutput pcpOutput = new ClientOutput();
-                pcpPack = new PcpPack(0x1,null,executor,connection,pcpOutput);
-                channelManager.New(channel,pcpPack);
+                Connection connection = new Connection("",Client.getInstance().SERVER1,"server1",Constants.NATTYPE.PUBLIC_NETWORK.ordinal(),channel);
+                Output output = new ClientOutput();
+                rudpPack = new RudpPack(output,connection,executor,null);
+                addrManager.New(Client.getInstance().SERVER1,rudpPack);
             }
-            pcpPack.read(datagramPacket.content());
+            rudpPack.read(datagramPacket.content());
 
 //            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
         } catch (Exception e) {
@@ -109,5 +124,10 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
     }
     private void handleAllIdle(){
         LOGGER.info("client handleAllIdle");
+    }
+
+    @Override
+    public void onResponse(Message message) {
+        LOGGER.info("client response msg:" + message.getContent());
     }
 }
