@@ -35,7 +35,7 @@ public class RudpPack {
 
     public boolean write(Message msg){
         if (!queue_snd.offer(msg)){
-            LOGGER.error("rudppkg queue snd is full");
+            LOGGER.info("rudppkg queue snd is full");
             return false;
         }
         notifySendEvent();

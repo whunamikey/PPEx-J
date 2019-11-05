@@ -123,7 +123,7 @@ public class Rudp {
     }
 
     public int send(Message msg) {
-        LOGGER.info("Rudp send msg id:" + msg.getMsgid());
+//        LOGGER.info("Rudp send msg id:" + msg.getMsgid());
         ByteBuf buf = MessageUtil.msg2ByteBuf(msg);
         return send(buf, msg.getMsgid());
     }
@@ -174,7 +174,7 @@ public class Rudp {
                 output(flushbuf);
             }
         }
-        return 0;
+        return interval;
     }
 
 
@@ -243,7 +243,7 @@ public class Rudp {
             shrinkBuf();
             switch (cmd) {
                 case CMD_ACK:
-                    LOGGER.info("Rudp ACK msgid:" + msgid);
+                    LOGGER.info("Rudp ACK msgid:" + msgid + " size of snd:" + queue_snd.size() + " size of ack:" + queue_sndack.size());
                     affirmAck(sn);
                     affirmFastAck(sn, ts);
                     break;

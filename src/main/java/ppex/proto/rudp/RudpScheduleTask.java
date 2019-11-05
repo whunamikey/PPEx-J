@@ -3,6 +3,7 @@ package ppex.proto.rudp;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
 import org.apache.log4j.Logger;
+import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 import ppex.utils.tpool.ITask;
 
@@ -40,7 +41,12 @@ public class RudpScheduleTask implements ITask,Runnable, TimerTask {
 //            if (!pcpPack.getSndList().isEmpty() && pcpPack.canSend(false)) {
 //                pcpPack.notifyWriteEvent();
 //            }
-
+            long now = System.currentTimeMillis();
+            long next = rudpPack.flush(now);
+            DisruptorExectorPool.scheduleHashedWheel(this,next);
+            if (!rudpPack.getQueue_snd().isEmpty() && rudpPack.canSend(false)){
+                rudpPack.notifySendEvent();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

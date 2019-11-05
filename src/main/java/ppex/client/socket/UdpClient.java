@@ -27,10 +27,12 @@ import ppex.proto.pcp.PcpPack;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.Output;
 import ppex.proto.rudp.RudpPack;
+import ppex.proto.rudp.RudpScheduleTask;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
 import ppex.utils.tpool.DisruptorExectorPool;
+import ppex.utils.tpool.DisruptorSingleExecutor;
 import ppex.utils.tpool.IMessageExecutor;
 
 import java.net.InetAddress;
@@ -105,19 +107,19 @@ public class UdpClient {
 //            });
 
             RudpPack rudpPack = addrManager.get(Client.getInstance().SERVER1);
-            if (rudpPack == null){
-                Connection connection = new Connection("",Client.getInstance().SERVER1,"server1",Constants.NATTYPE.PUBLIC_NETWORK.ordinal(),ch);
-                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+            if (rudpPack == null) {
+                Connection connection = new Connection("", Client.getInstance().SERVER1, "server1", Constants.NATTYPE.PUBLIC_NETWORK.ordinal(), ch);
                 Output output = new ClientOutput();
-                rudpPack = new RudpPack(output,connection,executor,null);
-                addrManager.New(Client.getInstance().SERVER1,rudpPack);
+                rudpPack = new RudpPack(output, connection, executor, null);
+                addrManager.New(Client.getInstance().SERVER1, rudpPack);
             }
 
             RudpPack finalpack = rudpPack;
-            IntStream.range(0,1000).forEach(val ->{
+            IntStream.range(0, 1000).forEach(val -> {
                 Message msg = MessageUtil.makeTestStr2Msg("this msg from client" + val);
                 finalpack.write(msg);
-                if (val % 32 == 0){
+                if (val % 32 == 0) {
                     try {
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
@@ -126,8 +128,8 @@ public class UdpClient {
                 }
             });
 
-
-
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
+            DisruptorExectorPool.scheduleHashedWheel(scheduleTask, rudpPack.getInterval());
 
 
             //1.探测阶段.开始DetectProcess
