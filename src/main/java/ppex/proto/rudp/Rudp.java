@@ -394,7 +394,6 @@ public class Rudp {
         ByteBuf buf = null;
         int tmpLen = 0;
         for (Iterator<Frg> itr = itr_queue_rcv_order.rewind();itr.hasNext();){
-            itr.remove();
             Frg frg = itr.next();
             tmpLen += frg.data.readableBytes();
             if (buf == null){
@@ -406,6 +405,7 @@ public class Rudp {
             }
             buf.writeBytes(frg.data);
             frg.data.release();
+            itr.remove();
             if (frg.tot == 0)
                 break;
         }
