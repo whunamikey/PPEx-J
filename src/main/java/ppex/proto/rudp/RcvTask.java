@@ -54,7 +54,7 @@ public class RcvTask implements ITask {
                     break;
                 if (rudpkg.getListener() == null)
                     break;
-                rudpkg.getListener().onResponse(msg);
+                rudpkg.getListener().onResponse(rudpkg,msg);
             }
             if (!rudpkg.getQueue_snd().isEmpty() && rudpkg.canSend(false)){
                 rudpkg.notifySendEvent();

@@ -50,6 +50,14 @@ public class Connection {
         return channel;
     }
 
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public void setAddress(InetSocketAddress address) {
+        this.address = address;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

@@ -3,12 +3,13 @@ package ppex.server.handlers;
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
-import ppex.proto.msg.entity.through.Connect;
 import ppex.proto.msg.entity.Connection;
+import ppex.proto.msg.entity.through.Connect;
 import ppex.proto.msg.entity.through.RecvInfo;
 import ppex.proto.msg.type.ThroughTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
+import ppex.proto.rudp.RudpPack;
 import ppex.server.myturn.ConnectionService;
 import ppex.utils.MessageUtil;
 
@@ -19,20 +20,20 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
 
     private static Logger LOGGER = Logger.getLogger(ThroughTypeMsgHandler.class);
 
-    @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromaddress) throws Exception {
-//        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
-        ThroughTypeMsg ttmsg = JSON.parseObject(typeMessage.getBody(), ThroughTypeMsg.class);
-        if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_CONNINFO.ordinal()) {
-            handleSaveInfo(ctx, ttmsg, fromaddress);
-        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_CONNINFO.ordinal()) {
-            handleGetInfo(ctx, ttmsg, fromaddress);
-        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal()) {
-            handleConnect(ctx, ttmsg, fromaddress);
-        } else {
-            throw new Exception("Unkown through msg action:" + ttmsg.toString());
-        }
-    }
+//    @Override
+//    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromaddress) throws Exception {
+////        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
+//        ThroughTypeMsg ttmsg = JSON.parseObject(typeMessage.getBody(), ThroughTypeMsg.class);
+//        if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_CONNINFO.ordinal()) {
+//            handleSaveInfo(ctx, ttmsg, fromaddress);
+//        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_CONNINFO.ordinal()) {
+//            handleGetInfo(ctx, ttmsg, fromaddress);
+//        } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal()) {
+//            handleConnect(ctx, ttmsg, fromaddress);
+//        } else {
+//            throw new Exception("Unkown through msg action:" + ttmsg.toString());
+//        }
+//    }
 
     private void handleSaveInfo(ChannelHandlerContext ctx, ThroughTypeMsg ttmsg, InetSocketAddress address) {
         LOGGER.info("server handle through msg saveinfo:" + ttmsg.toString());
@@ -113,4 +114,8 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
+    @Override
+    public void handleTypeMessage(RudpPack rudpPack, TypeMessage tmsg) {
+
+    }
 }

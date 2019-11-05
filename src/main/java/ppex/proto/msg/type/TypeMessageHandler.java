@@ -1,9 +1,10 @@
 package ppex.proto.msg.type;
 
 import io.netty.channel.ChannelHandlerContext;
+import ppex.proto.rudp.RudpPack;
 
 import java.net.InetSocketAddress;
 
 public interface TypeMessageHandler {
-    default void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress fromAddress) throws Exception{}
+    void handleTypeMessage(RudpPack rudpPack,TypeMessage tmsg);
 }

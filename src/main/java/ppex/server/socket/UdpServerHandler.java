@@ -10,13 +10,11 @@ import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.entity.Connection;
-import ppex.proto.msg.type.TxtTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.pcp.PcpListener;
 import ppex.proto.rudp.*;
 import ppex.server.handlers.*;
 import ppex.server.myturn.ServerOutput;
-import ppex.utils.MessageUtil;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
@@ -39,7 +37,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(), new PingTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(), new FileTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(), new TxtTypeMsgHandler());
-
         this.pcpListener = pcpListener;
         this.disruptorExectorPool = disruptorExectorPool;
         this.addrManager = addrManager;
@@ -87,17 +84,22 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
             //rudp测试
             Channel channel = channelHandlerContext.channel();
-            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
             RudpPack rudpPack = addrManager.get(datagramPacket.sender());
-            if (rudpPack == null){
-                Connection connection = new Connection("",datagramPacket.sender(),"",0,channel);
-                Output output = new ServerOutput();
-                rudpPack = new RudpPack(output,connection,executor,new MsgListener());
-                addrManager.New(datagramPacket.sender(),rudpPack);
+            if (rudpPack != null) {
+                rudpPack.getConnection().setAddress(datagramPacket.sender());
+                rudpPack.getConnection().setChannel(channel);
+                rudpPack.read(datagramPacket.content());
+                return;
             }
+
+            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+            Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
+            Output output = new ServerOutput();
+            rudpPack = new RudpPack(output, connection, executor, new MsgListener());
+            addrManager.New(datagramPacket.sender(), rudpPack);
             rudpPack.read(datagramPacket.content());
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor,rudpPack,addrManager);
-            DisruptorExectorPool.scheduleHashedWheel(scheduleTask,rudpPack.getInterval());
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
+            DisruptorExectorPool.scheduleHashedWheel(scheduleTask, rudpPack.getInterval());
 
             //2019-10-30修改.使用pcppack
 //            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
@@ -158,11 +160,12 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("server write idleEvent");
     }
 
-    private class MsgListener implements ResponseListener{
+    private class MsgListener implements ResponseListener {
         @Override
-        public void onResponse(Message message) {
-            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
-            LOGGER.info("onResponse:" + msg.getContent());
+        public void onResponse(RudpPack rudpPack,Message message) {
+            msgHandler.handleMessage(rudpPack,message);
+//            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
+//            LOGGER.info("onResponse:" + msg.getContent());
         }
     }
 }

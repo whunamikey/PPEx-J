@@ -8,6 +8,7 @@ import ppex.client.process.DetectProcess;
 import ppex.proto.msg.type.ProbeTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
+import ppex.proto.rudp.RudpPack;
 import ppex.utils.Constants;
 
 import java.net.InetSocketAddress;
@@ -17,25 +18,25 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
 
-    @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress adress) throws Exception{
-        if (typeMessage.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
-            return;
-        ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
-        pmsg.setFromInetSocketAddress(adress);
-//        ProbeTypeMsg pmsg = MessageUtil.packet2Probemsg(packet);
-        if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()){
-            throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
-        }else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()){
-            handleClientFromServer1Msg(ctx,pmsg);
-        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal()){
-            handleClientFromServer2Port1Msg(ctx,pmsg);
-        }else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal()){
-            handleClientFromServer2Port2Msg(ctx,pmsg);
-        }else{
-            throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-        }
-    }
+//    @Override
+//    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress adress) throws Exception{
+//        if (typeMessage.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
+//            return;
+//        ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
+//        pmsg.setFromInetSocketAddress(adress);
+////        ProbeTypeMsg pmsg = MessageUtil.packet2Probemsg(packet);
+//        if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()){
+//            throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
+//        }else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()){
+//            handleClientFromServer1Msg(ctx,pmsg);
+//        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal()){
+//            handleClientFromServer2Port1Msg(ctx,pmsg);
+//        }else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal()){
+//            handleClientFromServer2Port2Msg(ctx,pmsg);
+//        }else{
+//            throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//        }
+//    }
 
     //client端处理消息
     private void handleClientFromServer1Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
@@ -71,4 +72,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
+    @Override
+    public void handleTypeMessage(RudpPack rudpPack, TypeMessage tmsg) {
+
+    }
 }

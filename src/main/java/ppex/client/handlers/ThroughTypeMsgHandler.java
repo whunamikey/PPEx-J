@@ -10,6 +10,7 @@ import ppex.proto.msg.entity.through.RecvInfo;
 import ppex.proto.msg.type.ThroughTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
+import ppex.proto.rudp.RudpPack;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -17,25 +18,25 @@ import java.util.List;
 public class ThroughTypeMsgHandler implements TypeMessageHandler {
     private static Logger LOGGER = Logger.getLogger(ThroughTypeMsgHandler.class);
 
-    @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, InetSocketAddress address) throws Exception {
-//        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
-        ThroughTypeMsg ttmsg = JSON.parseObject(msg.getBody(), ThroughTypeMsg.class);
-        if (ttmsg.getAction() == ThroughTypeMsg.ACTION.RECV_INFO.ordinal()) {
-            RecvInfo recvinfo = JSON.parseObject(ttmsg.getContent(), RecvInfo.class);
-            if (recvinfo.type == ThroughTypeMsg.RECVTYPE.SAVE_CONNINFO.ordinal()) {
-                handleSaveInfoFromServer(ctx, recvinfo);
-            } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.GET_CONNINFO.ordinal()) {
-                handleGetInfoFromServer(ctx, recvinfo);
-            } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal()) {
-                handleConnectFromServer(ctx, recvinfo);
-            } else {
-                throw new Exception("Unkown through msg action:" + ttmsg.toString());
-            }
-        }else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal()){
-//            handleConnecCONN(ctx,ttmsg,address);
-        }
-    }
+//    @Override
+//    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage msg, InetSocketAddress address) throws Exception {
+////        ThroughTypeMsg ttmsg = MessageUtil.packet2ThroughMsg(packet);
+//        ThroughTypeMsg ttmsg = JSON.parseObject(msg.getBody(), ThroughTypeMsg.class);
+//        if (ttmsg.getAction() == ThroughTypeMsg.ACTION.RECV_INFO.ordinal()) {
+//            RecvInfo recvinfo = JSON.parseObject(ttmsg.getContent(), RecvInfo.class);
+//            if (recvinfo.type == ThroughTypeMsg.RECVTYPE.SAVE_CONNINFO.ordinal()) {
+//                handleSaveInfoFromServer(ctx, recvinfo);
+//            } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.GET_CONNINFO.ordinal()) {
+//                handleGetInfoFromServer(ctx, recvinfo);
+//            } else if (recvinfo.type == ThroughTypeMsg.RECVTYPE.CONNECT_CONN.ordinal()) {
+//                handleConnectFromServer(ctx, recvinfo);
+//            } else {
+//                throw new Exception("Unkown through msg action:" + ttmsg.toString());
+//            }
+//        }else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.CONNECT_CONN.ordinal()){
+////            handleConnecCONN(ctx,ttmsg,address);
+//        }
+//    }
 
     private void handleSaveInfoFromServer(ChannelHandlerContext ctx, RecvInfo recvinfo) {
         LOGGER.info("client handle ThroughTypeMsg saveinfo from server:" + recvinfo.toString());
@@ -71,4 +72,8 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
     }
 
 
+    @Override
+    public void handleTypeMessage(RudpPack rudpPack, TypeMessage tmsg) {
+
+    }
 }

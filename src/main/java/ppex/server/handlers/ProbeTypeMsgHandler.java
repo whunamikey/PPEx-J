@@ -1,13 +1,12 @@
 package ppex.server.handlers;
 
-import com.alibaba.fastjson.JSON;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.type.ProbeTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
+import ppex.proto.rudp.RudpPack;
 import ppex.server.entity.Server;
-import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
 
 import java.net.InetSocketAddress;
@@ -16,61 +15,61 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
 
-    @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress address) throws Exception {
-        if (typeMessage.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
-            return;
-        ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
-        pmsg.setFromInetSocketAddress(address);
-        if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
-            if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
-            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-                handleServer1FromClientMsg(ctx, pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                handleServer2Port1FromClientMsg(ctx, pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                handleServer2Port2FromClientMsg(ctx, pmsg);
-            } else {
-                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-            }
-        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()) {
-            if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
-            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-//                handleServer1FromClientMsg(ctx,pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                handleServer2Port1FromServer1Msg(ctx, pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                handleServer2Port2FromServer1Msg(ctx, pmsg);
-            } else {
-                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-            }
-        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal()) {
-            if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
-            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-//                handleServer2Port1FromClientMsg(ctx,pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-                handleServer1FromServer2Port1Msg(ctx, pmsg);
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                handleServer2Port2FromServer2Port1Msg(ctx, pmsg);
-            } else {
-                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-            }
-        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal()) {
-            if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
-            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-            } else {
-                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-            }
-        } else {
-            throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
-        }
-    }
+//    @Override
+//    public void handleTypeMessage(ChannelHandlerContext ctx, TypeMessage typeMessage, InetSocketAddress address) throws Exception {
+//        if (typeMessage.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
+//            return;
+//        ProbeTypeMsg pmsg = JSON.parseObject(typeMessage.getBody(),ProbeTypeMsg.class);
+//        pmsg.setFromInetSocketAddress(address);
+//        if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
+//            if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
+//                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
+//                handleServer1FromClientMsg(ctx, pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
+//                handleServer2Port1FromClientMsg(ctx, pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
+//                handleServer2Port2FromClientMsg(ctx, pmsg);
+//            } else {
+//                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//            }
+//        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER1.ordinal()) {
+//            if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
+//                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
+//            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
+////                handleServer1FromClientMsg(ctx,pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
+//                handleServer2Port1FromServer1Msg(ctx, pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
+//                handleServer2Port2FromServer1Msg(ctx, pmsg);
+//            } else {
+//                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//            }
+//        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal()) {
+//            if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
+//                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
+//            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
+////                handleServer2Port1FromClientMsg(ctx,pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
+//                handleServer1FromServer2Port1Msg(ctx, pmsg);
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
+//                handleServer2Port2FromServer2Port1Msg(ctx, pmsg);
+//            } else {
+//                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//            }
+//        } else if (pmsg.getType() == ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal()) {
+//            if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
+//                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
+//            } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
+//            } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
+//            } else {
+//                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//            }
+//        } else {
+//            throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
+//        }
+//    }
 
 
     //server1处理消息
@@ -144,4 +143,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     }
 
 
+    @Override
+    public void handleTypeMessage(RudpPack rudpPack, TypeMessage tmsg) {
+
+    }
 }
