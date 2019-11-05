@@ -331,6 +331,7 @@ public class Rudp {
         frg.cmd = CMD_ACK;
         frg.wnd = wndUnuse();
         frg.una = rcv_nxt;
+        frg.msgid = msgid;
         frg.sn = sn;
         frg.ts = ts;
         frg.tot = 0;
