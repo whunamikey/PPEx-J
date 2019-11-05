@@ -21,7 +21,7 @@ import ppex.utils.MessageUtil;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
-public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> implements ResponseListener {
+public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
@@ -94,7 +94,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             if (rudpPack == null){
                 Connection connection = new Connection("",datagramPacket.sender(),"",0,channel);
                 Output output = new ServerOutput();
-                rudpPack = new RudpPack(output,connection,executor,this);
+                rudpPack = new RudpPack(output,connection,executor,new MsgListener());
                 addrManager.New(datagramPacket.sender(),rudpPack);
             }
             rudpPack.read(datagramPacket.content());
@@ -160,10 +160,11 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("server write idleEvent");
     }
 
-
-    @Override
-    public void onResponse(Message message) {
-        TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
-        LOGGER.info("onResponse:" + msg.getContent());
+    private class MsgListener implements ResponseListener{
+        @Override
+        public void onResponse(Message message) {
+            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
+            LOGGER.info("onResponse:" + msg.getContent());
+        }
     }
 }

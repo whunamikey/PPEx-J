@@ -259,6 +259,7 @@ public class MessageUtil {
      */
     public static Message txtmsg2Msg(TxtTypeMsg ttmsg){
         TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setBody(JSON.toJSONString(ttmsg));
         typeMessage.setType(TypeMessage.Type.MSG_TYPE_TXT.ordinal());
         Message msg = new Message(LongIDUtil.getCurrentId());
         msg.setContent(typeMessage);
