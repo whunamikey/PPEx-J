@@ -14,8 +14,10 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
 import ppex.proto.pcp.IChannelManager;
+import ppex.proto.rudp.IAddrManager;
 import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
+import ppex.server.myturn.ServerAddrManager;
 import ppex.server.myturn.ServerChannelManager;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
@@ -35,6 +37,7 @@ public class UdpServer {
     private DisruptorExectorPool disruptorExectorPool;
     private List<Channel> channels = new Vector<>();
     private IChannelManager channelManager = ServerChannelManager.New();
+    private IAddrManager addrManager = ServerAddrManager.getInstance();
 
     public void startUdpServer(int identity) {
 
@@ -58,7 +61,7 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        bootstrap.handler(new UdpServerHandler(disruptorExectorPool,channelManager));
+        bootstrap.handler(new UdpServerHandler(disruptorExectorPool,addrManager));
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //

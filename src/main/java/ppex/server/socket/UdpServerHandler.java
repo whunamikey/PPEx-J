@@ -7,29 +7,33 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
+import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.entity.Connection;
+import ppex.proto.msg.type.TxtTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.pcp.*;
+import ppex.proto.rudp.*;
 import ppex.server.handlers.*;
 import ppex.server.myturn.ServerOutput;
+import ppex.utils.MessageUtil;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
-public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> implements PcpListener{
+public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> implements ResponseListener {
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
-
-    private IChannelManager channelManager;
 
     private MessageHandler msgHandler;
 
     private PcpListener pcpListener;
     private DisruptorExectorPool disruptorExectorPool;
 
+    private IAddrManager addrManager;
 
-    public UdpServerHandler(DisruptorExectorPool disruptorExectorPool, IChannelManager channelManager) {
+
+    public UdpServerHandler(DisruptorExectorPool disruptorExectorPool, IAddrManager addrManager) {
         msgHandler = StandardMessageHandler.New();
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
@@ -39,8 +43,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
         this.pcpListener = pcpListener;
         this.disruptorExectorPool = disruptorExectorPool;
-        this.channelManager = channelManager;
-
+        this.addrManager = addrManager;
     }
 
     @Override
@@ -70,19 +73,34 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
             LOGGER.info("UdpServerHandler channelread0:" + datagramPacket.sender());
+//            Channel channel = channelHandlerContext.channel();
+//            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+//            PcpPack pcpPack = channelManager.get(channel, datagramPacket);
+//            if (pcpPack == null) {
+//                Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
+//                PcpOutput pcpOutput = new ServerOutput();
+//
+//                pcpPack = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
+//                channelManager.New(channel, pcpPack);
+//            }
+//            pcpPack.read(datagramPacket.content());
+//            ScheduleTask scheduleTask = new ScheduleTask(executor, pcpPack, channelManager);
+//            DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
+
+            //rudp测试
             Channel channel = channelHandlerContext.channel();
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
-            PcpPack pcpPack = channelManager.get(channel, datagramPacket);
-            if (pcpPack == null) {
-                Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
-                PcpOutput pcpOutput = new ServerOutput();
-
-                pcpPack = new PcpPack(0x1, pcpListener, executor, connection, pcpOutput);
-                channelManager.New(channel, pcpPack);
+            RudpPack rudpPack = addrManager.get(datagramPacket.sender());
+            if (rudpPack == null){
+                Connection connection = new Connection("",datagramPacket.sender(),"",0,channel);
+                Output output = new ServerOutput();
+                rudpPack = new RudpPack(output,connection,executor,this);
+                addrManager.New(datagramPacket.sender(),rudpPack);
             }
-            pcpPack.read(datagramPacket.content());
-            ScheduleTask scheduleTask = new ScheduleTask(executor, pcpPack, channelManager);
-            DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
+            rudpPack.read(datagramPacket.content());
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor,rudpPack,addrManager);
+            DisruptorExectorPool.scheduleHashedWheel(scheduleTask,rudpPack.getInterval());
+
             //2019-10-30修改.使用pcppack
 //            msgHandler.handleDatagramPacket(channelHandlerContext, datagramPacket);
 
@@ -142,8 +160,10 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("server write idleEvent");
     }
 
-    @Override
-    public void onResponse(ByteBuf byteBuf) {
 
+    @Override
+    public void onResponse(Message message) {
+        TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
+        LOGGER.info("onResponse:" + msg.getContent());
     }
 }

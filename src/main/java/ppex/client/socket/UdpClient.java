@@ -24,6 +24,9 @@ import ppex.proto.msg.type.TxtTypeMsg;
 import ppex.proto.pcp.IChannelManager;
 import ppex.proto.pcp.PcpOutput;
 import ppex.proto.pcp.PcpPack;
+import ppex.proto.rudp.IAddrManager;
+import ppex.proto.rudp.Output;
+import ppex.proto.rudp.RudpPack;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
@@ -49,6 +52,7 @@ public class UdpClient {
     private DisruptorExectorPool disruptorExectorPool;
     private List<Channel> channels = new Vector<>(2);
     private IChannelManager channelManager = ClientChannelManager.New();
+    private IAddrManager addrManager = ClientAddrManager.getInstance();
 
     public void startClient() {
 
@@ -77,21 +81,42 @@ public class UdpClient {
             });
             Channel ch = bootstrap.bind(Constants.PORT3).sync().channel();
             LOGGER.info("client ch local:" + ch.localAddress() + " remote:" + ch.remoteAddress());
-            PcpPack pcpPack = channelManager.get(ch, Client.getInstance().SERVER1);
+//            PcpPack pcpPack = channelManager.get(ch, Client.getInstance().SERVER1);
+//
+//            if (pcpPack == null) {
+//                Connection connection = new Connection("", Client.getInstance().SERVER1, "server1", Constants.NATTYPE.PUBLIC_NETWORK.ordinal(), ch);
+//                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+//                PcpOutput pcpOutput = new ClientOutput();
+//                pcpPack = new PcpPack(0x1, null, executor, connection, pcpOutput);
+//                channelManager.New(ch, pcpPack);
+//            }
+//
+//            PcpPack finalPcpPack = pcpPack;
+//            IntStream.range(0, Integer.MAX_VALUE).forEach(val -> {
+//                ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
+//                finalPcpPack.write(sndbuf);
+//                if (val % 200 == 0) {
+//                    try {
+//                        TimeUnit.SECONDS.sleep(1);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            });
 
-            if (pcpPack == null) {
-                Connection connection = new Connection("", Client.getInstance().SERVER1, "server1", Constants.NATTYPE.PUBLIC_NETWORK.ordinal(), ch);
+            RudpPack rudpPack = addrManager.get(Client.getInstance().SERVER1);
+            if (rudpPack == null){
+                Connection connection = new Connection("",Client.getInstance().SERVER1,"server1",Constants.NATTYPE.PUBLIC_NETWORK.ordinal(),ch);
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
-                PcpOutput pcpOutput = new ClientOutput();
-                pcpPack = new PcpPack(0x1, null, executor, connection, pcpOutput);
-                channelManager.New(ch, pcpPack);
+                Output output = new ClientOutput();
+                rudpPack = new RudpPack(output,connection,executor,null);
+                addrManager.New(Client.getInstance().SERVER1,rudpPack);
             }
-
-            PcpPack finalPcpPack = pcpPack;
-            IntStream.range(0, Integer.MAX_VALUE).forEach(val -> {
-                ByteBuf sndbuf = MessageUtil.makeTestBytebuf("this is test msg");
-                finalPcpPack.write(sndbuf);
-                if (val % 200 == 0) {
+            RudpPack finalpack = rudpPack;
+            IntStream.range(0,1000).forEach(val ->{
+                Message msg = MessageUtil.makeTestStr2Msg("this msg from client");
+                finalpack.write(msg);
+                if (val % 10 == 0){
                     try {
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
@@ -99,6 +124,9 @@ public class UdpClient {
                     }
                 }
             });
+
+
+
 
 
             //1.探测阶段.开始DetectProcess

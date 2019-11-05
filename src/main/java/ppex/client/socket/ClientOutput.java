@@ -6,8 +6,10 @@ import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
 import ppex.proto.pcp.Pcp;
 import ppex.proto.pcp.PcpOutput;
+import ppex.proto.rudp.Output;
+import ppex.proto.rudp.Rudp;
 
-public class ClientOutput implements PcpOutput {
+public class ClientOutput implements PcpOutput, Output {
     private static Logger LOGGER = Logger.getLogger(ClientOutput.class);
     @Override
     public void out(ByteBuf data, Pcp pcp) {
@@ -21,6 +23,13 @@ public class ClientOutput implements PcpOutput {
 //        }
 //        LOGGER.info("ClientOutput data:" + result + " readable:" + data.readableBytes());
         Connection connection = pcp.getConnection();
+        DatagramPacket tmp = new DatagramPacket(data,connection.getAddress());
+        connection.getChannel().writeAndFlush(tmp);
+    }
+
+    @Override
+    public void output(ByteBuf data, Rudp rudp) {
+        Connection connection = rudp.getConnection();
         DatagramPacket tmp = new DatagramPacket(data,connection.getAddress());
         connection.getChannel().writeAndFlush(tmp);
     }

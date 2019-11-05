@@ -1,7 +1,10 @@
 package ppex.utils;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
@@ -241,6 +244,26 @@ public class MessageUtil {
         return tmsg;
     }
 
+    /**
+     * ------------------------------------Message转各类TypeMessage部分------------------------------------------
+     */
+    public static TxtTypeMsg msg2TxtMsg(Message msg){
+        TypeMessage typeMessage = JSON.parseObject(msg.getContent(), TypeMessage.class);
+        TxtTypeMsg tmsg = JSON.parseObject(typeMessage.getBody(),TxtTypeMsg.class);
+        return tmsg;
+    }
+
+
+    /**
+     * --------------------------------各类TypeMessage转Message部分-----------------------------------
+     */
+    public static Message txtmsg2Msg(TxtTypeMsg ttmsg){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_TXT.ordinal());
+        Message msg = new Message(LongIDUtil.getCurrentId());
+        msg.setContent(typeMessage);
+        return msg;
+    }
 
     /**
      * ----------------------------------------------生成探测ProbeTypeMsg部分----------------------------------------------------
@@ -275,6 +298,12 @@ public class MessageUtil {
         ByteBuf msgBuf = Unpooled.directBuffer(bytes.length);
         msgBuf.writeBytes(bytes);
         return msgBuf;
+    }
+
+    public static Message makeTestStr2Msg(String content){
+        TxtTypeMsg ttmsg = new TxtTypeMsg();
+        ttmsg.setContent(content);
+        return txtmsg2Msg(ttmsg);
     }
 
     public static String bytebuf2Str(ByteBuf buf){

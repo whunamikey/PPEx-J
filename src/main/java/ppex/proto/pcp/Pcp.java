@@ -659,7 +659,7 @@ public class Pcp {
                     repeat = true;
                     break;
                 }
-                if (itimediff(sn, fragment.sn) > 0) {
+                if (itimediff(sn, frg.sn) > 0) {
                     findPos = true;
                     break;
                 }

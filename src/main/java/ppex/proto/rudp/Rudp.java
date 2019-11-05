@@ -12,6 +12,7 @@ import ppex.utils.set.ReusableListIterator;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class Rudp {
     private static Logger LOGGER = Logger.getLogger(Rudp.class);
@@ -98,23 +99,19 @@ public class Rudp {
         this.connection = connection;
     }
 
-//    private static int encodeFrg(ByteBuf buf,Frg frg){
-//
-//    }
-
-    public int send(ByteBuf buf,long msgid){
+    public int send(ByteBuf buf, long msgid) {
         int len = buf.readableBytes();
         if (len == 0)
             return -1;
         int count = 0;
-        if (len <= mss){
+        if (len <= mss) {
             count = 1;
-        }else{
+        } else {
             count = (len + mss - 1) / mss;
         }
         if (count == 0)
             count = 1;
-        for (int i =0;i < count;i++){
+        for (int i = 0; i < count; i++) {
             int size = len > mss ? mss : len;
             Frg frg = Frg.createFrg(buf.readRetainedSlice(size));
             frg.tot = (count - i - 1);
@@ -125,54 +122,54 @@ public class Rudp {
         return 0;
     }
 
-    public int send(Message msg){
+    public int send(Message msg) {
         LOGGER.info("Rudp send msg id:" + msg.getMsgid());
         ByteBuf buf = MessageUtil.msg2ByteBuf(msg);
-        return send(buf,msg.getMsgid());
+        return send(buf, msg.getMsgid());
     }
 
-    public long flush(boolean ackonly,long current){
+    public long flush(boolean ackonly, long current) {
         //发送是先将queue_snd里面的数据发送
-        int wnd_count = Math.min(wnd_snd,wnd_rmt);                      //后面加入请求server端窗口数量来控制拥塞
-        while(itimediff(snd_nxt,snd_una + wnd_count) < 0){    //这里控制数量输入，即是窗口的数量控制好了
+        int wnd_count = Math.min(wnd_snd, wnd_rmt);                      //后面加入请求server端窗口数量来控制拥塞
+        while (itimediff(snd_nxt, snd_una + wnd_count) < 0) {    //这里控制数量输入，即是窗口的数量控制好了
             Frg frg = queue_snd.poll();
             if (frg == null)
                 break;
             frg.cmd = CMD_PUSH;
             frg.sn = snd_nxt;
             queue_sndack.add(frg);
-            snd_nxt ++;
+            snd_nxt++;
         }
-        for (Iterator<Frg> itr = queue_sndack.listIterator();itr.hasNext();){
+        for (Iterator<Frg> itr = queue_sndack.listIterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             boolean send = false;
-            if (frg.xmit == 0){             //第一次发送
+            if (frg.xmit == 0) {             //第一次发送
                 send = true;
                 frg.rto = rx_rto;
                 frg.ts_resnd = current + frg.rto;
-            }else if (frg.fastack >= resend){           //每次接收ack的时候,看序号,给fastack加1.超过10个就重传
+            } else if (frg.fastack >= resend) {           //每次接收ack的时候,看序号,给fastack加1.超过10个就重传
                 send = true;
                 frg.fastack = 0;
                 frg.rto = rx_rto;
                 frg.ts_resnd = current + frg.rto;
-            }else if (itimediff(current,frg.ts_resnd) >= 0){    //超过重传时间戳就开始重传
+            } else if (itimediff(current, frg.ts_resnd) >= 0) {    //超过重传时间戳就开始重传
                 send = true;
                 frg.rto += rx_rto;              //rto翻倍
                 frg.fastack = 0;
                 frg.ts_resnd = current + frg.rto;
             }
-            if (send){
-                frg.xmit ++;
-                if (frg.xmit >= deadLink){
+            if (send) {
+                frg.xmit++;
+                if (frg.xmit >= deadLink) {
                     //todo 连接已断开
                 }
                 frg.ts = current;
                 frg.wnd = wndUnuse();
                 frg.una = rcv_nxt;
-                ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN+frg.data.readableBytes());
-                encodeFlushBuf(flushbuf,frg);
-                if (frg.data.readableBytes() > 0){
-                    flushbuf.writeBytes(frg.data,frg.data.readerIndex(),frg.data.readableBytes());
+                ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN + frg.data.readableBytes());
+                encodeFlushBuf(flushbuf, frg);
+                if (frg.data.readableBytes() > 0) {
+                    flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
                 output(flushbuf);
             }
@@ -181,28 +178,28 @@ public class Rudp {
     }
 
 
-    private int itimediff(long later,long earlier){
-        return (int)(later - earlier);
+    private int itimediff(long later, long earlier) {
+        return (int) (later - earlier);
     }
 
-    private int wndUnuse(){
+    private int wndUnuse() {
         int tmp = wnd_rcv - queue_rcv_order.size();
         return tmp < 0 ? 0 : tmp;
     }
 
-    private void output(ByteBuf buf){
-        if (buf.readableBytes() > 0){
-            output.output(buf,this);
+    private void output(ByteBuf buf) {
+        if (buf.readableBytes() > 0) {
+            output.output(buf, this);
             return;
         }
         buf.release();
     }
 
-    private ByteBuf createEmptyByteBuf(int len){
+    private ByteBuf createEmptyByteBuf(int len) {
         return byteBufAllocator.ioBuffer(len);
     }
 
-    private int encodeFlushBuf(ByteBuf buf,Frg frg){
+    private int encodeFlushBuf(ByteBuf buf, Frg frg) {
         int offset = buf.writerIndex();
         buf.writeByte(frg.cmd);
         buf.writeLongLE(frg.msgid);
@@ -215,5 +212,244 @@ public class Rudp {
         return buf.writerIndex() - offset;
     }
 
+    public int input(ByteBuf data, long time) {
+        long old_snd_una = snd_una;
+        if (data == null || data.readableBytes() < HEAD_LEN) {
+            return -1;
+        }
+        while (true) {
+            byte cmd;
+            long msgid, ts, sn, una;
+            int tot, wnd, len;
+            if (data.readableBytes() < HEAD_LEN) {
+                break;
+            }
+            cmd = data.readByte();
+            msgid = data.readLongLE();
+            tot = data.readIntLE();
+            wnd = data.readIntLE();
+            ts = data.readLongLE();
+            sn = data.readLongLE();
+            una = data.readLongLE();
+            len = data.readIntLE();
+            if (data.readableBytes() < len) {
+                return -2;
+            }
+            if (cmd != CMD_ACK && cmd != CMD_PUSH && cmd != CMD_ASK_WIN && cmd != CMD_TELL_WIN) {
+                return -3;
+            }
+            this.wnd_rmt = wnd;
+            parseUna(una);
+            shrinkBuf();
+            switch (cmd) {
+                case CMD_ACK:
+                    affirmAck(sn);
+                    affirmFastAck(sn,ts);
+                    break;
+                case CMD_PUSH:
+                    //首先判断是否超过窗口
+                    if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
+                        flushAck(sn, ts, msgid);          //返回ack
+                        Frg frg;
+                        if (len > 0) {
+                            frg = Frg.createFrg(data.readRetainedSlice(len));
+                        }else{
+                            frg = Frg.createFrg(byteBufAllocator,0);
+                        }
+                        frg.cmd = cmd;
+                        frg.msgid = msgid;
+                        frg.tot = tot;
+                        frg.wnd = wnd;
+                        frg.ts = ts;
+                        frg.sn = sn;
+                        frg.una = una;
+                        parseRcvData(frg);
+                        arrangeRcvData();
+                    }
+                    break;
+                case CMD_ASK_WIN:
+                    break;
+                case CMD_TELL_WIN:
+                    break;
+            }
+        }
+        return 0;
+    }
 
+    private void parseUna(long una) {
+        for (Iterator<Frg> itr = itr_queue_sndack.rewind(); itr.hasNext(); ) {
+            Frg frg = itr.next();
+            if (itimediff(una, frg.sn) > 0) {
+                itr.remove();
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void shrinkBuf() {
+        if (queue_sndack.size() > 0) {
+            Frg frg = queue_sndack.peek();
+            snd_una = frg.sn;
+        } else {
+            snd_una = snd_nxt;
+        }
+    }
+
+    private void affirmAck(long sn) {
+        if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
+            return;
+        }
+        for (Iterator<Frg> itr = itr_queue_sndack.rewind(); itr.hasNext(); ) {
+            Frg fr = itr.next();
+            if (sn == fr.sn) {
+                itr.remove();
+                break;
+            }
+            if (itimediff(sn, fr.sn) < 0)
+                break;
+        }
+    }
+
+    private void affirmFastAck(long sn,long ts){
+        if (itimediff(sn,snd_una) < 0 || itimediff(sn,snd_nxt) >= 0){
+            return;
+        }
+        for (Iterator<Frg> itr = itr_queue_sndack.rewind();itr.hasNext();){
+            Frg frg = itr.next();
+            if (itimediff(sn,frg.sn) < 0){
+                break;
+            }else if (sn != frg.sn && itimediff(frg.ts,ts) <= 0){
+                frg.fastack ++;
+            }
+        }
+    }
+
+    private void flushAck(long sn, long ts, long msgid) {
+        Frg frg = Frg.createFrg(byteBufAllocator, 0);
+        frg.cmd = CMD_ACK;
+        frg.wnd = wndUnuse();
+        frg.una = rcv_nxt;
+        frg.sn = sn;
+        frg.ts = ts;
+        frg.tot = 0;
+        ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN);
+        encodeFlushBuf(flushbuf, frg);
+        output(flushbuf);
+    }
+
+    private void parseRcvData(Frg frg) {
+        long sn = frg.sn;
+        if (itimediff(sn, rcv_nxt + wnd_rcv) >= 0 || itimediff(sn, rcv_nxt) < 0) {
+            return;
+        }
+        boolean repeat = false, findPos = false;
+        ListIterator<Frg> itrList = null;
+        if (queue_rcv_shambles.size() > 0) {
+            itrList = itr_queue_rcv_shambles.rewind(queue_rcv_shambles.size());
+            while (itrList.hasPrevious()) {
+                Frg frgTmp = itrList.previous();
+                if (frgTmp.sn == sn) {
+                    repeat = true;
+                    break;
+                }
+                if (itimediff(sn, frgTmp.sn) > 0) {
+                    findPos = true;
+                    break;
+                }
+            }
+        }
+        if (repeat) {
+            //todo 消息重复,目前没有处理
+        } else if (itrList == null) {
+            queue_rcv_shambles.add(frg);
+        } else {
+            if (findPos)
+                itrList.next();
+            itrList.add(frg);
+        }
+    }
+
+    private void arrangeRcvData() {
+        for (Iterator<Frg> itr = itr_queue_rcv_shambles.rewind(); itr.hasNext(); ) {
+            Frg frg = itr.next();
+            if (frg.sn == rcv_nxt && queue_rcv_shambles.size() < wnd_rcv) {
+                itr.remove();
+                queue_rcv_order.add(frg);
+                rcv_nxt++;
+            } else {
+                break;
+            }
+        }
+    }
+
+    //从queue中找出可以合成message的数据
+    public Message mergeRcvData(){
+        if (queue_rcv_order.isEmpty())
+            return null;
+        //获取申请的Bytebuf长度
+        int len = lenOfByteBuf();
+        if (len < 0)
+            return null;
+        ByteBuf buf = null;
+        int tmpLen = 0;
+        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind();itr.hasNext();){
+            itr.remove();
+            Frg frg = itr.next();
+            tmpLen += frg.data.readableBytes();
+            if (buf == null){
+                if (frg.tot == 0){
+                    buf = frg.data;
+                    break;
+                }
+                buf = byteBufAllocator.ioBuffer(len);
+            }
+            buf.writeBytes(frg.data);
+            frg.data.release();
+            if (frg.tot == 0)
+                break;
+        }
+        arrangeRcvData();
+        Message msg = MessageUtil.bytebuf2Msg(buf);
+        return msg;
+    }
+
+    public int lenOfByteBuf(){
+        if (queue_rcv_order.isEmpty())
+            return -1;
+        Frg frg = queue_rcv_order.peek();
+        if (frg.tot == 0)
+            return frg.data.readableBytes();
+        if (queue_rcv_order.size() < frg.tot + 1)
+            return -1;
+        int len = 0;
+        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind();itr.hasNext();){
+            Frg f = itr.next();
+            len += f.data.readableBytes();
+            if (f.tot == 0)
+                break;
+        }
+        return len;
+    }
+
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public boolean canRcv(){
+        if (queue_rcv_order.isEmpty())
+            return false;
+        Frg frg = queue_rcv_order.peek();
+        if (frg.tot == 0)
+            return true;
+        if(queue_rcv_order.size() < frg.tot + 1){
+            return false;
+        }
+        return true;
+    }
 }
