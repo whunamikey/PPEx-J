@@ -50,6 +50,10 @@ public class RcvTask implements ITask {
                 return;
             while(rudpkg.canRcv()){
                 Message msg = rudpkg.mergeRcv();
+                if (msg == null)
+                    break;
+                if (rudpkg.getListener() == null)
+                    break;
                 rudpkg.getListener().onResponse(msg);
             }
             if (!rudpkg.getQueue_snd().isEmpty() && rudpkg.canSend(false)){
