@@ -23,6 +23,9 @@ public class RudpPack {
     private IMessageExecutor iMessageExecutor;
     private ResponseListener listener;
 
+    private boolean isActive = true;
+    private long lasRcvTime = System.currentTimeMillis(),timeout = 30 * 1000;
+
     public RudpPack(Output output, Connection connection, IMessageExecutor iMessageExecutor,ResponseListener listener) {
         this.output = output;
         this.connection = connection;
@@ -47,6 +50,7 @@ public class RudpPack {
     }
 
     public void input(ByteBuf data, long time) {
+        this.lasRcvTime = System.currentTimeMillis();
         this.rudp.input(data, time);
 
     }
@@ -68,7 +72,14 @@ public class RudpPack {
 
     //暂时返回true
     public boolean canSend(boolean current) {
-        return true;
+        int max = rudp.getWndSnd() * 2;
+        int waitsnd = rudp.waitSnd();
+        if (current){
+            return waitsnd < max;
+        }else{
+            int threshold = Math.max(1,max/2);
+            return waitsnd < threshold;
+        }
     }
 
     public MpscArrayQueue<Message> getQueue_snd() {
@@ -98,4 +109,30 @@ public class RudpPack {
     public Message mergeRcv(){
         return rudp.mergeRcvData();
     }
+
+    public void close(){
+        this.isActive = false;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public long getLasRcvTime() {
+        return lasRcvTime;
+    }
+
+    public long getTimeout() {
+        return timeout;
+    }
+
+    public Connection getConnection(){
+        return rudp.getConnection();
+    }
+
+    public void release(){
+        rudp.release();
+        queue_rcv.forEach(buf-> buf.release());
+    }
+
 }

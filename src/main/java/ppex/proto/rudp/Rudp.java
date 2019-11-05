@@ -458,4 +458,19 @@ public class Rudp {
         }
         return true;
     }
+
+    public void release(){
+        queue_rcv_order.forEach(frg -> frg.recycler(true));
+        queue_rcv_shambles.forEach( frg -> frg.recycler(true));
+        queue_snd.forEach(frg -> frg.recycler(true));
+        queue_sndack.forEach(frg -> frg.recycler(true));
+    }
+
+    public int getWndSnd(){
+        return wnd_snd;
+    }
+    public int waitSnd(){
+        return this.queue_sndack.size() + this.queue_snd.size();
+    }
+
 }
