@@ -243,6 +243,7 @@ public class Rudp {
             shrinkBuf();
             switch (cmd) {
                 case CMD_ACK:
+                    LOGGER.info("Rudp ACK msgid:" + msgid);
                     affirmAck(sn);
                     affirmFastAck(sn,ts);
                     break;
