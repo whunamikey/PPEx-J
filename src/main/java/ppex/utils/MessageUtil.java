@@ -1,10 +1,7 @@
 package ppex.utils;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.*;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.SocketUtils;
@@ -22,7 +19,8 @@ public class MessageUtil {
     private static ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
 
     public static ByteBuf msg2ByteBuf(Message msg) {
-        ByteBuf msgBuf = Unpooled.directBuffer(msg.getLength() + Message.VERSIONLENGTH + Message.CONTENTLENGTH + 1);
+        ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
+        ByteBuf msgBuf = allocator.ioBuffer(msg.getLength()+Message.VERSIONLENGTH+Message.CONTENTLENGTH+1);
         msgBuf.writeLongLE(msg.getMsgid());
         msgBuf.writeByte(msg.getVersion());
         msgBuf.writeInt(msg.getLength());

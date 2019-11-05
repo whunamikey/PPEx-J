@@ -101,8 +101,10 @@ public class Rudp {
 
     public int send(ByteBuf buf, long msgid) {
         int len = buf.readableBytes();
-        if (len == 0)
+        if (len == 0){
+            buf.release();
             return -1;
+        }
         int count = 0;
         if (len <= mss) {
             count = 1;
@@ -119,6 +121,7 @@ public class Rudp {
             queue_snd.add(frg);
             len = buf.readableBytes();
         }
+        buf.release();
         return 0;
     }
 
