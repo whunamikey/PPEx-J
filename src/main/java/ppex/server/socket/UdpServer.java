@@ -38,6 +38,7 @@ public class UdpServer {
     private List<Channel> channels = new Vector<>();
     private IChannelManager channelManager = ServerChannelManager.New();
     private IAddrManager addrManager = ServerAddrManager.getInstance();
+    private UdpServerHandler udpServerHandler;
 
     public void startUdpServer(int identity) {
 
@@ -61,7 +62,8 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        bootstrap.handler(new UdpServerHandler(disruptorExectorPool,addrManager));
+        udpServerHandler = new UdpServerHandler(disruptorExectorPool,addrManager);
+        bootstrap.handler(udpServerHandler);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //

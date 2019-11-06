@@ -126,8 +126,8 @@ public class UdpClientHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("client handleAllIdle");
     }
 
-    @Override
-    public void onResponse(Message message) {
-        LOGGER.info("client response msg:" + message.getContent());
-    }
+//    @Override
+//    public void onResponse(Message message) {
+//        LOGGER.info("client response msg:" + message.getContent());
+//    }
 }
