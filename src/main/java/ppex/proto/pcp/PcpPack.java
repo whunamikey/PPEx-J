@@ -91,9 +91,9 @@ public class PcpPack {
     }
 
     protected void notifyReadEvent() {
-        LOGGER.info("PcpPack notifyReadEvent");
-        RecvTask recvTask = RecvTask.New(this);
-        this.iMessageExecutor.execute(recvTask);
+//        LOGGER.info("PcpPack notifyReadEvent");
+//        RecvTask recvTask = RecvTask.New(this);
+//        this.iMessageExecutor.execute(recvTask);
     }
 
     public MpscArrayQueue<ByteBuf> getSndList() {

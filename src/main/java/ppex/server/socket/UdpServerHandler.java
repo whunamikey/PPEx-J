@@ -163,7 +163,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     private class MsgListener implements ResponseListener {
         @Override
         public void onResponse(RudpPack rudpPack,Message message) {
-            msgHandler.handleMessage(rudpPack,message);
+            msgHandler.handleMessage(rudpPack,addrManager,message);
 //            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
 //            LOGGER.info("onResponse:" + msg.getContent());
         }
