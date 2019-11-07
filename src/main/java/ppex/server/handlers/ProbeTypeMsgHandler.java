@@ -121,9 +121,9 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             rudpPack = addrManager.get(inetSocketAddress);
             if (rudpPack == null){
                 DisruptorExectorPool disruptorExectorPool = new DisruptorExectorPool();
-                Output output = new ServerOutput();
-                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 disruptorExectorPool.createDisruptorProcessor("test");
+                IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+                Output output = new ServerOutput();
                 Connection connection = new Connection("", inetSocketAddress, "", 0, ctx.channel());
                 rudpPack = new RudpPack(output, connection, executor, null,ctx);
                 addrManager.New(inetSocketAddress, rudpPack);
