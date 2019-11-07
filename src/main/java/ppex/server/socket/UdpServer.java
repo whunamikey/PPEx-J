@@ -13,15 +13,20 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
+import ppex.proto.msg.entity.Connection;
 import ppex.proto.pcp.IChannelManager;
 import ppex.proto.rudp.IAddrManager;
+import ppex.proto.rudp.Output;
+import ppex.proto.rudp.RudpPack;
 import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
 import ppex.server.myturn.ServerAddrManager;
 import ppex.server.myturn.ServerChannelManager;
+import ppex.server.myturn.ServerOutput;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
 import ppex.utils.tpool.DisruptorExectorPool;
+import ppex.utils.tpool.IMessageExecutor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -50,8 +55,8 @@ public class UdpServer {
 
         //线程池初始化
         disruptorExectorPool = new DisruptorExectorPool();
-        for (int i = 0;i < cpunum;i ++){
-            disruptorExectorPool.createDisruptorProcessor("disruptor:" +i);
+        for (int i = 0; i < cpunum; i++) {
+            disruptorExectorPool.createDisruptorProcessor("disruptor:" + i);
         }
 
         boolean epoll = Epoll.isAvailable();
@@ -62,16 +67,41 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        udpServerHandler = new UdpServerHandler(disruptorExectorPool,addrManager);
+        udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager);
         bootstrap.handler(udpServerHandler);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
 //        for (int i =0;i < cpunum;i++){            //开启多个绑定
 //
 //        }
-        if (identity == Identity.Type.SERVER1.ordinal() || identity == Identity.Type.SERVER2_PORT1.ordinal()) {
+        if (identity == Identity.Type.SERVER1.ordinal()) {
             ChannelFuture future = bootstrap.bind(Constants.PORT1);
             Channel channel = future.channel();
             channels.add(channel);
+
+            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
+            Connection connection = new Connection("", Server.getInstance().getSERVER2P1(), "", 0, channel);
+            Output output = new ServerOutput();
+            RudpPack rudpPack = new RudpPack(output, connection, executor, udpServerHandler,null);
+            addrManager.New(Server.getInstance().getSERVER2P1(),rudpPack);
+
+            IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
+            Connection connection2 = new Connection("", Server.getInstance().getSERVER2P2(), "", 0, channel);
+            Output output2 = new ServerOutput();
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler,null);
+            addrManager.New(Server.getInstance().getSERVER2P2(),rudpPack2);
+
+        } else if (identity == Identity.Type.SERVER2_PORT1.ordinal()) {
+
+            ChannelFuture future = bootstrap.bind(Constants.PORT1);
+            Channel channel = future.channel();
+            channels.add(channel);
+
+            IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
+            Connection connection2 = new Connection("", Server.getInstance().getSERVER2P2(), "", 0, channel);
+            Output output2 = new ServerOutput();
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler,null);
+            addrManager.New(Server.getInstance().getSERVER2P2(),rudpPack2);
+
         } else if (identity == Identity.Type.SERVER2_PORT2.ordinal()) {
             ChannelFuture future = bootstrap.bind(Constants.PORT2);
             Channel channel = future.channel();

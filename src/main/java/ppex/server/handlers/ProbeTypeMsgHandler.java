@@ -84,9 +84,12 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));               //这里发回给Client
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));            //这里发给S2P2
-//            rudpPack.write(MessageUtil.probemsg2Msg(msg));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));               //这里发回给Client
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));            //这里发给S2P2
+            rudpPack = addrManager.get(msg.getRecordInetSocketAddress());
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            rudpPack = addrManager.get(Server.getInstance().getSERVER2P2());
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
 
@@ -99,15 +102,19 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     }
 
     //Server2:Port1处理消息
-    private void handleServer2Port1FromClientMsg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
+    private void handleServer2Port1FromClientMsg(ChannelHandlerContext ctx, RudpPack rudpPack,IAddrManager addrManager, ProbeTypeMsg msg) {
         LOGGER.info("s2p1 handle msg recv from client:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {
             //向Client发回去包,向S2P2发送包
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P1());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));           //这里发回给Client
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));        //这里发给S2P2
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));           //这里发回给Client
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));        //这里发给S2P2
+            rudpPack = addrManager.get(msg.getRecordInetSocketAddress());
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            rudpPack = addrManager.get(Server.getInstance().getSERVER2P2());
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
 
@@ -124,7 +131,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         //暂时没有client发给s2p2
     }
 
-    private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
+    private void handleServer2Port2FromServer1Msg(ChannelHandlerContext ctx,RudpPack rudpPack,IAddrManager addrManager, ProbeTypeMsg msg) {
         //第一阶段从Server1:Port1发送到的数据
         LOGGER.info("s2p2 handle msg from server1:" + msg.toString());
         if (msg.getType() == ProbeTypeMsg.Step.ONE.ordinal()) {
@@ -132,17 +139,21 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P2());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, inetSocketAddress));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, inetSocketAddress));
+            rudpPack = addrManager.get(inetSocketAddress);
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
 
-    private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
+    private void handleServer2Port2FromServer2Port1Msg(ChannelHandlerContext ctx,RudpPack rudpPack,IAddrManager addrManager, ProbeTypeMsg msg) {
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {
             InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER2P2());
-            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, inetSocketAddress));
+//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, inetSocketAddress));
+            rudpPack = addrManager.get(inetSocketAddress);
+            rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
 
@@ -161,7 +172,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
                 handleServer1FromClientMsg(ctx,rudpPack,addrManager,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-                handleServer2Port1FromClientMsg(ctx,pmsg);
+                handleServer2Port1FromClientMsg(ctx,rudpPack,addrManager,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
                 handleServer2Port2FromClientMsg(ctx,pmsg);
             } else {
@@ -175,7 +186,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
                 handleServer2Port1FromServer1Msg(ctx, pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                handleServer2Port2FromServer1Msg(ctx, pmsg);
+                handleServer2Port2FromServer1Msg(ctx,rudpPack,addrManager, pmsg);
             } else {
 //                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -183,11 +194,12 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
 //                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-                handleServer2Port1FromClientMsg(ctx,pmsg);
+//                handleServer2Port1FromClientMsg(ctx,rudpPack,addrManager,pmsg);
+//                handleCLientFromServer2Port1Msg();
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
                 handleServer1FromServer2Port1Msg(ctx, pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-                handleServer2Port2FromServer2Port1Msg(ctx, pmsg);
+                handleServer2Port2FromServer2Port1Msg(ctx,rudpPack,addrManager, pmsg);
             } else {
 //                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
