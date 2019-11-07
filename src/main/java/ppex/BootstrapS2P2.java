@@ -4,10 +4,10 @@ import ppex.server.socket.UdpServer;
 import ppex.utils.Identity;
 
 public class BootstrapS2P2 {
-//    public static void main(String[] args) {
-//        System.out.println("haha");
-//        startServer();
-//    }
+    public static void main(String[] args) {
+        System.out.println("haha");
+        startServer();
+    }
 
     public static void startServer() {
         //修改Identity已匹配服务类型

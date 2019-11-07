@@ -149,6 +149,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             rudpPack = addrManager.get(inetSocketAddress);
             if (rudpPack == null){
                 DisruptorExectorPool disruptorExectorPool = new DisruptorExectorPool();
+                disruptorExectorPool.createDisruptorProcessor("test");
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 Connection connection = new Connection("", inetSocketAddress, "", 0, ctx.channel());
                 Output output = new ServerOutput();
@@ -171,6 +172,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             rudpPack = addrManager.get(inetSocketAddress);
             if (rudpPack == null){
                 DisruptorExectorPool disruptorExectorPool = new DisruptorExectorPool();
+                disruptorExectorPool.createDisruptorProcessor("test");
                 IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
                 Connection connection = new Connection("", inetSocketAddress, "", 0, ctx.channel());
                 Output output = new ServerOutput();
