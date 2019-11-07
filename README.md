@@ -2,4 +2,4 @@
 PPEx-Java
 
 可以运行mvn clean package
-mvn clean compil assembly:single
+mvn clean compile assembly:single
