@@ -1,19 +1,28 @@
 package ppex.utils;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.buffer.*;
-import io.netty.channel.socket.DatagramPacket;
-import io.netty.util.CharsetUtil;
-import io.netty.util.internal.SocketUtils;
-import org.apache.log4j.Logger;
-import ppex.proto.msg.Message;
-import ppex.proto.msg.type.*;
 
 import java.net.InetSocketAddress;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.CharsetUtil;
+import io.netty.util.internal.SocketUtils;
+import ppex.proto.msg.Message;
+import ppex.proto.msg.type.FileTypeMsg;
+import ppex.proto.msg.type.PingTypeMsg;
+import ppex.proto.msg.type.PongTypeMsg;
+import ppex.proto.msg.type.ProbeTypeMsg;
+import ppex.proto.msg.type.ThroughTypeMsg;
+import ppex.proto.msg.type.TxtTypeMsg;
+import ppex.proto.msg.type.TypeMessage;
+
 public class MessageUtil {
 
-    private static Logger LOGGER = Logger.getLogger(MessageUtil.class);
 
     //分配ByteBuf类
     private static ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
@@ -277,6 +286,15 @@ public class MessageUtil {
         TypeMessage typeMessage = new TypeMessage();
         typeMessage.setType(TypeMessage.Type.MSG_TYPE_PROBE.ordinal());
         typeMessage.setBody(JSON.toJSONString(probeTypeMsg));
+        Message msg = new Message(LongIDUtil.getCurrentId());
+        msg.setContent(typeMessage);
+        return msg;
+    }
+
+    public static Message throughmsg2Msg(ThroughTypeMsg tmsg){
+        TypeMessage typeMessage = new TypeMessage();
+        typeMessage.setType(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal());
+        typeMessage.setBody(JSON.toJSONString(tmsg));
         Message msg = new Message(LongIDUtil.getCurrentId());
         msg.setContent(typeMessage);
         return msg;
