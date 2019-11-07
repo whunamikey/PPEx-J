@@ -253,6 +253,7 @@ public class Rudp {
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
+                    LOGGER.info("Rudp push msgid:" + msgid);
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;

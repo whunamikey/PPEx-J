@@ -76,8 +76,8 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
 
     //server1处理消息
-    private void handleServer1FromClientMsg(ChannelHandlerContext ctx, ProbeTypeMsg msg) {
-        LOGGER.info("s1 handle msg recv from client:" + msg.toString());
+    private void handleServer1FromClientMsg(ChannelHandlerContext ctx,RudpPack rudpPack, IAddrManager addrManager,ProbeTypeMsg msg) {
+        LOGGER.info("s1 handle msg rcv from client:" + msg.toString());
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
             //向client发回去包,并且向server2:port1发包
             //19-10-8优化,向Server2:Port2发包
@@ -86,19 +86,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));               //这里发回给Client
             ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));            //这里发给S2P2
-        }
-    }
-    private void handleServer1FromClientMsg(RudpPack rudpPack, IAddrManager addrManager,ProbeTypeMsg msg) {
-        LOGGER.info("s1 handle msg rcv from client:" + msg.toString());
-        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
-            //向client发回去包,并且向server2:port1发包
-            //19-10-8优化,向Server2:Port2发包
-            msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
-            msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
-            msg.setFromInetSocketAddress(Server.getInstance().getSERVER1());
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, msg.getRecordInetSocketAddress()));               //这里发回给Client
-//            ctx.writeAndFlush(MessageUtil.probemsg2Packet(msg, Server.getInstance().getSERVER2P2()));            //这里发给S2P2
-            rudpPack.write(MessageUtil.probemsg2Msg(msg));
+//            rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
 
@@ -171,12 +159,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
 //                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-//                handleServer1FromClientMsg(ctx, pmsg);
-                handleServer1FromClientMsg(rudpPack,addrManager,pmsg);
+                handleServer1FromClientMsg(ctx,rudpPack,addrManager,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-//                handleServer2Port1FromClientMsg(ctx, pmsg);
+                handleServer2Port1FromClientMsg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-//                handleServer2Port2FromClientMsg(ctx, pmsg);
+                handleServer2Port2FromClientMsg(ctx,pmsg);
             } else {
 //                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -184,11 +171,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
 //                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-//                handleServer1FromClientMsg(ctx,pmsg);
+//                handleClientFromServer1(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
-//                handleServer2Port1FromServer1Msg(ctx, pmsg);
+                handleServer2Port1FromServer1Msg(ctx, pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-//                handleServer2Port2FromServer1Msg(ctx, pmsg);
+                handleServer2Port2FromServer1Msg(ctx, pmsg);
             } else {
 //                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
@@ -196,11 +183,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             if (Identity.INDENTITY == Identity.Type.SERVER2_PORT1.ordinal()) {
 //                throw new Exception("Wrong ProbeTypeMsg:" + pmsg.toString());
             } else if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {
-//                handleServer2Port1FromClientMsg(ctx,pmsg);
+                handleServer2Port1FromClientMsg(ctx,pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER1.ordinal()) {
-//                handleServer1FromServer2Port1Msg(ctx, pmsg);
+                handleServer1FromServer2Port1Msg(ctx, pmsg);
             } else if (Identity.INDENTITY == Identity.Type.SERVER2_PORT2.ordinal()) {
-//                handleServer2Port2FromServer2Port1Msg(ctx, pmsg);
+                handleServer2Port2FromServer2Port1Msg(ctx, pmsg);
             } else {
 //                throw new Exception("Unknown ProbeTypeMsg:" + pmsg.toString());
             }
