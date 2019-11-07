@@ -1,6 +1,7 @@
 package ppex.proto.msg;
 
 import com.alibaba.fastjson.JSON;
+import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
@@ -44,10 +45,10 @@ public class StandardMessageHandler implements MessageHandler {
 //    }
 
     @Override
-    public void handleMessage(RudpPack rudpPack, IAddrManager addrManager, Message msg) {
+    public void handleMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, Message msg) {
         try {
             TypeMessage tmsg = JSON.parseObject(msg.getContent(), TypeMessage.class);
-            handlers.get(tmsg.getType()).handleTypeMessage(rudpPack,addrManager, tmsg);
+            handlers.get(tmsg.getType()).handleTypeMessage(ctx,rudpPack,addrManager, tmsg);
         }catch (Exception e){
             e.printStackTrace();
             LOGGER.error("StandardMessageHandler handle message error:" + e.getCause().toString());

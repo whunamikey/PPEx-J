@@ -88,6 +88,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             if (rudpPack != null) {
                 rudpPack.getConnection().setAddress(datagramPacket.sender());
                 rudpPack.getConnection().setChannel(channel);
+                rudpPack.setCtx(channelHandlerContext);
                 rudpPack.read(datagramPacket.content());
                 return;
             }
@@ -95,7 +96,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
             Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
             Output output = new ServerOutput();
-            rudpPack = new RudpPack(output, connection, executor, new MsgListener());
+            rudpPack = new RudpPack(output, connection, executor, new MsgListener(),channelHandlerContext);
             addrManager.New(datagramPacket.sender(), rudpPack);
             rudpPack.read(datagramPacket.content());
             RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
@@ -162,8 +163,8 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private class MsgListener implements ResponseListener {
         @Override
-        public void onResponse(RudpPack rudpPack,Message message) {
-            msgHandler.handleMessage(rudpPack,addrManager,message);
+        public void onResponse(ChannelHandlerContext ctx,RudpPack rudpPack,Message message) {
+            msgHandler.handleMessage(ctx,rudpPack,addrManager,message);
 //            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
 //            LOGGER.info("onResponse:" + msg.getContent());
         }

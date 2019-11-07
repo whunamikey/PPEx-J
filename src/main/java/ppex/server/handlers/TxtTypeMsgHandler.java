@@ -1,6 +1,7 @@
 package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
+import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.type.TxtTypeMsg;
@@ -26,7 +27,7 @@ public class TxtTypeMsgHandler implements TypeMessageHandler {
 //    }
 
     @Override
-    public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
+    public void handleTypeMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
         LOGGER.info("TxtTypemsg handle:" + tmsg.getBody());
         TxtTypeMsg txtTypeMsg = JSON.parseObject(tmsg.getBody(),TxtTypeMsg.class);
         if (txtTypeMsg.isReq()){

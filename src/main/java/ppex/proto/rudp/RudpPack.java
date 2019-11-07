@@ -1,6 +1,7 @@
 package ppex.proto.rudp;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import org.jctools.queues.SpscArrayQueue;
@@ -22,11 +23,12 @@ public class RudpPack {
     private Connection connection;
     private IMessageExecutor iMessageExecutor;
     private ResponseListener listener;
+    private ChannelHandlerContext ctx;
 
     private boolean isActive = true;
     private long lasRcvTime = System.currentTimeMillis(),timeout = 30 * 1000;
 
-    public RudpPack(Output output, Connection connection, IMessageExecutor iMessageExecutor,ResponseListener listener) {
+    public RudpPack(Output output, Connection connection, IMessageExecutor iMessageExecutor,ResponseListener listener,ChannelHandlerContext ctx) {
         this.output = output;
         this.connection = connection;
         this.iMessageExecutor = iMessageExecutor;
@@ -34,6 +36,7 @@ public class RudpPack {
         this.queue_rcv = new SpscArrayQueue<>(2 << 11);
         this.rudp = new Rudp(output, connection);
         this.listener = listener;
+        this.ctx = ctx;
     }
 
     public boolean write(Message msg){
@@ -135,4 +138,11 @@ public class RudpPack {
         queue_rcv.forEach(buf-> buf.release());
     }
 
+    public ChannelHandlerContext getCtx() {
+        return ctx;
+    }
+
+    public void setCtx(ChannelHandlerContext ctx) {
+        this.ctx = ctx;
+    }
 }
