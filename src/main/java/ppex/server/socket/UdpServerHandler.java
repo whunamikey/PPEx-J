@@ -18,7 +18,7 @@ import ppex.server.myturn.ServerOutput;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
-public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> implements ResponseListener {
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
@@ -68,6 +68,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
+            LOGGER.info("UdpServerHandler channel read from:" + datagramPacket.sender());
 //            Channel channel = channelHandlerContext.channel();
 //            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
 //            PcpPack pcpPack = channelManager.get(channel, datagramPacket);
@@ -96,7 +97,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
             Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
             Output output = new ServerOutput();
-            rudpPack = new RudpPack(output, connection, executor, new MsgListener(),channelHandlerContext);
+            rudpPack = new RudpPack(output, connection, executor, this,channelHandlerContext);
             addrManager.New(datagramPacket.sender(), rudpPack);
             rudpPack.read(datagramPacket.content());
             RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
@@ -161,12 +162,9 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         LOGGER.info("server write idleEvent");
     }
 
-    private class MsgListener implements ResponseListener {
-        @Override
-        public void onResponse(ChannelHandlerContext ctx,RudpPack rudpPack,Message message) {
-            msgHandler.handleMessage(ctx,rudpPack,addrManager,message);
-//            TxtTypeMsg msg = MessageUtil.msg2TxtMsg(message);
-//            LOGGER.info("onResponse:" + msg.getContent());
-        }
+    @Override
+    public void onResponse(ChannelHandlerContext ctx, RudpPack rudpPack, Message message) {
+        LOGGER.info("UdpServerHandler onresponse:" + message.getContent());
+        msgHandler.handleMessage(ctx,rudpPack,addrManager,message);
     }
 }

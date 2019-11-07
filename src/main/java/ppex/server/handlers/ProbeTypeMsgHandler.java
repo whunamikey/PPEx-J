@@ -163,6 +163,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     public void handleTypeMessage(ChannelHandlerContext ctx,RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
         if (tmsg.getType() != TypeMessage.Type.MSG_TYPE_PROBE.ordinal())
             return;
+        LOGGER.info("ProbeTypemsg handler:" + tmsg.getBody());
         ProbeTypeMsg pmsg = JSON.parseObject(tmsg.getBody(),ProbeTypeMsg.class);
 //        pmsg.setFromInetSocketAddress(address);
         pmsg.setFromInetSocketAddress(rudpPack.getConnection().address);

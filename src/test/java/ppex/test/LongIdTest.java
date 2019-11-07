@@ -11,10 +11,10 @@ public class LongIdTest {
 
     @Test
     public void getIdFromMultiThreadTest(){
-        ExecutorService service = Executors.newCachedThreadPool();
-        IntStream.range(0,200).forEach(val ->{
-            service.submit(()-> System.out.println(" long id:" + LongIDUtil.getCurrentId()) );
-        });
+//        ExecutorService service = Executors.newCachedThreadPool();
+//        IntStream.range(0,200).forEach(val ->{
+//            service.submit(()-> System.out.println(" long id:" + LongIDUtil.getCurrentId()) );
+//        });
     }
 
 }
