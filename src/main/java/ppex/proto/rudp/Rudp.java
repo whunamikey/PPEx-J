@@ -216,6 +216,7 @@ public class Rudp {
     }
 
     public int input(ByteBuf data, long time) {
+        LOGGER.info("Rudp input data:" + time);
         long old_snd_una = snd_una;
         if (data == null || data.readableBytes() < HEAD_LEN) {
             return -1;
