@@ -11,7 +11,6 @@ import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.entity.Connection;
 import ppex.proto.msg.type.TypeMessage;
-import ppex.proto.pcp.PcpListener;
 import ppex.proto.rudp.*;
 import ppex.server.handlers.*;
 import ppex.server.myturn.ServerOutput;
@@ -24,7 +23,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private MessageHandler msgHandler;
 
-    private PcpListener pcpListener;
     private DisruptorExectorPool disruptorExectorPool;
 
     private IAddrManager addrManager;
@@ -37,7 +35,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(), new PingTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(), new FileTypeMsgHandler());
         ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(), new TxtTypeMsgHandler());
-        this.pcpListener = pcpListener;
         this.disruptorExectorPool = disruptorExectorPool;
         this.addrManager = addrManager;
     }

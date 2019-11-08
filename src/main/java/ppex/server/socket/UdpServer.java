@@ -70,25 +70,22 @@ public class UdpServer {
         udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager);
         bootstrap.handler(udpServerHandler);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
-//        for (int i =0;i < cpunum;i++){            //开启多个绑定
-//
-//        }
         if (identity == Identity.Type.SERVER1.ordinal()) {
             ChannelFuture future = bootstrap.bind(Constants.PORT1);
             Channel channel = future.channel();
             channels.add(channel);
 
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
-            Connection connection = new Connection("", Server.getInstance().getSERVER2P1(), "", 0, channel);
+            Connection connection = new Connection("Server2P1", Server.getInstance().getSERVER2P1(), "Server2P1", 0, channel);
             Output output = new ServerOutput();
-            RudpPack rudpPack = new RudpPack(output, connection, executor, udpServerHandler,null);
-            addrManager.New(Server.getInstance().getSERVER2P1(),rudpPack);
+            RudpPack rudpPack = new RudpPack(output, connection, executor, udpServerHandler, null);
+            addrManager.New(Server.getInstance().getSERVER2P1(), rudpPack);
 
             IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
-            Connection connection2 = new Connection("", Server.getInstance().getSERVER2P2(), "", 0, channel);
+            Connection connection2 = new Connection("Server2P2", Server.getInstance().getSERVER2P2(), "Server2P2", 0, channel);
             Output output2 = new ServerOutput();
-            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler,null);
-            addrManager.New(Server.getInstance().getSERVER2P2(),rudpPack2);
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler, null);
+            addrManager.New(Server.getInstance().getSERVER2P2(), rudpPack2);
 
         } else if (identity == Identity.Type.SERVER2_PORT1.ordinal()) {
 
@@ -97,10 +94,10 @@ public class UdpServer {
             channels.add(channel);
 
             IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
-            Connection connection2 = new Connection("", Server.getInstance().getSERVER2P2(), "", 0, channel);
+            Connection connection2 = new Connection("Server2P2", Server.getInstance().getSERVER2P2(), "Server2P2", 0, channel);
             Output output2 = new ServerOutput();
-            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler,null);
-            addrManager.New(Server.getInstance().getSERVER2P2(),rudpPack2);
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler, null);
+            addrManager.New(Server.getInstance().getSERVER2P2(), rudpPack2);
 
         } else if (identity == Identity.Type.SERVER2_PORT2.ordinal()) {
             ChannelFuture future = bootstrap.bind(Constants.PORT2);
@@ -126,9 +123,6 @@ public class UdpServer {
             InetAddress address = InetAddress.getLocalHost();//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
             String hostAddress = address.getHostAddress();//192.168.0.121
             Server.getInstance().local_address = address.getHostAddress();
-//            Server.getInstance().SERVER1 = SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1);
-//            Server.getInstance().SERVER2P1 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1);
-//            Server.getInstance().SERVER2P2 = SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2);
             Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1));
             Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1));
             Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2));

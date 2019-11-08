@@ -31,6 +31,11 @@ public class ServerAddrManager implements IAddrManager {
 
     @Override
     public void Del(RudpPack rudpPack) {
+        this.rudpPacks.forEach((key,val)->{
+            if (rudpPack.equals(val)){
+                this.rudpPacks.remove(key,val);
+            }
+        });
     }
 
     @Override

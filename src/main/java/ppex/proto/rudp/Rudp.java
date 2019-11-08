@@ -216,7 +216,6 @@ public class Rudp {
     }
 
     public int input(ByteBuf data, long time) {
-        LOGGER.info("Rudp input data:" + time);
         long old_snd_una = snd_una;
         if (data == null || data.readableBytes() < HEAD_LEN) {
             return -1;
@@ -247,13 +246,11 @@ public class Rudp {
             shrinkBuf();
             switch (cmd) {
                 case CMD_ACK:
-                    LOGGER.info("Rudp ACK msgid:" + msgid + " size of snd:" + queue_snd.size() + " size of ack:" + queue_sndack.size());
                     affirmAck(sn);
                     affirmFastAck(sn, ts);
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
-                    LOGGER.info("Rudp push msgid:" + msgid);
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
