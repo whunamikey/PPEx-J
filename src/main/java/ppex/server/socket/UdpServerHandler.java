@@ -164,7 +164,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     @Override
     public void onResponse(ChannelHandlerContext ctx, RudpPack rudpPack, Message message) {
-        LOGGER.info("UdpServerHandler onresponse:" + message.getContent());
         msgHandler.handleMessage(ctx,rudpPack,addrManager,message);
     }
 }
