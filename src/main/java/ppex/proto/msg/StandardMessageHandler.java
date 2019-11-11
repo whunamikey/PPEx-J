@@ -47,6 +47,7 @@ public class StandardMessageHandler implements MessageHandler {
     @Override
     public void handleMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, Message msg) {
         try {
+            LOGGER.info("StandardMessageHandle msg:" + msg.getContent());
             TypeMessage tmsg = JSON.parseObject(msg.getContent(), TypeMessage.class);
             handlers.get(tmsg.getType()).handleTypeMessage(ctx,rudpPack,addrManager, tmsg);
         }catch (Exception e){

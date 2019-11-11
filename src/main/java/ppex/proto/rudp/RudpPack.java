@@ -149,4 +149,11 @@ public class RudpPack {
     public void setCtx(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
+
+    public void printRcvShambleAndOrderNum(){
+//        LOGGER.info("Rudppack shamble:" + rudp.getQueue_rcv_shambles().size() +  " order:" + rudp.getQueue_rcv_order().size());
+//        if (rudp.getQueue_rcv_shambles().size() > 0){
+//            rudp.getQueue_rcv_shambles().forEach(frg -> LOGGER.info("frg:" + frg.msgid + " sn:" + frg.sn + " tot:" + frg.tot));
+//        }
+    }
 }

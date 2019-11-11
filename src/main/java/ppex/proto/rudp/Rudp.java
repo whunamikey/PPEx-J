@@ -13,6 +13,7 @@ import ppex.utils.set.ReusableListIterator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Queue;
 
 public class Rudp {
     private static Logger LOGGER = Logger.getLogger(Rudp.class);
@@ -373,6 +374,7 @@ public class Rudp {
                 itrList.next();
             itrList.add(frg);
         }
+        queue_rcv_shambles.forEach(frg1 -> LOGGER.info("shambles msgid:" + frg1.msgid + " tot:" + frg1.tot + " sn:" + frg1.sn));
     }
 
     private void arrangeRcvData() {
@@ -382,6 +384,7 @@ public class Rudp {
                 itr.remove();
                 queue_rcv_order.add(frg);
                 rcv_nxt++;
+                queue_rcv_order.forEach(frg1-> LOGGER.info("order msgid:" + frg1.msgid + " tot:" + frg1.tot + " sn:" + frg1.sn));
             } else {
                 break;
             }
@@ -397,6 +400,8 @@ public class Rudp {
         if (len < 0)
             return null;
         ByteBuf buf = null;
+        long msgid = -1;
+        msgid = itr_queue_rcv_order.rewind().next().msgid;
         for (Iterator<Frg> itr = itr_queue_rcv_order.rewind(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
@@ -463,6 +468,18 @@ public class Rudp {
         queue_rcv_shambles.forEach( frg -> frg.recycler(true));
         queue_snd.forEach(frg -> frg.recycler(true));
         queue_sndack.forEach(frg -> frg.recycler(true));
+    }
+
+    public LinkedList<Frg> getQueue_snd() {
+        return queue_snd;
+    }
+
+    public ReItrLinkedList<Frg> getQueue_rcv_order() {
+        return queue_rcv_order;
+    }
+
+    public ReItrLinkedList<Frg> getQueue_rcv_shambles() {
+        return queue_rcv_shambles;
     }
 
     public int getWndSnd(){
