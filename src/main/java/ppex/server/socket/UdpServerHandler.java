@@ -65,7 +65,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
-            LOGGER.info("UdpServerHandler channel read from:" + datagramPacket.sender());
 //            Channel channel = channelHandlerContext.channel();
 //            IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
 //            PcpPack pcpPack = channelManager.get(channel, datagramPacket);

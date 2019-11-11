@@ -374,7 +374,6 @@ public class Rudp {
                 itrList.next();
             itrList.add(frg);
         }
-        queue_rcv_shambles.forEach(frg1 -> LOGGER.info("shambles msgid:" + frg1.msgid + " tot:" + frg1.tot + " sn:" + frg1.sn));
     }
 
     private void arrangeRcvData() {
@@ -384,7 +383,6 @@ public class Rudp {
                 itr.remove();
                 queue_rcv_order.add(frg);
                 rcv_nxt++;
-                queue_rcv_order.forEach(frg1-> LOGGER.info("order msgid:" + frg1.msgid + " tot:" + frg1.tot + " sn:" + frg1.sn));
             } else {
                 break;
             }
@@ -419,6 +417,7 @@ public class Rudp {
         }
         arrangeRcvData();
         Message msg = MessageUtil.bytebuf2Msg(buf);
+        LOGGER.info("msgid:" + msg.getMsgid() + " shambles size:" + queue_rcv_shambles.size() + " order size:" + queue_rcv_order.size());
         if (buf != null)
             buf.release();
         return msg;
