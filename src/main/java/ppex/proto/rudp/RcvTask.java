@@ -35,7 +35,6 @@ public class RcvTask implements ITask {
     @Override
     public void execute() {
         try {
-            LOGGER.info("RcvTask start.");
             long current = System.currentTimeMillis();
             Queue<ByteBuf> queue_rcv = rudpkg.getQueue_rcv();
             boolean hasByteBuf = false;
@@ -51,7 +50,6 @@ public class RcvTask implements ITask {
                 return;
             while(rudpkg.canRcv()){
                 Message msg = rudpkg.mergeRcv();
-                LOGGER.info("RcvTask rcv message:" + msg.getContent());
                 if (msg == null)
                     break;
                 if (rudpkg.getListener() == null)
