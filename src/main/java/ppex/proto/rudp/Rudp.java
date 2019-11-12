@@ -131,8 +131,21 @@ public class Rudp {
         Frg frg = Frg.createFrg(byteBufAllocator,0);
         frg.cmd = CMD_RESET;
         frg.tot = 0;
-        frg.msgid = 0;
-        queue_snd.add(frg);
+        frg.msgid = -1;
+        frg.sn = snd_nxt;
+        snd_nxt++;
+        frg.rto = rx_rto;
+        frg.ts_resnd = System.currentTimeMillis() + frg.rto;
+        frg.xmit ++;
+        frg.ts = System.currentTimeMillis();
+        frg.wnd = WND_SND;
+        frg.una = rcv_nxt;
+        ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN);
+        encodeFlushBuf(flushbuf, frg);
+        if (frg.data != null && frg.data.readableBytes() > 0) {
+            flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
+        }
+        output(flushbuf);
     }
 
     public int send(Message msg) {
