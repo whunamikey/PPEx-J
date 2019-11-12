@@ -399,7 +399,6 @@ public class Rudp {
             frg.recycler(true);
         } else if (itrList == null) {
             queue_rcv_shambles.add(frg);
-            LOGGER.info("shambles add frg" + frg.msgid);
         } else {
             if (findPos)
                 itrList.next();
@@ -493,7 +492,6 @@ public class Rudp {
     }
 
     public void reset() {
-        LOGGER.info("Rcv Reset message");
         //todo 解决服务器没断开,而客户端已经重开然后重连的情况.增加CMD_RESET
         snd_nxt = 0;
         snd_una = snd_nxt;
