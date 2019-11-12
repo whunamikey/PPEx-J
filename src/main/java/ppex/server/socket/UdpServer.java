@@ -44,6 +44,7 @@ public class UdpServer {
     private IChannelManager channelManager = ServerChannelManager.New();
     private IAddrManager addrManager = ServerAddrManager.getInstance();
     private UdpServerHandler udpServerHandler;
+    private MsgListener msgListener;
 
     public void startUdpServer(int identity) {
 
@@ -67,7 +68,9 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
-        udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager);
+
+        msgListener = new MsgListener();
+        udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager,msgListener);
         bootstrap.handler(udpServerHandler);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
         if (identity == Identity.Type.SERVER1.ordinal()) {
@@ -78,13 +81,13 @@ public class UdpServer {
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
             Connection connection = new Connection("Server2P1", Server.getInstance().getSERVER2P1(), "Server2P1", 0, channel);
             Output output = new ServerOutput();
-            RudpPack rudpPack = new RudpPack(output, connection, executor, udpServerHandler, null);
+            RudpPack rudpPack = new RudpPack(output, connection, executor, msgListener, null);
             addrManager.New(Server.getInstance().getSERVER2P1(), rudpPack);
 
             IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
             Connection connection2 = new Connection("Server2P2", Server.getInstance().getSERVER2P2(), "Server2P2", 0, channel);
             Output output2 = new ServerOutput();
-            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler, null);
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, msgListener, null);
             addrManager.New(Server.getInstance().getSERVER2P2(), rudpPack2);
 
         } else if (identity == Identity.Type.SERVER2_PORT1.ordinal()) {
@@ -96,7 +99,7 @@ public class UdpServer {
             IMessageExecutor executor2 = disruptorExectorPool.getAutoDisruptorProcessor();
             Connection connection2 = new Connection("Server2P2", Server.getInstance().getSERVER2P2(), "Server2P2", 0, channel);
             Output output2 = new ServerOutput();
-            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, udpServerHandler, null);
+            RudpPack rudpPack2 = new RudpPack(output2, connection2, executor2, msgListener, null);
             addrManager.New(Server.getInstance().getSERVER2P2(), rudpPack2);
 
         } else if (identity == Identity.Type.SERVER2_PORT2.ordinal()) {

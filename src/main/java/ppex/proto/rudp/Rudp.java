@@ -242,7 +242,7 @@ public class Rudp {
             if (cmd != CMD_ACK && cmd != CMD_PUSH && cmd != CMD_ASK_WIN && cmd != CMD_TELL_WIN) {
                 return -3;
             }
-            this.wnd_rmt = wnd;
+//            this.wnd_rmt = wnd;
             parseUna(una);
             shrinkBuf();
             switch (cmd) {
@@ -269,6 +269,7 @@ public class Rudp {
                         frg.una = una;
                         parseRcvData(frg);
                         arrangeRcvData();
+
                     }
                     break;
                 case CMD_ASK_WIN:
@@ -369,6 +370,7 @@ public class Rudp {
             frg.recycler(true);
         } else if (itrList == null) {
             queue_rcv_shambles.add(frg);
+            LOGGER.info("shambles add frg" + frg.msgid);
         } else {
             if (findPos)
                 itrList.next();
@@ -417,7 +419,7 @@ public class Rudp {
         }
         arrangeRcvData();
         Message msg = MessageUtil.bytebuf2Msg(buf);
-        LOGGER.info("msgid:" + msg.getMsgid() + " shambles size:" + queue_rcv_shambles.size() + " order size:" + queue_rcv_order.size());
+//        LOGGER.info("msgid:" + msg.getMsgid() + " shambles size:" + queue_rcv_shambles.size() + " order size:" + queue_rcv_order.size());
         if (buf != null)
             buf.release();
         return msg;
