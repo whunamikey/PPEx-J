@@ -6,13 +6,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
-import ppex.proto.msg.Message;
-import ppex.proto.msg.MessageHandler;
-import ppex.proto.msg.StandardMessageHandler;
 import ppex.proto.msg.entity.Connection;
-import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.rudp.*;
-import ppex.server.handlers.*;
 import ppex.server.myturn.ServerOutput;
 import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
@@ -21,8 +16,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
-    private MessageHandler msgHandler;
-
     private DisruptorExectorPool disruptorExectorPool;
 
     private IAddrManager addrManager;
@@ -30,13 +23,6 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
 
     public UdpServerHandler(DisruptorExectorPool disruptorExectorPool, IAddrManager addrManager, ResponseListener responseListener) {
-        msgHandler = StandardMessageHandler.New();
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_PROBE.ordinal(), new ProbeTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_THROUGH.ordinal(), new ThroughTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_HEART_PING.ordinal(), new PingTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_FILE.ordinal(), new FileTypeMsgHandler());
-        ((StandardMessageHandler) msgHandler).addTypeMessageHandler(TypeMessage.Type.MSG_TYPE_TXT.ordinal(), new TxtTypeMsgHandler());
-
         this.disruptorExectorPool = disruptorExectorPool;
         this.addrManager = addrManager;
         this.responseListener = responseListener;

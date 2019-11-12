@@ -69,7 +69,7 @@ public class UdpServer {
         bootstrap.channel(channelCls);
         bootstrap.group(group);
 
-        msgListener = new MsgListener();
+        msgListener = new MsgListener(addrManager);
         udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager,msgListener);
         bootstrap.handler(udpServerHandler);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
