@@ -63,6 +63,10 @@ public class RudpPack {
         notifyRcvEvent();
     }
 
+    public void sendReset(){
+        rudp.sendReset();
+    }
+
     public void notifySendEvent() {
         SndTask task = SndTask.New(this);
         this.iMessageExecutor.execute(task);
