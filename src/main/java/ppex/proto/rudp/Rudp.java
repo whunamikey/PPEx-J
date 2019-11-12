@@ -423,7 +423,7 @@ public class Rudp {
     //从queue中找出可以合成message的数据
     public Message mergeRcvData() {
         if (queue_rcv_order.isEmpty())
-            return null;
+            return null;resreset
         //获取申请的Bytebuf长度
         int len = lenOfByteBuf();
         if (len < 0)
@@ -493,9 +493,11 @@ public class Rudp {
     }
 
     public void reset() {
+        LOGGER.info("Rcv Reset message");
         //todo 解决服务器没断开,而客户端已经重开然后重连的情况.增加CMD_RESET
         snd_nxt = 0;
         snd_una = snd_nxt;
+        rcv_nxt=0;
         rcv_nxt++;
     }
 
