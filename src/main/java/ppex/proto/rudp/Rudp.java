@@ -423,7 +423,7 @@ public class Rudp {
     //从queue中找出可以合成message的数据
     public Message mergeRcvData() {
         if (queue_rcv_order.isEmpty())
-            return null;resreset
+            return null;
         //获取申请的Bytebuf长度
         int len = lenOfByteBuf();
         if (len < 0)
