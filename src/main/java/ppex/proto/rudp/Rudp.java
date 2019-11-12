@@ -127,25 +127,26 @@ public class Rudp {
         return 0;
     }
 
-    public void sendReset(){
-        Frg frg = Frg.createFrg(byteBufAllocator,0);
+    public void sendReset() {
+        Frg frg = Frg.createFrg(byteBufAllocator, 0);
         frg.cmd = CMD_RESET;
         frg.tot = 0;
         frg.msgid = -1;
-        frg.sn = snd_nxt;
-        snd_nxt++;
-        frg.rto = rx_rto;
-        frg.ts_resnd = System.currentTimeMillis() + frg.rto;
-        frg.xmit ++;
-        frg.ts = System.currentTimeMillis();
-        frg.wnd = WND_SND;
-        frg.una = rcv_nxt;
-        ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN);
-        encodeFlushBuf(flushbuf, frg);
-        if (frg.data != null && frg.data.readableBytes() > 0) {
-            flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
-        }
-        output(flushbuf);
+        queue_snd.add(frg);
+//        frg.sn = snd_nxt;
+//        snd_nxt++;
+//        frg.rto = rx_rto;
+//        frg.ts_resnd = System.currentTimeMillis() + frg.rto;
+//        frg.xmit ++;
+//        frg.ts = System.currentTimeMillis();
+//        frg.wnd = WND_SND;
+//        frg.una = rcv_nxt;
+//        ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN);
+//        encodeFlushBuf(flushbuf, frg);
+//        if (frg.data != null && frg.data.readableBytes() > 0) {
+//            flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
+//        }
+//        output(flushbuf);
     }
 
     public int send(Message msg) {
@@ -161,7 +162,9 @@ public class Rudp {
             Frg frg = queue_snd.poll();
             if (frg == null)
                 break;
-            frg.cmd = CMD_PUSH;
+            if (frg.cmd != CMD_RESET) {
+                frg.cmd = CMD_PUSH;
+            }
             frg.sn = snd_nxt;
             queue_sndack.add(frg);
             snd_nxt++;
@@ -493,7 +496,7 @@ public class Rudp {
         //todo 解决服务器没断开,而客户端已经重开然后重连的情况.增加CMD_RESET
         snd_nxt = 0;
         snd_una = snd_nxt;
-        rcv_nxt ++;
+        rcv_nxt++;
     }
 
     public void release() {
