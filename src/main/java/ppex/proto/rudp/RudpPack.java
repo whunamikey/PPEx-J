@@ -33,7 +33,7 @@ public class RudpPack {
         this.connection = connection;
         this.iMessageExecutor = iMessageExecutor;
         this.queue_snd = new MpscArrayQueue<>(2 << 11);
-        this.queue_rcv = new SpscArrayQueue<>(2 << 11);
+        this.queue_rcv = new MpscArrayQueue<>(2 << 11);
         this.rudp = new Rudp(output, connection);
         this.listener = listener;
         this.ctx = ctx;
