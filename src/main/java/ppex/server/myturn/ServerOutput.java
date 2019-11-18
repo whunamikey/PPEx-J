@@ -28,10 +28,10 @@ public class ServerOutput implements PcpOutput, Output {
         DatagramPacket tmp = new DatagramPacket(data, connection.getAddress());
         ChannelFuture future = connection.getChannel().writeAndFlush(tmp);
         future.addListener(future1 -> {
-            if (future.isSuccess()){
+            if (future1.isSuccess()){
 
             }else{
-                future.cause().printStackTrace();
+                future1.cause().printStackTrace();
             }
         });
     }
