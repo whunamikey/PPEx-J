@@ -419,8 +419,8 @@ public class Rudp {
             return null;
         ByteBuf buf = null;
         long msgid = -1;
-        msgid = itr_queue_rcv_order.rewind().next().msgid;
-        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind(); itr.hasNext(); ) {
+//        msgid = itr_queue_rcv_order.rewind().next().msgid;
+        for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             LOGGER.info("rcv msgid:" + msgid + " sn:" + frg.sn + " una:" + frg.una + " tot:" + frg.tot + " size of shambles:" + queue_rcv_shambles.size());
             itr.remove();
@@ -452,7 +452,7 @@ public class Rudp {
         if (queue_rcv_order.size() < frg.tot + 1)
             return -1;
         int len = 0;
-        for (Iterator<Frg> itr = itr_queue_rcv_order.rewind(); itr.hasNext(); ) {
+        for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg f = itr.next();
             len += f.data.readableBytes();
             if (f.tot == 0)
@@ -501,11 +501,11 @@ public class Rudp {
         return queue_snd;
     }
 
-    public ReItrLinkedList<Frg> getQueue_rcv_order() {
+    public LinkedList<Frg> getQueue_rcv_order() {
         return queue_rcv_order;
     }
 
-    public ReItrLinkedList<Frg> getQueue_rcv_shambles() {
+    public LinkedList<Frg> getQueue_rcv_shambles() {
         return queue_rcv_shambles;
     }
 
