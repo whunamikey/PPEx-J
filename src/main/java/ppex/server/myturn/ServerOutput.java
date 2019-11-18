@@ -1,6 +1,8 @@
 package ppex.server.myturn;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.channel.socket.DatagramPacket;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
@@ -24,6 +26,13 @@ public class ServerOutput implements PcpOutput, Output {
     public void output(ByteBuf data, Rudp rudp) {
         Connection connection = rudp.getConnection();
         DatagramPacket tmp = new DatagramPacket(data, connection.getAddress());
-        connection.getChannel().writeAndFlush(tmp);
+        ChannelFuture future = connection.getChannel().writeAndFlush(tmp);
+        future.addListener(future1 -> {
+            if (future.isSuccess()){
+
+            }else{
+                future.cause().printStackTrace();
+            }
+        });
     }
 }
