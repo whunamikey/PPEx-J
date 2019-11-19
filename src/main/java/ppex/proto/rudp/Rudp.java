@@ -383,10 +383,10 @@ public class Rudp {
                     repeat = true;
                     break;
                 }
-                if (itimediff(sn,frgTmp.sn) > 0){
-                    findPos = true;
-                    break;
-                }
+//                if (itimediff(sn,frgTmp.sn) > 0){
+//                    findPos = true;
+//                    break;
+//                }
             }
         }
         if (repeat) {
@@ -394,7 +394,7 @@ public class Rudp {
         } else if (itr == null) {
             queue_rcv_shambles.add(frg);
         } else {
-            if (findPos)
+//            if (findPos)
                 queue_rcv_shambles.add(frg);
         }
     }
@@ -406,6 +406,8 @@ public class Rudp {
                 itr.remove();
                 queue_rcv_order.add(frg);
                 rcv_nxt++;
+            }else if(frg.sn < rcv_nxt){
+                itr.remove();
             }else{
                 break;
             }
