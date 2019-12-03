@@ -5,7 +5,6 @@ import ppex.utils.Identity;
 
 public class BootstrapS2P2 {
     public static void main(String[] args) {
-        System.out.println("haha");
         startServer();
     }
 
