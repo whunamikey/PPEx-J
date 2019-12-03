@@ -69,6 +69,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 //            DisruptorExectorPool.scheduleHashedWheel(scheduleTask, pcpPack.getInterval());
 
             //rudp测试
+            LOGGER.info("UdpServer rcv packet from :" + datagramPacket.sender());
             Channel channel = channelHandlerContext.channel();
             RudpPack rudpPack = addrManager.get(datagramPacket.sender());
             if (rudpPack != null) {
