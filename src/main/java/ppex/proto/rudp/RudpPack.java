@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
-import org.jctools.queues.SpscArrayQueue;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.entity.Connection;
 import ppex.utils.tpool.IMessageExecutor;
@@ -59,7 +58,7 @@ public class RudpPack {
     }
 
     public void read(ByteBuf buf){
-        this.queue_rcv.add(buf.readRetainedSlice(buf.readableBytes()));
+        this.queue_rcv.add(buf.readSlice(buf.readableBytes()));
         notifyRcvEvent();
     }
 

@@ -1,4 +1,4 @@
-package ppex.server.entity;
+package ppex.server.socket;
 
 import java.net.InetSocketAddress;
 
@@ -11,7 +11,7 @@ public class Server {
         return instance;
     }
 
-    public String local_address = null;
+    private String local_address = null;
     private InetSocketAddress SERVER1=null;
     private InetSocketAddress SERVER2P1=null;
     private InetSocketAddress SERVER2P2=null;
@@ -38,5 +38,13 @@ public class Server {
 
     public void setSERVER2P2(InetSocketAddress SERVER2P2) {
         this.SERVER2P2 = SERVER2P2;
+    }
+
+    public void setLocal_address(String local_address) {
+        this.local_address = local_address;
+    }
+
+    public String getLocal_address() {
+        return local_address;
     }
 }

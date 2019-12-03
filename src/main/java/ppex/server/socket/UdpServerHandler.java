@@ -70,18 +70,17 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
 
             //rudp测试
             LOGGER.info("UdpServer rcv packet from :" + datagramPacket.sender());
-            Channel channel = channelHandlerContext.channel();
             RudpPack rudpPack = addrManager.get(datagramPacket.sender());
             if (rudpPack != null) {
                 rudpPack.getConnection().setAddress(datagramPacket.sender());
-                rudpPack.getConnection().setChannel(channel);
+                rudpPack.getConnection().setChannel(channelHandlerContext.channel());
                 rudpPack.setCtx(channelHandlerContext);
                 rudpPack.read(datagramPacket.content());
                 return;
             }
 
             IMessageExecutor executor = disruptorExectorPool.getAutoDisruptorProcessor();
-            Connection connection = new Connection("", datagramPacket.sender(), "", 0, channel);
+            Connection connection = new Connection("", datagramPacket.sender(), "", 0, channelHandlerContext.channel());
             Output output = new ServerOutput();
             rudpPack = new RudpPack(output, connection, executor, this.responseListener, channelHandlerContext);
             addrManager.New(datagramPacket.sender(), rudpPack);

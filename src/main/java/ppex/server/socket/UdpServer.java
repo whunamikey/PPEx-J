@@ -8,18 +8,14 @@ import io.netty.channel.epoll.EpollDatagramChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.internal.SocketUtils;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
-import ppex.proto.pcp.IChannelManager;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.Output;
 import ppex.proto.rudp.Rudp;
 import ppex.proto.rudp.RudpPack;
-import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
 import ppex.server.myturn.ServerAddrManager;
-import ppex.server.myturn.ServerChannelManager;
 import ppex.server.myturn.ServerOutput;
 import ppex.utils.Constants;
 import ppex.utils.Identity;
@@ -27,19 +23,19 @@ import ppex.utils.tpool.DisruptorExectorPool;
 import ppex.utils.tpool.IMessageExecutor;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class UdpServer {
 
-    private Logger logger = Logger.getLogger(UdpServer.class);
+    private Logger LOGGER = Logger.getLogger(UdpServer.class);
 
     private Bootstrap bootstrap;
     private EventLoopGroup group;
     private DisruptorExectorPool disruptorExectorPool;
-    private List<Channel> channels = new Vector<>();
-    private IChannelManager channelManager = ServerChannelManager.New();
+    private List<Channel> channels = new ArrayList<>();
     private IAddrManager addrManager = ServerAddrManager.getInstance();
     private UdpServerHandler udpServerHandler;
     private MsgListener msgListener;
@@ -48,7 +44,7 @@ public class UdpServer {
 
         initServer();
 
-        logger.info("---->UdpServer start");
+        LOGGER.info("---->UdpServer start");
         bootstrap = new Bootstrap();
         int cpunum = Runtime.getRuntime().availableProcessors();
 
@@ -57,6 +53,7 @@ public class UdpServer {
         for (int i = 0; i < cpunum; i++) {
             disruptorExectorPool.createDisruptorProcessor("disruptor:" + i);
         }
+        LOGGER.info("CPU num :" + cpunum);
 
         boolean epoll = Epoll.isAvailable();
         if (epoll) {
@@ -120,14 +117,14 @@ public class UdpServer {
 
     private void initServer() {
         try {
-            logger.info("initServer run");
+            LOGGER.info("initServer run");
             Server.getInstance();
             InetAddress address = InetAddress.getLocalHost();//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
             String hostAddress = address.getHostAddress();//192.168.0.121
-            Server.getInstance().local_address = address.getHostAddress();
-            Server.getInstance().setSERVER1(SocketUtils.socketAddress(Constants.SERVER_HOST1, Constants.PORT1));
-            Server.getInstance().setSERVER2P1(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT1));
-            Server.getInstance().setSERVER2P2(SocketUtils.socketAddress(Constants.SERVER_HOST2, Constants.PORT2));
+            Server.getInstance().setLocal_address(address.getHostAddress());
+            Server.getInstance().setSERVER1(new InetSocketAddress(Constants.SERVER_HOST1,Constants.PORT1));
+            Server.getInstance().setSERVER2P1(new InetSocketAddress(Constants.SERVER_HOST2,Constants.PORT1));
+            Server.getInstance().setSERVER2P2(new InetSocketAddress(Constants.SERVER_HOST2,Constants.PORT2));
 
             ConnectionService.getInstance();
 

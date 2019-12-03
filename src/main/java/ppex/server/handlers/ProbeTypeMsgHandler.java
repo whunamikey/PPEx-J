@@ -10,7 +10,7 @@ import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.Output;
 import ppex.proto.rudp.RudpPack;
-import ppex.server.entity.Server;
+import ppex.server.socket.Server;
 import ppex.server.myturn.ServerOutput;
 import ppex.utils.Identity;
 import ppex.utils.MessageUtil;
@@ -139,7 +139,6 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             return;
         LOGGER.info("ProbeTypemsg handler:" + tmsg.getBody());
         ProbeTypeMsg pmsg = JSON.parseObject(tmsg.getBody(), ProbeTypeMsg.class);
-//        pmsg.setFromInetSocketAddress(address);
         pmsg.setFromInetSocketAddress(rudpPack.getConnection().address);
         if (pmsg.getType() == ProbeTypeMsg.Type.FROM_CLIENT.ordinal()) {
             if (Identity.INDENTITY == Identity.Type.CLIENT.ordinal()) {

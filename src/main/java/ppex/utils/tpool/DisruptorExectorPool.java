@@ -1,6 +1,7 @@
 package ppex.utils.tpool;
 
-import io.netty.channel.DefaultEventLoop;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.TimerTask;
 
@@ -15,7 +16,7 @@ public class DisruptorExectorPool {
     private List<IMessageExecutor> executors = new Vector<>();
     protected AtomicInteger index = new AtomicInteger();
     //定时线程池
-    private static final DefaultEventLoop EVENT_EXECUTORS = new DefaultEventLoop();
+    private static final EventLoopGroup EVENT_EXECUTORS = new NioEventLoopGroup();
 
     private static final HashedWheelTimer hashedWheelTimer = new HashedWheelTimer(new TimerThreadFactory(),1, TimeUnit.MILLISECONDS);
 

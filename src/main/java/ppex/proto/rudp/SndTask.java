@@ -1,6 +1,5 @@
 package ppex.proto.rudp;
 
-import io.netty.util.Recycler;
 import org.apache.log4j.Logger;
 import org.jctools.queues.MpscArrayQueue;
 import ppex.proto.msg.Message;
@@ -9,22 +8,10 @@ import ppex.utils.tpool.ITask;
 public class SndTask implements ITask {
     private static Logger LOGGER = Logger.getLogger(SndTask.class);
 
-    private final Recycler.Handle<SndTask> recyclerHandler;
-    private static final Recycler<SndTask> RECYCLER = new Recycler<SndTask>() {
-        @Override
-        protected SndTask newObject(Handle<SndTask> handle) {
-            return new SndTask(handle);
-        }
-    };
-
-    private SndTask(Recycler.Handle<SndTask> recyclerHandler) {
-        this.recyclerHandler = recyclerHandler;
-    }
-
     private RudpPack rudpkg;
 
     public static SndTask New(RudpPack rudpkg) {
-        SndTask sendTask = RECYCLER.get();
+        SndTask sendTask = new SndTask();
         sendTask.rudpkg = rudpkg;
         return sendTask;
     }
@@ -50,6 +37,5 @@ public class SndTask implements ITask {
 
     public void release() {
         rudpkg = null;
-        recyclerHandler.recycle(this);
     }
 }

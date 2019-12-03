@@ -34,20 +34,10 @@ public class StandardMessageHandler implements MessageHandler {
         }
     }
 
-//    public void handleDatagramPacket(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
-//        try {
-//            TypeMessage msg = MessageUtil.packet2Typemsg(packet);
-//            handlers.get(msg.getType()).handleTypeMessage(ctx, msg, packet.sender());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            LOGGER.error("handle datagram packet error" + e.getMessage());
-//        }
-//    }
 
     @Override
     public void handleMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, Message msg) {
         try {
-//            LOGGER.info("StandardMessageHandle msg:" + msg.getContent());
             TypeMessage tmsg = JSON.parseObject(msg.getContent(), TypeMessage.class);
             handlers.get(tmsg.getType()).handleTypeMessage(ctx,rudpPack,addrManager, tmsg);
         }catch (Exception e){
