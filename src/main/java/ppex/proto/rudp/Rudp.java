@@ -7,10 +7,9 @@ import org.apache.log4j.Logger;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.entity.Connection;
 import ppex.utils.MessageUtil;
-import ppex.utils.set.ReItrLinkedList;
-import ppex.utils.set.ReusableListIterator;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class Rudp {
     private static Logger LOGGER = Logger.getLogger(Rudp.class);
@@ -142,7 +141,6 @@ public class Rudp {
     }
 
     public int send(Message msg) {
-//        LOGGER.info("Rudp send msg id:" + msg.getMsgid());
         ByteBuf buf = MessageUtil.msg2ByteBuf(msg);
         return send(buf, msg.getMsgid());
     }
@@ -192,7 +190,6 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
-                LOGGER.info(""+this.getConnection().getAddress() +" flush sn:" + frg.sn);
                 output(flushbuf);
             }
         }
@@ -270,7 +267,6 @@ public class Rudp {
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
-                    LOGGER.info("recv:" + this.getConnection().getAddress() + " sn:" + sn + " rcvNxt:" + rcv_nxt + " wndrcv:" + wnd_rcv);
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
@@ -427,7 +423,6 @@ public class Rudp {
 //        msgid = itr_queue_rcv_order.rewind().next().msgid;
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
-            LOGGER.info("rcv msgid:" + msgid + " sn:" + frg.sn + " una:" + frg.una + " tot:" + frg.tot + " size of shambles:" + queue_rcv_shambles.size());
             itr.remove();
             if (buf == null) {
                 if (frg.tot == 0) {
