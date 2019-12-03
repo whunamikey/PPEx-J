@@ -1,10 +1,7 @@
 package ppex.server.socket;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollDatagramChannel;
@@ -17,6 +14,7 @@ import ppex.proto.msg.entity.Connection;
 import ppex.proto.pcp.IChannelManager;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.Output;
+import ppex.proto.rudp.Rudp;
 import ppex.proto.rudp.RudpPack;
 import ppex.server.entity.Server;
 import ppex.server.myturn.ConnectionService;
@@ -68,11 +66,12 @@ public class UdpServer {
         Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
+        bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true)
+            .option(ChannelOption.RCVBUF_ALLOCATOR,new AdaptiveRecvByteBufAllocator(Rudp.HEAD_LEN,Rudp.MTU_DEFUALT,Rudp.MTU_DEFUALT));
 
         msgListener = new MsgListener(addrManager);
         udpServerHandler = new UdpServerHandler(disruptorExectorPool, addrManager,msgListener);
         bootstrap.handler(udpServerHandler);
-        bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true);
         if (identity == Identity.Type.SERVER1.ordinal()) {
             ChannelFuture future = bootstrap.bind(Constants.PORT1);
             Channel channel = future.channel();

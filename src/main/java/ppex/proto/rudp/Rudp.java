@@ -34,9 +34,9 @@ public class Rudp {
     //超过次数重传就认为连接断开
     public static final int DEAD_LINK = 10;
     //头部数据长度
-    public int HEAD_LEN = 45;
+    public static int HEAD_LEN = 45;
     //MTU
-    public static final int MTU_DEFUALT = 1471;
+    public static final int MTU_DEFUALT = 1407;
     public static final int INTERVAL = 100;
     //接收和发送窗口长度
     public static final int WND_SND = 32;
