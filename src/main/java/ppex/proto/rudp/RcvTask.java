@@ -1,16 +1,13 @@
 package ppex.proto.rudp;
 
+import java.util.Queue;
+
 import io.netty.buffer.ByteBuf;
-import io.netty.util.Recycler;
-import org.apache.log4j.Logger;
 import ppex.proto.msg.Message;
 import ppex.utils.tpool.ITask;
 
-import java.util.Queue;
-
 public class RcvTask implements ITask {
 
-    private static Logger LOGGER = Logger.getLogger(RcvTask.class);
 
     private RudpPack rudpkg;
 

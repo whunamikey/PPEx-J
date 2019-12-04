@@ -1,18 +1,18 @@
 package ppex.proto.rudp;
 
+import android.util.Log;
+
+import org.jctools.queues.MpscArrayQueue;
+
+import java.util.Queue;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import org.apache.log4j.Logger;
-import org.jctools.queues.MpscArrayQueue;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.entity.Connection;
 import ppex.utils.tpool.IMessageExecutor;
 
-import java.util.Queue;
-
 public class RudpPack {
-
-    private static Logger LOGGER = Logger.getLogger(RudpPack.class);
 
     private final MpscArrayQueue<Message> queue_snd;
     private final Queue<ByteBuf> queue_rcv;
@@ -40,7 +40,7 @@ public class RudpPack {
 
     public boolean write(Message msg){
         if (!queue_snd.offer(msg)){
-            LOGGER.info("rudppkg queue snd is full");
+            Log.e("MyTag","rudppkg queue snd is full");
             return false;
         }
         notifySendEvent();
@@ -154,9 +154,9 @@ public class RudpPack {
     }
 
     public void printRcvShambleAndOrderNum(){
-        LOGGER.info("Rudppack shamble:" + rudp.getQueue_rcv_shambles().size() +  " order:" + rudp.getQueue_rcv_order().size());
-        if (rudp.getQueue_rcv_shambles().size() > 0){
-            rudp.getQueue_rcv_shambles().forEach(frg -> LOGGER.info("frg:" + frg.msgid + " sn:" + frg.sn + " tot:" + frg.tot));
-        }
+//        LOGGER.info("Rudppack shamble:" + rudp.getQueue_rcv_shambles().size() +  " order:" + rudp.getQueue_rcv_order().size());
+//        if (rudp.getQueue_rcv_shambles().size() > 0){
+//            rudp.getQueue_rcv_shambles().forEach(frg -> LOGGER.info("frg:" + frg.msgid + " sn:" + frg.sn + " tot:" + frg.tot));
+//        }
     }
 }

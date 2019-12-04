@@ -1,19 +1,18 @@
 package ppex.proto.msg;
 
 import com.alibaba.fastjson.JSON;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import io.netty.channel.ChannelHandlerContext;
-import org.apache.log4j.Logger;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.RudpPack;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class StandardMessageHandler implements MessageHandler {
 
-    private Logger LOGGER = Logger.getLogger(StandardMessageHandler.class);
     private Map<Integer, TypeMessageHandler> handlers;
 
     private StandardMessageHandler() {
@@ -34,6 +33,15 @@ public class StandardMessageHandler implements MessageHandler {
         }
     }
 
+//    public void handleDatagramPacket(ChannelHandlerContext ctx, DatagramPacket packet) throws Exception {
+//        try {
+//            TypeMessage msg = MessageUtil.packet2Typemsg(packet);
+//            handlers.get(msg.getType()).handleTypeMessage(ctx, msg, packet.sender());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            LOGGER.error("handle datagram packet error" + e.getMessage());
+//        }
+//    }
 
     @Override
     public void handleMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, Message msg) {
@@ -42,7 +50,6 @@ public class StandardMessageHandler implements MessageHandler {
             handlers.get(tmsg.getType()).handleTypeMessage(ctx,rudpPack,addrManager, tmsg);
         }catch (Exception e){
             e.printStackTrace();
-            LOGGER.error("StandardMessageHandler handle message error:" + e.getCause().toString());
         }
     }
 }
