@@ -417,19 +417,10 @@ public class Rudp {
         int len = lenOfByteBuf();
         if (len < 0)
             return null;
-        ByteBuf buf = null;
-        long msgid = -1;
-//        msgid = itr_queue_rcv_order.rewind().next().msgid;
+        ByteBuf buf = byteBufAllocator.buffer(len);
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
-            if (buf == null) {
-                if (frg.tot == 0) {
-                    buf = frg.data;
-                    break;
-                }
-                buf = byteBufAllocator.buffer(len);
-            }
             buf.writeBytes(frg.data);
             frg.data.release();
             if (frg.tot == 0)
