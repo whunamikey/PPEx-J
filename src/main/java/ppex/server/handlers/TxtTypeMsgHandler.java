@@ -29,13 +29,13 @@ public class TxtTypeMsgHandler implements TypeMessageHandler {
     public void handleTypeMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
         LOGGER.info("TxtTypemsg handle:" + tmsg.getBody());
         TxtTypeMsg txtTypeMsg = JSON.parseObject(tmsg.getBody(), TxtTypeMsg.class);
-        if (txtTypeMsg.isReq()){
-            RudpPack torudppack = addrManager.get(txtTypeMsg.getTo());
-            torudppack.write(MessageUtil.txtmsg2Msg(txtTypeMsg));
-        }else{
-            RudpPack fromrudppack = addrManager.get(txtTypeMsg.getFrom());
-            fromrudppack.write(MessageUtil.txtmsg2Msg(txtTypeMsg));
-        }
+//        if (txtTypeMsg.isReq()){
+//            RudpPack torudppack = addrManager.get(txtTypeMsg.getTo());
+//            torudppack.write(MessageUtil.txtmsg2Msg(txtTypeMsg));
+//        }else{
+//            RudpPack fromrudppack = addrManager.get(txtTypeMsg.getFrom());
+//            fromrudppack.write(MessageUtil.txtmsg2Msg(txtTypeMsg));
+//        }
 //        if (txtTypeMsg.isReq()) {
 //            txtTypeMsg.setReq(false);
 //            File file = new File("D:/");
