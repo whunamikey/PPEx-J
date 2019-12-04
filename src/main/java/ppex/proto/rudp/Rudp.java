@@ -107,7 +107,7 @@ public class Rudp {
         ByteBuf bufduplicate = buf.duplicate();
         for (int i = 0; i < count; i++) {
             int size = len > mss ? mss : len;
-            Frg frg = Frg.createFrg(bufduplicate.readSlice(size));
+            Frg frg = Frg.createFrg(byteBufAllocator,bufduplicate.readSlice(size));
             frg.tot = (count - i - 1);
             frg.msgid = msgid;
             queue_snd.add(frg);
@@ -271,7 +271,7 @@ public class Rudp {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
                         if (len > 0) {
-                            frg = Frg.createFrg(data.readSlice(len));
+                            frg = Frg.createFrg(byteBufAllocator,data.readSlice(len));
                         } else {
                             frg = Frg.createFrg(byteBufAllocator, 0);
                         }
