@@ -1,7 +1,7 @@
 package ppex.proto.rudp;
 
-import android.util.Log;
 
+import io.netty.buffer.PooledByteBufAllocator;
 import org.jctools.queues.MpscArrayQueue;
 
 import java.util.Queue;
@@ -40,7 +40,6 @@ public class RudpPack {
 
     public boolean write(Message msg){
         if (!queue_snd.offer(msg)){
-            Log.e("MyTag","rudppkg queue snd is full");
             return false;
         }
         notifySendEvent();
@@ -58,7 +57,9 @@ public class RudpPack {
     }
 
     public void read(ByteBuf buf){
-        this.queue_rcv.add(buf.readSlice(buf.readableBytes()));
+        ByteBuf buf1 = PooledByteBufAllocator.DEFAULT.buffer(buf.readableBytes());
+        buf1.writeBytes(buf);
+        this.queue_rcv.add(buf1);
         notifyRcvEvent();
     }
 

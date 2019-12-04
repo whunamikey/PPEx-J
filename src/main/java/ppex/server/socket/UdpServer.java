@@ -59,8 +59,10 @@ public class UdpServer {
         if (epoll) {
             bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
         }
-        group = epoll ? new EpollEventLoopGroup(cpunum) : new NioEventLoopGroup(cpunum);
-        Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+//        group = epoll ? new EpollEventLoopGroup(cpunum) : new NioEventLoopGroup(cpunum);
+        group = new NioEventLoopGroup(cpunum);
+//        Class<? extends Channel> channelCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+        Class<? extends Channel> channelCls = NioDatagramChannel.class;
         bootstrap.channel(channelCls);
         bootstrap.group(group);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true)

@@ -12,7 +12,7 @@ public class ServerOutput implements Output {
     private Logger LOGGER = Logger.getLogger(ServerOutput.class);
 
     @Override
-    public void output(ByteBuf data, Rudp rudp) {
+    public void output(ByteBuf data, Rudp rudp,long sn) {
         Connection connection = rudp.getConnection();
         DatagramPacket tmp = new DatagramPacket(data, connection.getAddress());
         ChannelFuture future = connection.getChannel().writeAndFlush(tmp);

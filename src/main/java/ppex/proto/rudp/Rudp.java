@@ -428,7 +428,7 @@ public class Rudp {
                     buf = frg.data;
                     break;
                 }
-                buf = byteBufAllocator.ioBuffer(len);
+                buf = byteBufAllocator.buffer(len);
             }
             buf.writeBytes(frg.data);
             frg.data.release();
