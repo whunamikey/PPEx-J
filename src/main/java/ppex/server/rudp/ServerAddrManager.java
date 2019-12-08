@@ -1,4 +1,4 @@
-package ppex.server.myturn;
+package ppex.server.rudp;
 
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.RudpPack;
@@ -10,14 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerAddrManager implements IAddrManager {
     private Map<InetSocketAddress, RudpPack> rudpPacks = new ConcurrentHashMap<>(30,0.9f);
-
-    private static ServerAddrManager serverAddrManager = null;
-    private ServerAddrManager(){}
-    public static ServerAddrManager getInstance(){
-        if (serverAddrManager == null)
-            serverAddrManager = new ServerAddrManager();
-        return serverAddrManager;
-    }
 
     @Override
     public RudpPack get(InetSocketAddress sender) {
@@ -31,11 +23,7 @@ public class ServerAddrManager implements IAddrManager {
 
     @Override
     public void Del(RudpPack rudpPack) {
-        this.rudpPacks.forEach((key,val)->{
-            if (rudpPack.equals(val)){
-                this.rudpPacks.remove(key,val);
-            }
-        });
+        rudpPacks.entrySet().removeIf(entry -> entry.getValue().equals(rudpPack));
     }
 
     @Override

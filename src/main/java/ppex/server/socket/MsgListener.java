@@ -1,6 +1,5 @@
 package ppex.server.socket;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
@@ -28,8 +27,8 @@ public class MsgListener implements ResponseListener {
     }
 
     @Override
-    public void onResponse(ChannelHandlerContext ctx, RudpPack rudpPack, Message message) {
+    public void onResponse(RudpPack rudpPack, Message message) {
         LOGGER.info("MsgListener get msg:" + message.getMsgid() + " :" + message.getContent());
-        msgHandler.handleMessage(ctx,rudpPack,addrManager,message);
+        msgHandler.handleMessage(rudpPack,addrManager,message);
     }
 }

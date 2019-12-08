@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBufAllocator;
 //分片
 public class Frg {
     private Frg(){}
-    public static Frg createFrg(ByteBufAllocator allocator, ByteBuf data){
+    public static Frg createFrg(ByteBufAllocator allocator,ByteBuf data){
         Frg frg = new Frg();
         ByteBuf buf = allocator.ioBuffer(data.readableBytes());
         buf.writeBytes(data);
@@ -14,7 +14,7 @@ public class Frg {
         return frg;
     }
 
-    public static Frg createFrg(ByteBufAllocator allocator, int size){
+    public static Frg createFrg(ByteBufAllocator allocator,int size){
         Frg frg = new Frg();
         if (size == 0){
             frg.data = allocator.ioBuffer(0,0);

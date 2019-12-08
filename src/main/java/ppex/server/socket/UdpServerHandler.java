@@ -1,6 +1,5 @@
 package ppex.server.socket;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -8,21 +7,12 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.log4j.Logger;
 import ppex.proto.msg.entity.Connection;
 import ppex.proto.rudp.*;
-import ppex.server.myturn.ServerOutput;
-import ppex.utils.tpool.DisruptorExectorPool;
-import ppex.utils.tpool.IMessageExecutor;
 
 public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private Logger LOGGER = Logger.getLogger(UdpServerHandler.class);
 
-    private DisruptorExectorPool disruptorExectorPool;
-
-    private IAddrManager addrManager;
-    private ResponseListener responseListener;
-
-
-    public UdpServerHandler(DisruptorExectorPool disruptorExectorPool, IAddrManager addrManager, ResponseListener responseListener) {
+    public UdpServerHandler(Server server) {
         this.disruptorExectorPool = disruptorExectorPool;
         this.addrManager = addrManager;
         this.responseListener = responseListener;

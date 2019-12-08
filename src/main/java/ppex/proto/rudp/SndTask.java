@@ -1,9 +1,10 @@
 package ppex.proto.rudp;
 
-import org.jctools.queues.MpscArrayQueue;
-
+import io.netty.util.Timeout;
 import ppex.proto.msg.Message;
-import ppex.utils.tpool.ITask;
+import ppex.proto.tpool.ITask;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SndTask implements ITask {
 
@@ -18,7 +19,7 @@ public class SndTask implements ITask {
     @Override
     public void execute() {
         try {
-            MpscArrayQueue<Message> msgs = rudpkg.getQueue_snd();
+            ConcurrentLinkedQueue<Message> msgs = rudpkg.getQueue_snd();
             while(rudpkg.canSend(false)){
                 Message msg = msgs.poll();
                 if (msg == null)
@@ -36,5 +37,15 @@ public class SndTask implements ITask {
 
     public void release() {
         rudpkg = null;
+    }
+
+    @Override
+    public void run(Timeout timeout) throws Exception {
+        run();
+    }
+
+    @Override
+    public void run() {
+        execute();
     }
 }

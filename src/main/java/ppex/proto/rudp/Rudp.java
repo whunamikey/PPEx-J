@@ -1,14 +1,13 @@
 package ppex.proto.rudp;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.*;
 import ppex.proto.msg.Message;
-import ppex.proto.msg.entity.Connection;
 import ppex.utils.MessageUtil;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Rudp {
 
@@ -65,13 +64,13 @@ public class Rudp {
     //表示有几个等待ack的数量
     private int ackcount = 0;
     //等待发送的数据
-    private LinkedList<Frg> queue_snd = new LinkedList<>();
+    private ConcurrentLinkedQueue<Frg> queue_snd = new ConcurrentLinkedQueue<>();
     //发送后等待确认数据,与上面queue_snd对应下来
-    private LinkedList<Frg> queue_sndack = new LinkedList<>();
+    private ConcurrentLinkedQueue<Frg> queue_sndack = new ConcurrentLinkedQueue<>();
     //收到有序的消息队列
-    private LinkedList<Frg> queue_rcv_order = new LinkedList<>();
+    private ConcurrentLinkedQueue<Frg> queue_rcv_order = new ConcurrentLinkedQueue<>();
     //收到无序的消息队列
-    private LinkedList<Frg> queue_rcv_shambles = new LinkedList<>();
+    private ConcurrentLinkedQueue<Frg> queue_rcv_shambles = new ConcurrentLinkedQueue<>();
 
     //开始的时间戳
     private long startTicks = System.currentTimeMillis();
@@ -81,13 +80,11 @@ public class Rudp {
     private int resend = RESEND_DEFAULT;
 
 
-    private Output output;
-    private Connection connection;
+    private IOutput output;
     private long ack;
 
-    public Rudp(Output output, Connection connection) {
+    public Rudp(IOutput output) {
         this.output = output;
-        this.connection = connection;
     }
 
     public int send(ByteBuf buf, long msgid) {
@@ -107,7 +104,7 @@ public class Rudp {
         ByteBuf bufduplicate = buf.duplicate();
         for (int i = 0; i < count; i++) {
             int size = len > mss ? mss : len;
-            Frg frg = Frg.createFrg(byteBufAllocator,bufduplicate.readSlice(size));
+            Frg frg = Frg.createFrg(byteBufAllocator, bufduplicate.readSlice(size));
             frg.tot = (count - i - 1);
             frg.msgid = msgid;
             queue_snd.add(frg);
@@ -123,20 +120,6 @@ public class Rudp {
         frg.tot = 0;
         frg.msgid = -1;
         queue_snd.add(frg);
-//        frg.sn = snd_nxt;
-//        snd_nxt++;
-//        frg.rto = rx_rto;
-//        frg.ts_resnd = System.currentTimeMillis() + frg.rto;
-//        frg.xmit ++;
-//        frg.ts = System.currentTimeMillis();
-//        frg.wnd = WND_SND;
-//        frg.una = rcv_nxt;
-//        ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN);
-//        encodeFlushBuf(flushbuf, frg);
-//        if (frg.data != null && frg.data.readableBytes() > 0) {
-//            flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
-//        }
-//        output(flushbuf);
     }
 
     public int send(Message msg) {
@@ -159,7 +142,7 @@ public class Rudp {
             queue_sndack.add(frg);
             snd_nxt++;
         }
-        for (Iterator<Frg> itr = queue_sndack.listIterator(); itr.hasNext(); ) {
+        for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             boolean send = false;
             if (frg.xmit == 0) {             //第一次发送
@@ -271,7 +254,7 @@ public class Rudp {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
                         if (len > 0) {
-                            frg = Frg.createFrg(byteBufAllocator,data.readSlice(len));
+                            frg = Frg.createFrg(byteBufAllocator, data.readSlice(len));
                         } else {
                             frg = Frg.createFrg(byteBufAllocator, 0);
                         }
@@ -368,7 +351,6 @@ public class Rudp {
             return;
         }
         boolean repeat = false, findPos = false;
-//        ListIterator<Frg> itrList = null;
         Iterator<Frg> itr = null;
         if (queue_rcv_shambles.size() > 0) {
             itr = queue_rcv_shambles.iterator();
@@ -378,10 +360,6 @@ public class Rudp {
                     repeat = true;
                     break;
                 }
-//                if (itimediff(sn,frgTmp.sn) > 0){
-//                    findPos = true;
-//                    break;
-//                }
             }
         }
         if (repeat) {
@@ -389,7 +367,6 @@ public class Rudp {
         } else if (itr == null) {
             queue_rcv_shambles.add(frg);
         } else {
-//            if (findPos)
             queue_rcv_shambles.add(frg);
         }
     }
@@ -451,11 +428,6 @@ public class Rudp {
         return len;
     }
 
-
-    public Connection getConnection() {
-        return connection;
-    }
-
     public int getInterval() {
         return interval;
     }
@@ -487,15 +459,15 @@ public class Rudp {
         queue_sndack.forEach(frg -> frg.recycler(true));
     }
 
-    public LinkedList<Frg> getQueue_snd() {
+    public ConcurrentLinkedQueue<Frg> getQueue_snd() {
         return queue_snd;
     }
 
-    public LinkedList<Frg> getQueue_rcv_order() {
+    public ConcurrentLinkedQueue<Frg> getQueue_rcv_order() {
         return queue_rcv_order;
     }
 
-    public LinkedList<Frg> getQueue_rcv_shambles() {
+    public ConcurrentLinkedQueue<Frg> getQueue_rcv_shambles() {
         return queue_rcv_shambles;
     }
 

@@ -1,50 +1,65 @@
 package ppex.server.socket;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
+import ppex.proto.entity.Connection;
+import ppex.proto.rudp.IAddrManager;
+import ppex.proto.rudp.IOutputManager;
+import ppex.proto.rudp.ResponseListener;
+import ppex.proto.tpool.IThreadExecute;
+import ppex.proto.tpool.ThreadExecute;
+import ppex.server.rudp.ServerAddrManager;
+import ppex.server.rudp.ServerOutputManager;
+
 import java.net.InetSocketAddress;
 
 public class Server {
-    private static Server instance = null;
-    private Server(){}
-    public static Server getInstance(){
-        if (instance == null)
-            instance = new Server();
-        return instance;
+
+    private String HOST_SERVER1 = "10.5.11.55";
+    private String HOST_SERVER2 = "127.0.0.1";
+    private int PORT_1 = 9123;
+    private int PORT_2 = 9124;
+    private int PORT_3 = 9125;
+
+    private InetSocketAddress addrLocal;
+    private InetSocketAddress addrServer1;
+    private InetSocketAddress addrServer2p1;
+    private InetSocketAddress addrServer2p2;
+
+
+    private String addrMac;
+    private String name;
+    private Connection connServer1;
+    private Connection connServer2p1;
+    private Connection connServer2p2;
+    private Connection connLocal;
+
+    private IAddrManager addrManager;
+    private IOutputManager outputManager;
+    private IThreadExecute executor;
+    private ResponseListener responseListener;
+
+    private Channel channel;
+    private Bootstrap bootstrap;
+    private EventLoopGroup eventLoopGroup;
+    private UdpServerHandler serverHandler;
+
+
+    public void startServer(){
+
+        int cpunum = Runtime.getRuntime().availableProcessors();
+        executor = new ThreadExecute();
+
+        addrManager = new ServerAddrManager();
+        executor = new ThreadExecute();
+        executor.start();
+        outputManager = new ServerOutputManager();
+        serverHandler = new UdpServerHandler(this);
+        responseListener = new MsgListener(addrManager);
+
+        bootstrap = new Bootstrap();
+
     }
 
-    private String local_address = null;
-    private InetSocketAddress SERVER1=null;
-    private InetSocketAddress SERVER2P1=null;
-    private InetSocketAddress SERVER2P2=null;
-
-    public InetSocketAddress getSERVER1() {
-        return SERVER1;
-    }
-
-    public void setSERVER1(InetSocketAddress SERVER1) {
-        this.SERVER1 = SERVER1;
-    }
-
-    public InetSocketAddress getSERVER2P1() {
-        return SERVER2P1;
-    }
-
-    public void setSERVER2P1(InetSocketAddress SERVER2P1) {
-        this.SERVER2P1 = SERVER2P1;
-    }
-
-    public InetSocketAddress getSERVER2P2() {
-        return SERVER2P2;
-    }
-
-    public void setSERVER2P2(InetSocketAddress SERVER2P2) {
-        this.SERVER2P2 = SERVER2P2;
-    }
-
-    public void setLocal_address(String local_address) {
-        this.local_address = local_address;
-    }
-
-    public String getLocal_address() {
-        return local_address;
-    }
 }
