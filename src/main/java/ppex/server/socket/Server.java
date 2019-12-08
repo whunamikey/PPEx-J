@@ -59,6 +59,7 @@ public class Server {
         responseListener = new MsgListener(addrManager);
 
         bootstrap = new Bootstrap();
+        //todo 2019.12.8
 
     }
 
