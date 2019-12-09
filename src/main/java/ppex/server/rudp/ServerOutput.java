@@ -20,6 +20,11 @@ public class ServerOutput implements IOutput {
     }
 
     @Override
+    public Channel getChannel() {
+        return this.channel;
+    }
+
+    @Override
     public void update(Channel channel) {
         this.channel = channel;
     }
@@ -31,7 +36,7 @@ public class ServerOutput implements IOutput {
             ChannelFuture fu = channel.writeAndFlush(packet);
             fu.addListener(future -> {
                 if (future.isSuccess()) {
-                    System.out.println("channel writeandflush succ");
+//                    System.out.println("channel writeandflush succ" + sn);
                 } else {
                     System.out.println("channel writeandflush failed");
                     future.cause().printStackTrace();
@@ -42,8 +47,9 @@ public class ServerOutput implements IOutput {
         }
     }
 
-    public void setConnection(Connection connection) {
-        this.connection = connection;
+    @Override
+    public Connection getConn() {
+        return this.connection;
     }
 
 }

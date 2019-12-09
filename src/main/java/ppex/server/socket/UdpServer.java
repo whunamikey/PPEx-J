@@ -1,26 +1,19 @@
 package ppex.server.socket;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
-import org.apache.log4j.Logger;
-import ppex.proto.rudp.IAddrManager;
-import ppex.proto.rudp.ResponseListener;
-import ppex.server.rudp.ServerAddrManager;
-
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * 2019-12-9使用Server封装后弃用
+ */
+@Deprecated()
 public class UdpServer {
 
-    private Logger LOGGER = Logger.getLogger(UdpServer.class);
+//    private Logger LOGGER = Logger.getLogger(UdpServer.class);
 
-    private Bootstrap bootstrap;
-    private EventLoopGroup group;
-    private List<Channel> channels = new ArrayList<>();
-    private IAddrManager addrManager = ServerAddrManager.getInstance();
-    private UdpServerHandler udpServerHandler;
-    private ResponseListener responseListener;
+//    private Bootstrap bootstrap;
+//    private EventLoopGroup group;
+//    private List<Channel> channels = new ArrayList<>();
+//    private IAddrManager addrManager = ServerAddrManager.getInstance();
+//    private UdpServerHandler udpServerHandler;
+//    private ResponseListener responseListener;
 
     public void startUdpServer(int identity) {
 

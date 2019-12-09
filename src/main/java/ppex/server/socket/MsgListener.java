@@ -28,7 +28,7 @@ public class MsgListener implements ResponseListener {
 
     @Override
     public void onResponse(RudpPack rudpPack, Message message) {
-        LOGGER.info("MsgListener get msg:" + message.getMsgid() + " :" + message.getContent());
+        System.out.println("MsgListener get msg:" + message.toString());
         msgHandler.handleMessage(rudpPack,addrManager,message);
     }
 }

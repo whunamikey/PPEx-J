@@ -2,6 +2,7 @@ package ppex.proto.rudp;
 
 import io.netty.buffer.*;
 import ppex.proto.msg.Message;
+import ppex.proto.tpool.ThreadExecute;
 import ppex.utils.MessageUtil;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Rudp {
     public static final byte CMD_ASK_WIN = 83;
     public static final byte CMD_TELL_WIN = 84;
     public static final byte CMD_RESET = 85;
+    public static final byte CMD_FINISH = 86;
 
     //need to send cmd_ask_win msg
     public static final int ASK_WIN = 1;
@@ -32,7 +34,7 @@ public class Rudp {
     //头部数据长度
     public static int HEAD_LEN = 45;
     //MTU
-    public static final int MTU_DEFUALT = 1400;
+    public static final int MTU_DEFUALT = 1389;
     public static final int INTERVAL = 100;
     //接收和发送窗口长度
     public static final int WND_SND = 32;
@@ -82,6 +84,7 @@ public class Rudp {
 
     private IOutput output;
     private long ack;
+    private boolean stop = false;
 
     public Rudp(IOutput output) {
         this.output = output;
@@ -120,6 +123,17 @@ public class Rudp {
         frg.tot = 0;
         frg.msgid = -1;
         queue_snd.add(frg);
+        snd_nxt = 0;
+        snd_una = snd_nxt;
+        rcv_nxt = 0;
+    }
+
+    public void sendFinish() {
+        Frg frg = Frg.createFrg(byteBufAllocator, 0);
+        frg.cmd = CMD_FINISH;
+        frg.tot = 0;
+        frg.msgid = -1;
+        queue_snd.add(frg);
     }
 
     public int send(Message msg) {
@@ -130,6 +144,7 @@ public class Rudp {
 
     public long flush(boolean ackonly, long current) {
         //发送是先将queue_snd里面的数据发送
+
         int wnd_count = Math.min(wnd_snd, wnd_rmt);                      //后面加入请求server端窗口数量来控制拥塞
         while (itimediff(snd_nxt, snd_una + wnd_count) < 0) {    //这里控制数量输入，即是窗口的数量控制好了
             Frg frg = queue_snd.poll();
@@ -173,6 +188,7 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
+                System.out.println("output snd ack size:" + queue_sndack.size() + " frg.sn:" + frg.sn + " thread:" + Thread.currentThread().getName() + " hash:" + this.hashCode());
                 output(flushbuf, frg.sn);
             }
         }
@@ -279,6 +295,12 @@ public class Rudp {
                         flushAck(sn, ts, msgid);
                     }
                     break;
+                case CMD_FINISH:
+                    if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
+                        flushAck(sn, ts, msgid);
+                        stop = true;
+                    }
+                    break;
             }
         }
         return 0;
@@ -315,6 +337,7 @@ public class Rudp {
                 break;
             }
         }
+        System.out.println("------------------------------->>>>> acK:" + sn +  " queue_sndack size:" + queue_sndack.size() + " thread:" + Thread.currentThread().getName());
     }
 
     private void affirmFastAck(long sn, long ts) {
@@ -450,6 +473,12 @@ public class Rudp {
         snd_una = snd_nxt;
         rcv_nxt = 0;
         rcv_nxt++;
+        release();
+        queue_snd.clear();
+        queue_sndack.clear();
+        queue_rcv_order.clear();
+        queue_rcv_shambles.clear();
+        System.out.println("reset shamles size:" + queue_rcv_shambles.size());
     }
 
     public void release() {
@@ -479,4 +508,7 @@ public class Rudp {
         return this.queue_sndack.size() + this.queue_snd.size();
     }
 
+    public boolean isStop() {
+        return stop;
+    }
 }

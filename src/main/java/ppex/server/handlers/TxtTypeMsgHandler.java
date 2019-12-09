@@ -1,24 +1,12 @@
 package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
-import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
-import ppex.proto.msg.Message;
-import ppex.proto.msg.entity.testpack.Files;
-import ppex.proto.msg.entity.txt.Request;
-import ppex.proto.msg.entity.txt.Response;
 import ppex.proto.msg.type.TxtTypeMsg;
 import ppex.proto.msg.type.TypeMessage;
 import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.proto.rudp.IAddrManager;
-import ppex.proto.rudp.Rudp;
 import ppex.proto.rudp.RudpPack;
-import ppex.utils.MessageUtil;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class TxtTypeMsgHandler implements TypeMessageHandler {
 
@@ -26,7 +14,7 @@ public class TxtTypeMsgHandler implements TypeMessageHandler {
 
 
     @Override
-    public void handleTypeMessage(ChannelHandlerContext ctx, RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
+    public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
         LOGGER.info("TxtTypemsg handle:" + tmsg.getBody());
         TxtTypeMsg txtTypeMsg = JSON.parseObject(tmsg.getBody(), TxtTypeMsg.class);
 //        if (txtTypeMsg.isReq()){

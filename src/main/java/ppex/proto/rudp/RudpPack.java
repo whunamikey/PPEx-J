@@ -2,7 +2,6 @@ package ppex.proto.rudp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import ppex.proto.entity.Connection;
 import ppex.proto.msg.Message;
 import ppex.proto.tpool.IThreadExecute;
 
@@ -16,7 +15,6 @@ public class RudpPack {
 
     private Rudp rudp;
     private IOutput output;
-    private Connection connection;
     private IThreadExecute executor;
     private ResponseListener listener;
 
@@ -57,8 +55,15 @@ public class RudpPack {
         notifyRcvEvent();
     }
 
+    /**
+     * 该方法是Client端使用,Server不用
+     */
     public void sendReset() {
         rudp.sendReset();
+    }
+
+    public void sendFinish(){
+        rudp.sendFinish();
     }
 
     public void notifySendEvent() {
@@ -84,8 +89,11 @@ public class RudpPack {
     }
 
 
-    public long flush(long current) {
-        return rudp.flush(false, current);
+    public long flush(long current,boolean ackonly) {
+        //暂时用ackonly为true来表示是ScheduleTask调用flush.false为SndTask.
+        return rudp.flush(ackonly,current);
+//        return rudp.flush(false, current);
+
     }
 
     public Queue<ByteBuf> getQueue_rcv() {
@@ -116,6 +124,10 @@ public class RudpPack {
         return isActive;
     }
 
+    public boolean isStop(){
+        return rudp.isStop();
+    }
+
     public long getLasRcvTime() {
         return lasRcvTime;
     }
@@ -131,6 +143,11 @@ public class RudpPack {
 
     public ConcurrentLinkedQueue<Message> getQueue_snd() {
         return queue_snd;
+    }
+
+
+    public IOutput getOutput() {
+        return output;
     }
 
     public static RudpPack newInstance(IOutput output, IThreadExecute executor, ResponseListener responseListener) {

@@ -1,9 +1,9 @@
 package ppex.server.myturn;
 
 import org.apache.log4j.Logger;
-import ppex.proto.msg.entity.through.Connect;
-import ppex.proto.msg.entity.through.ConnectMap;
-import ppex.proto.msg.entity.Connection;
+import ppex.proto.entity.Connection;
+import ppex.proto.entity.through.Connect;
+import ppex.proto.entity.through.ConnectMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,7 +73,7 @@ public class ConnectionService {
     }
 
 
-    public boolean addConnecting(Connect.TYPE type,List<Connection> connections){
+    public boolean addConnecting(Connect.TYPE type, List<Connection> connections){
         return addConnecting(type.ordinal(),connections);
     }
     public boolean addConnecting(int type,List<Connection> connections){
@@ -91,8 +91,8 @@ public class ConnectionService {
 
     public boolean addForwardConnection(ConnectMap connectMap){
         if (connectMap.getConnectType() == Connect.TYPE.FORWARD.ordinal()){
-            forwardSrcConnections.put(connectMap.getConnections().get(0).macAddress,connectMap.getConnections().get(0));
-            forwardTgtConnections.put(connectMap.getConnections().get(1).macAddress,connectMap.getConnections().get(1));
+//            forwardSrcConnections.put(connectMap.getConnections().get(0).macAddress,connectMap.getConnections().get(0));
+//            forwardTgtConnections.put(connectMap.getConnections().get(1).macAddress,connectMap.getConnections().get(1));
             return true;
         }
         return false;
