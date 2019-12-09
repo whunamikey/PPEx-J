@@ -150,6 +150,10 @@ public class RudpPack {
         return output;
     }
 
+    public Rudp getRudp() {
+        return rudp;
+    }
+
     public static RudpPack newInstance(IOutput output, IThreadExecute executor, ResponseListener responseListener) {
         return new RudpPack(output, executor, responseListener);
     }

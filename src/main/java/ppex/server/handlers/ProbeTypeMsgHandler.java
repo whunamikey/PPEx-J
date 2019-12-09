@@ -66,8 +66,10 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getAddrServer1());
             rudpPack = addrManager.get(msg.getRecordInetSocketAddress());
+            System.out.println("this rudppack2:" + rudpPack.getRudp().hashCode());
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
             rudpPack = addrManager.get(Server.getInstance().getAddrServer2p2());
+            System.out.println("this rudppapck2:" + rudpPack.getRudp().hashCode());
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
         }
     }
