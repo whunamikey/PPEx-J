@@ -18,6 +18,8 @@ import ppex.utils.MessageUtil;
 import ppex.utils.NatTypeUtil;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 探测消息
@@ -28,6 +30,7 @@ import java.net.InetSocketAddress;
 public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
+    private Lock processLock = new ReentrantLock();
 
     @Override
     public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
@@ -100,6 +103,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private void handleServer2Port2FromServer1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         //第一阶段从Server1:Port1发送到的数据
         LOGGER.info("s2p2 handle msg from server1:" + msg.toString());
+        processLock.lock();
         if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
             InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
@@ -118,10 +122,12 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
             Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
         }
+        processLock.unlock();
     }
 
     private void handleServer2Port2FromServer2Port1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
+        processLock.lock();
         if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {
             InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
@@ -138,6 +144,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
             Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
         }
+        processLock.unlock();
     }
 
 
