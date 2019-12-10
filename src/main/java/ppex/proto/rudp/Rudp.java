@@ -77,10 +77,11 @@ public class Rudp {
     //开始的时间戳
     private long startTicks = System.currentTimeMillis();
     //ByteBuf操作类
-    private ByteBufAllocator byteBufAllocator = PooledByteBufAllocator.DEFAULT;
+    private ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
     //超过该数量重传
     private int resend = RESEND_DEFAULT;
-
+    //记录得到sn为0的帧的时间戳
+    private long zeroSnTimeStamp = System.currentTimeMillis();
 
     private IOutput output;
     private long ack;
@@ -265,14 +266,15 @@ public class Rudp {
                 case CMD_PUSH:
                     //首先判断是否超过窗口
                     //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.
-                    if (sn == 0){
+                    if (sn == 0 && itimediff(System.currentTimeMillis(),zeroSnTimeStamp) > 1000) {
                         reset();
+                        zeroSnTimeStamp = System.currentTimeMillis();
                     }
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
                         if (len > 0) {
-                            frg = Frg.createFrg(byteBufAllocator, data.readSlice(len));
+                            frg = Frg.createFrg(byteBufAllocator, data.readBytes(len));
                         } else {
                             frg = Frg.createFrg(byteBufAllocator, 0);
                         }
@@ -335,6 +337,7 @@ public class Rudp {
         for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             if (sn == frg.sn) {
+                frg.data.release();
                 itr.remove();
                 break;
             }
@@ -375,12 +378,10 @@ public class Rudp {
             return;
         }
         boolean repeat = false, findPos = false;
-        Iterator<Frg> itr = null;
         if (queue_rcv_shambles.size() > 0) {
-            itr = queue_rcv_shambles.iterator();
-            while (itr.hasNext()) {
-                Frg frgTmp = itr.next();
-                if (frgTmp.sn == sn) {
+            for (Iterator<Frg> itr = queue_rcv_shambles.iterator(); itr.hasNext(); ) {
+                Frg frgtmp = itr.next();
+                if (frg.sn == frgtmp.sn) {
                     repeat = true;
                     break;
                 }
@@ -388,8 +389,6 @@ public class Rudp {
         }
         if (repeat) {
             frg.recycler(true);
-        } else if (itr == null) {
-            queue_rcv_shambles.add(frg);
         } else {
             queue_rcv_shambles.add(frg);
         }
@@ -422,12 +421,10 @@ public class Rudp {
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
-            if (frg.data != null) {
-                buf.writeBytes(frg.data);
-                frg.data.release();
-            }
-            if (frg.tot == 0)
+            buf.writeBytes(frg.data);
+            if (frg.tot == 0) {
                 break;
+            }
         }
         arrangeRcvData();
         Message msg = MessageUtil.bytebuf2Msg(buf);
@@ -440,8 +437,9 @@ public class Rudp {
         if (queue_rcv_order.isEmpty())
             return -1;
         Frg frg = queue_rcv_order.peek();
-        if (frg.tot == 0)
+        if (frg.tot == 0) {
             return frg.data.readableBytes();
+        }
         if (queue_rcv_order.size() < frg.tot + 1)
             return -1;
         int len = 0;
@@ -475,7 +473,6 @@ public class Rudp {
         snd_nxt = 0;
         snd_una = snd_nxt;
         rcv_nxt = 0;
-//        rcv_nxt++;
         release();
         queue_snd.clear();
         queue_sndack.clear();
