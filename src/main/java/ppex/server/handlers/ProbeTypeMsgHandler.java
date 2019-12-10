@@ -99,7 +99,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
     private void handleServer2Port2FromServer1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         //第一阶段从Server1:Port1发送到的数据
         LOGGER.info("s2p2 handle msg from server1:" + msg.toString());
-        if (msg.getType() == ProbeTypeMsg.Step.ONE.ordinal()) {
+        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
             InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
