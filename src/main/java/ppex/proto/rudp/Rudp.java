@@ -117,6 +117,7 @@ public class Rudp {
         return 0;
     }
 
+
 //    public void sendReset() {
 //        Frg frg = Frg.createFrg(byteBufAllocator, 0);
 //        frg.cmd = CMD_RESET;
@@ -150,9 +151,7 @@ public class Rudp {
             Frg frg = queue_snd.poll();
             if (frg == null)
                 break;
-            if (frg.cmd != CMD_RESET) {
-                frg.cmd = CMD_PUSH;
-            }
+            frg.cmd = CMD_PUSH;
             frg.sn = snd_nxt;
             queue_sndack.add(frg);
             snd_nxt++;
@@ -265,6 +264,10 @@ public class Rudp {
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
+                    //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.
+                    if (sn == 0){
+                        reset();
+                    }
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
                         Frg frg;
@@ -468,21 +471,21 @@ public class Rudp {
     }
 
     public void reset() {
-        //todo 解决服务器没断开,而客户端已经重开然后重连的情况.增加CMD_RESET
+        //解决服务器没断开,而客户端已经重开然后重连的情况.增加CMD_RESET
         snd_nxt = 0;
         snd_una = snd_nxt;
         rcv_nxt = 0;
-        rcv_nxt++;
+//        rcv_nxt++;
         release();
         queue_snd.clear();
         queue_sndack.clear();
         queue_rcv_order.clear();
-        queue_rcv_shambles.clear();
+//        queue_rcv_shambles.clear();
     }
 
     public void release() {
         queue_rcv_order.forEach(frg -> frg.recycler(true));
-        queue_rcv_shambles.forEach(frg -> frg.recycler(true));
+//        queue_rcv_shambles.forEach(frg -> frg.recycler(true));
         queue_snd.forEach(frg -> frg.recycler(true));
         queue_sndack.forEach(frg -> frg.recycler(true));
     }
