@@ -104,47 +104,54 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         //第一阶段从Server1:Port1发送到的数据
         LOGGER.info("s2p2 handle msg from server1:" + msg.toString());
         processLock.lock();
-        if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
-            InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
-            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
-            msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
-            msg.setFromInetSocketAddress(Server.getInstance().getAddrServer2p2());
+        try {
 
-            Channel channel = rudpPack.getOutput().getChannel();
-            rudpPack = addrManager.get(inetSocketAddress);
-            if (rudpPack == null) {
-                Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
-                IOutput output = new ServerOutput(channel, connection);
-                rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
-                addrManager.New(inetSocketAddress,rudpPack);
+            if (msg.getStep() == ProbeTypeMsg.Step.ONE.ordinal()) {
+                InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
+                msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
+                msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
+                msg.setFromInetSocketAddress(Server.getInstance().getAddrServer2p2());
+
+                Channel channel = rudpPack.getOutput().getChannel();
+                rudpPack = addrManager.get(inetSocketAddress);
+                if (rudpPack == null) {
+                    Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                    IOutput output = new ServerOutput(channel, connection);
+                    rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+                    addrManager.New(inetSocketAddress, rudpPack);
+                }
+                rudpPack.write(MessageUtil.probemsg2Msg(msg));
+                RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+                Server.getInstance().getExecutor().executeTimerTask(scheduleTask, rudpPack.getInterval());
             }
-            rudpPack.write(MessageUtil.probemsg2Msg(msg));
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
-            Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
+        } finally {
+            processLock.unlock();
         }
-        processLock.unlock();
     }
 
     private void handleServer2Port2FromServer2Port1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         processLock.lock();
-        if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {
-            InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
-            msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
-            msg.setFromInetSocketAddress(Server.getInstance().getAddrServer2p2());
-            Channel channel = rudpPack.getOutput().getChannel();
-            rudpPack = addrManager.get(inetSocketAddress);
-            if (rudpPack == null) {
-                Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
-                IOutput output = new ServerOutput(channel, connection);
-                rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
-                addrManager.New(inetSocketAddress,rudpPack);
+        try {
+            if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {
+                InetSocketAddress inetSocketAddress = msg.getRecordInetSocketAddress();
+                msg.setType(ProbeTypeMsg.Type.FROM_SERVER2_PORT2.ordinal());
+                msg.setFromInetSocketAddress(Server.getInstance().getAddrServer2p2());
+                Channel channel = rudpPack.getOutput().getChannel();
+                rudpPack = addrManager.get(inetSocketAddress);
+                if (rudpPack == null) {
+                    Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                    IOutput output = new ServerOutput(channel, connection);
+                    rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+                    addrManager.New(inetSocketAddress, rudpPack);
+                }
+                rudpPack.write(MessageUtil.probemsg2Msg(msg));
+                RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+                Server.getInstance().getExecutor().executeTimerTask(scheduleTask, rudpPack.getInterval());
             }
-            rudpPack.write(MessageUtil.probemsg2Msg(msg));
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
-            Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
+        } finally {
+            processLock.unlock();
         }
-        processLock.unlock();
     }
 
 
