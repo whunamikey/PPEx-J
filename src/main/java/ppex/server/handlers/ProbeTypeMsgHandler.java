@@ -10,6 +10,7 @@ import ppex.proto.msg.type.TypeMessageHandler;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.IOutput;
 import ppex.proto.rudp.RudpPack;
+import ppex.proto.rudp.RudpScheduleTask;
 import ppex.server.rudp.ServerOutput;
 import ppex.server.socket.Server;
 import ppex.utils.Identity;
@@ -111,8 +112,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
                 Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
                 IOutput output = new ServerOutput(channel, connection);
                 rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+                addrManager.New(inetSocketAddress,rudpPack);
             }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
         }
     }
 
@@ -128,8 +132,11 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
                 Connection connection = new Connection("unknown", inetSocketAddress, "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
                 IOutput output = new ServerOutput(channel, connection);
                 rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+                addrManager.New(inetSocketAddress,rudpPack);
             }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(),rudpPack,addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
         }
     }
 
