@@ -20,7 +20,6 @@ public class RcvTask implements ITask {
     @Override
     public void execute() {
         try {
-            System.out.println("RcvTask start..");
             long current = System.currentTimeMillis();
             Queue<ByteBuf> queue_rcv = rudpkg.getQueue_rcv();
             boolean hasByteBuf = false;
@@ -32,7 +31,6 @@ public class RcvTask implements ITask {
                 byteBuf.release();
                 hasByteBuf = true;
             }
-            System.out.println("RcvTask hasByteBuf:" + hasByteBuf);
             if (!hasByteBuf)
                 return;
 //            rudpkg.printRcvShambleAndOrderNum();

@@ -27,7 +27,6 @@ public class SndTask implements ITask {
                 this.rudpkg.send(msg);
             }
             long cur = System.currentTimeMillis();
-            System.out.println("SndTask flush thread:" + Thread.currentThread().getName());
             this.rudpkg.flush(cur,false);
         } catch (Exception e) {
             e.printStackTrace();
