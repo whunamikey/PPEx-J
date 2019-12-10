@@ -265,10 +265,10 @@ public class Rudp {
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
-                    //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.
-                    if (sn == 0 && itimediff(System.currentTimeMillis(),zeroSnTimeStamp) > 1000) {
+                    //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.设置时间间隔超过1秒才算新的sn0
+                    if (sn == 0 && itimediff(ts,zeroSnTimeStamp) > 1000) {
                         reset();
-                        zeroSnTimeStamp = System.currentTimeMillis();
+                        zeroSnTimeStamp = ts;
                     }
                     if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
                         flushAck(sn, ts, msgid);          //返回ack
