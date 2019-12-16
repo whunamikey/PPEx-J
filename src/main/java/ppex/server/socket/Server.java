@@ -124,6 +124,13 @@ public class Server {
             outputManager.put(addrServer2p2, output2p2);
             RudpPack rudpPack2p2 = new RudpPack(output2p2, executor, responseListener);
             addrManager.New(addrServer2p2, rudpPack2p2);
+
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor,rudpPack,addrManager);
+            executor.executeTimerTask(scheduleTask,rudpPack.getInterval());
+
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor,rudpPack2p2,addrManager);
+            executor.executeTimerTask(scheduleTask2,rudpPack2p2.getInterval());
+
         } else if (type == Identity.Type.SERVER2_PORT1) {
             channel = bootstrap.bind(PORT_1).sync().channel();
 
@@ -132,6 +139,10 @@ public class Server {
             outputManager.put(addrServer2p2, output);
             RudpPack rudpPack = new RudpPack(output, executor, responseListener);
             addrManager.New(addrServer2p2, rudpPack);
+
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor,rudpPack,addrManager);
+            executor.executeTimerTask(scheduleTask2,rudpPack.getInterval());
+
         } else if (type == Identity.Type.SERVER2_PORT2) {
             channel = bootstrap.bind(PORT_2).sync().channel();
         }
