@@ -193,7 +193,7 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
-                System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" output sn:" + frg.sn);
+                System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" output sn:" + frg.sn + " address:" + this.output.getConn().getAddress());
                 output(flushbuf, frg.sn);
             }
         }
@@ -272,6 +272,7 @@ public class Rudp {
                 case CMD_PUSH:
                     //首先判断是否超过窗口
                     //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.设置时间间隔超过1秒才算新的sn0
+                    //todo 现在还有一个问题是,当一端断开之后,另一端不知道,这样的话,当断开的一端重新连接后,另一端没有断开的sn与rcv等都不对.所以需要一个结束的发送
                     if (sn == 0 && itimediff(ts, zeroSnTimeStamp) > 1000) {
                         reset();
                         zeroSnTimeStamp = ts;
@@ -337,7 +338,7 @@ public class Rudp {
     }
 
     private void affirmAck(long sn) {
-        System.out.println(this.hashCode() +"affirm sn:" + sn);
+        System.out.println(this.hashCode() +"affirm sn:" + sn + " address:" + this.output.getConn().getAddress());
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
