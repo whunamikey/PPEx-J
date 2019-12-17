@@ -193,6 +193,7 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
+                System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" output sn:" + frg.sn);
                 output(flushbuf, frg.sn);
             }
         }
@@ -336,6 +337,7 @@ public class Rudp {
     }
 
     private void affirmAck(long sn) {
+        System.out.println(this.hashCode() +"affirm sn:" + sn);
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
@@ -379,6 +381,7 @@ public class Rudp {
 
     private void parseRcvData(Frg frg) {
         long sn = frg.sn;
+        System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" rcv sn:" + frg.sn);
         if (itimediff(sn, rcv_nxt + wnd_rcv) >= 0 || itimediff(sn, rcv_nxt) < 0) {
             return;
         }
@@ -495,7 +498,7 @@ public class Rudp {
 
     public void release() {
         queue_rcv_order.forEach(frg -> frg.recycler(true));
-//        queue_rcv_shambles.forEach(frg -> frg.recycler(true));
+        queue_rcv_shambles.forEach(frg -> frg.recycler(true));
         queue_snd.forEach(frg -> frg.recycler(true));
         queue_sndack.forEach(frg -> frg.recycler(true));
     }
