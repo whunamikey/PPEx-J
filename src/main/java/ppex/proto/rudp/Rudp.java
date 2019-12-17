@@ -426,6 +426,9 @@ public class Rudp {
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
+            if(buf.readableBytes() == len && frg.tot == 0){
+                break;
+            }
             buf.writeBytes(frg.data);
             if (frg.tot == 0) {
                 break;
