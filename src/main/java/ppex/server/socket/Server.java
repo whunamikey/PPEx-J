@@ -149,6 +149,7 @@ public class Server {
     }
 
     private void stop() {
+        addrManager.getAll().forEach(rudpPack -> rudpPack.sendFinish());
         if (executor != null) {
             executor.stop();
             executor = null;

@@ -69,11 +69,28 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setType(ProbeTypeMsg.Type.FROM_SERVER1.ordinal());
             msg.setRecordInetSocketAddress(msg.getFromInetSocketAddress());
             msg.setFromInetSocketAddress(Server.getInstance().getAddrServer1());
+            Channel channel = rudpPack.getOutput().getChannel();
             rudpPack = addrManager.get(msg.getRecordInetSocketAddress());
+
+            if (rudpPack == null) {
+                Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                IOutput output = new ServerOutput(channel, connection);
+                rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+            }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask, rudpPack.getInterval());
+
             rudpPack = addrManager.get(Server.getInstance().getAddrServer2p2());
-//            rudpPack.sendReset();
+            if (rudpPack == null) {
+                Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                IOutput output = new ServerOutput(channel, connection);
+                rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+            }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask2, rudpPack.getInterval());
         }
     }
 
@@ -95,8 +112,18 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
                 rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
             }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask, rudpPack.getInterval());
+
             rudpPack = addrManager.get(Server.getInstance().getAddrServer2p2());
+            if (rudpPack == null) {
+                Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                IOutput output = new ServerOutput(channel, connection);
+                rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
+            }
             rudpPack.write(MessageUtil.probemsg2Msg(msg));
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(Server.getInstance().getExecutor(), rudpPack, addrManager);
+            Server.getInstance().getExecutor().executeTimerTask(scheduleTask2, rudpPack.getInterval());
         }
     }
 
