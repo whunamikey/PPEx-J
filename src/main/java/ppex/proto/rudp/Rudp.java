@@ -29,7 +29,7 @@ public class Rudp {
     public static final int TELL_WIN = 2;
 
     //超过次数重传就认为连接断开
-    public static final int DEAD_LINK = 10;
+    public static final int DEAD_LINK = 20;
     //头部数据长度
     public static int HEAD_LEN = 45;
     //MTU
@@ -184,6 +184,7 @@ public class Rudp {
                 frg.xmit++;
                 if (frg.xmit >= deadLink) {
                     //todo 连接已断开
+                    stop = true;
                 }
                 frg.ts = current;
                 frg.wnd = wndUnuse();
@@ -193,7 +194,7 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
-                System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" output sn:" + frg.sn + " address:" + this.output.getConn().getAddress());
+                System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " output sn:" + frg.sn + " address:" + this.output.getConn().getAddress());
                 output(flushbuf, frg.sn);
             }
         }
@@ -307,10 +308,9 @@ public class Rudp {
                     }
                     break;
                 case CMD_FINISH:
-                    if (itimediff(sn, rcv_nxt + wnd_rcv) < 0) {
-                        flushAck(sn, ts, msgid);
-                        stop = true;
-                    }
+                    System.out.println(this.hashCode() + " thread:" + Thread.currentThread().getName() + " rcv finish " + this.output.getConn().getAddress());
+                    flushAck(sn, ts, msgid);
+                    stop = true;
                     break;
             }
         }
@@ -338,7 +338,7 @@ public class Rudp {
     }
 
     private void affirmAck(long sn) {
-        System.out.println(this.hashCode() +"affirm sn:" + sn + " address:" + this.output.getConn().getAddress());
+        System.out.println(this.hashCode() + "affirm sn:" + sn + " address:" + this.output.getConn().getAddress());
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
@@ -382,7 +382,7 @@ public class Rudp {
 
     private void parseRcvData(Frg frg) {
         long sn = frg.sn;
-        System.out.println(this.hashCode() +" thread: " + Thread.currentThread().getName() +" rcv sn:" + frg.sn);
+        System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " rcv sn:" + frg.sn);
         if (itimediff(sn, rcv_nxt + wnd_rcv) >= 0 || itimediff(sn, rcv_nxt) < 0) {
             return;
         }
@@ -430,7 +430,7 @@ public class Rudp {
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg frg = itr.next();
             itr.remove();
-            if(buf.readableBytes() == len && frg.tot == 0){
+            if (buf.readableBytes() == len && frg.tot == 0) {
                 break;
             }
             buf.writeBytes(frg.data);
@@ -459,7 +459,7 @@ public class Rudp {
         int len = 0;
         for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
             Frg f = itr.next();
-            if (msgid != f.msgid){
+            if (msgid != f.msgid) {
                 continue;
             }
             len += f.data.readableBytes();
