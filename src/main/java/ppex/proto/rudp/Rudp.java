@@ -309,7 +309,6 @@ public class Rudp {
                     break;
                 case CMD_FINISH:
                     System.out.println(this.hashCode() + " thread:" + Thread.currentThread().getName() + " rcv finish " + this.output.getConn().getAddress());
-                    flushAck(sn, ts, msgid);
                     stop = true;
                     break;
             }
