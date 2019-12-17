@@ -152,7 +152,7 @@ public class Rudp {
 
         int wnd_count = Math.min(wnd_snd, wnd_rmt);                      //后面加入请求server端窗口数量来控制拥塞
         if (!queue_snd.isEmpty()) {
-            while (itimediff(snd_nxt, snd_una + wnd_count) < 0) {    //这里控制数量输入，即是窗口的数量控制好了
+            while (itimediff(snd_nxt, snd_una + wnd_count) < 0 && !queue_snd.isEmpty()) {    //这里控制数量输入，即是窗口的数量控制好了
                 Frg frg = queue_snd.remove(0);
                 if (frg == null)
                     break;
