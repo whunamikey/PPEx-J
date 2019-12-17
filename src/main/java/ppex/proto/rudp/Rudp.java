@@ -79,8 +79,10 @@ public class Rudp {
     private ByteBufAllocator byteBufAllocator = ByteBufAllocator.DEFAULT;
     //超过该数量重传
     private int resend = RESEND_DEFAULT;
-    //记录得到sn为0的帧的时间戳
+    //记录得到sn为0的帧的时间戳.为了截至新的rudp给旧的rudp发送数据造成混乱的修改
     private long zeroSnTimeStamp = System.currentTimeMillis();
+    //记录该rudp是否是新建未发送过数据.为了截止旧的rudp给新的rudp发送数据,造成数据不处理
+    private boolean isNew = true;
 
     private IOutput output;
     private long ack;
@@ -272,7 +274,7 @@ public class Rudp {
                     break;
                 case CMD_PUSH:
                     //首先判断是否超过窗口
-                    //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.设置时间间隔超过1秒才算新的sn0
+                    //之前增加了cmd_reset之后,逻辑更加混乱,这里设置每当收到sn为0之后,都认为是一个新的开始.设置时间间隔超过1秒才算新的sn0.这个是为了防止新的rudp给旧的rudp发送数据.造成数据混乱
                     //todo 现在还有一个问题是,当一端断开之后,另一端不知道,这样的话,当断开的一端重新连接后,另一端没有断开的sn与rcv等都不对.所以需要一个结束的发送
                     if (sn == 0 && itimediff(ts, zeroSnTimeStamp) > 1000) {
                         reset();
@@ -338,6 +340,9 @@ public class Rudp {
 
     private void affirmAck(long sn) {
         System.out.println(this.hashCode() + "affirm sn:" + sn + " address:" + this.output.getConn().getAddress());
+        if (sn == 0){
+            isNew = false;
+        }
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
