@@ -12,6 +12,9 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import ppex.proto.entity.Connection;
 import ppex.proto.rudp.*;
 import ppex.proto.tpool.IThreadExecute;
@@ -24,9 +27,13 @@ import ppex.utils.NatTypeUtil;
 
 import java.net.InetSocketAddress;
 
+@Component
 public class Server {
 
     private static Logger LOGGER = Logger.getLogger(Server.class);
+
+    @Autowired
+    private ServerParam param;
 
     private String HOST_SERVER1 = "10.5.11.162";
     private String HOST_SERVER2 = "10.5.11.55";
@@ -58,13 +65,20 @@ public class Server {
     private UdpServerHandler serverHandler;
 
     public static Server instance = null;
-    public static Server getInstance(){
-        if (instance == null){
+
+    public static Server getInstance() {
+        if (instance == null) {
             instance = new Server();
         }
         return instance;
     }
-    private Server(){}
+
+    private Server() {
+    }
+
+    public void startServer() throws Exception {
+        initBootStrap();
+    }
 
     public void startServer(Identity.Type type) throws Exception {
         initParam();
@@ -94,7 +108,6 @@ public class Server {
     private void initBootStrap() {
         int cpunum = Runtime.getRuntime().availableProcessors();
         bootstrap = new Bootstrap();
-        //todo 2019.12.8
         boolean epoll = Epoll.isAvailable();
         if (epoll) {
             bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
@@ -125,11 +138,11 @@ public class Server {
             RudpPack rudpPack2p2 = new RudpPack(output2p2, executor, responseListener);
             addrManager.New(addrServer2p2, rudpPack2p2);
 
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor,rudpPack,addrManager);
-            executor.executeTimerTask(scheduleTask,rudpPack.getInterval());
+            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
+            executor.executeTimerTask(scheduleTask, rudpPack.getInterval());
 
-            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor,rudpPack2p2,addrManager);
-            executor.executeTimerTask(scheduleTask2,rudpPack2p2.getInterval());
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack2p2, addrManager);
+            executor.executeTimerTask(scheduleTask2, rudpPack2p2.getInterval());
 
         } else if (type == Identity.Type.SERVER2_PORT1) {
             channel = bootstrap.bind(PORT_1).sync().channel();
@@ -140,8 +153,8 @@ public class Server {
             RudpPack rudpPack = new RudpPack(output, executor, responseListener);
             addrManager.New(addrServer2p2, rudpPack);
 
-            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor,rudpPack,addrManager);
-            executor.executeTimerTask(scheduleTask2,rudpPack.getInterval());
+            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack, addrManager);
+            executor.executeTimerTask(scheduleTask2, rudpPack.getInterval());
 
         } else if (type == Identity.Type.SERVER2_PORT2) {
             channel = bootstrap.bind(PORT_2).sync().channel();

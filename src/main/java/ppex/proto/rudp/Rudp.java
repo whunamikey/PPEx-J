@@ -185,7 +185,6 @@ public class Rudp {
             if (send) {
                 frg.xmit++;
                 if (frg.xmit >= deadLink) {
-                    //todo 连接已断开
                     stop = true;
                 }
                 frg.ts = current;

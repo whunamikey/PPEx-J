@@ -37,7 +37,6 @@ public class ConnectionService {
         final String peerName = connection.getPeerName();
         final Connection previousConnection = connections.put(connection.getMacAddress(), connection);
         if (previousConnection != null) {
-            //todo 关闭之前的connection
             System.out.println("Already existing connection to " + peerName + " is closed.");
         }
         return true;
