@@ -48,6 +48,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
+            System.out.println("rcv from :" + datagramPacket.sender());
             Channel channel = channelHandlerContext.channel();
             RudpPack rudpPack = server.getAddrManager().get(datagramPacket.sender());
             if (rudpPack != null){
@@ -67,9 +68,9 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             server.getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
 
         } catch (Exception e) {
+            System.out.println("server recv msg error");
             e.printStackTrace();
             LOGGER.error("---->ChannelRead0 exception:" + e.getCause());
-            System.out.println("server recv msg error");
         }
     }
 
