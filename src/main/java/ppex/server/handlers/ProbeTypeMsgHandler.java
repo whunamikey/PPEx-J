@@ -82,7 +82,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
             RudpPack rudpS2P2 = addrManager.get(Server.getInstance().getAddrServer2p2());
             if (rudpS2P2 == null) {
-                Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                Connection connection = new Connection("unknown",Server.getInstance().getAddrServer2p2() , "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
                 IOutput output = new ServerOutput(channel, connection);
                 rudpS2P2 = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                 addrManager.New(Server.getInstance().getAddrServer2p2(),rudpS2P2);
@@ -117,7 +117,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
             RudpPack rudpS2P2 = addrManager.get(Server.getInstance().getAddrServer2p2());
             if (rudpS2P2 == null) {
-                Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
+                Connection connection = new Connection("unknown", Server.getInstance().getAddrServer2p2(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
                 IOutput output = new ServerOutput(channel, connection);
                 rudpS2P2 = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                 addrManager.New(Server.getInstance().getAddrServer2p2(),rudpS2P2);
