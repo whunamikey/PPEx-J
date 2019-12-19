@@ -34,7 +34,7 @@ public class RudpPack {
         if (!queue_snd.offer(msg)) {
             return false;
         }
-        notifySendEvent();
+        notifySendEvent("Write");
         return true;
     }
 
@@ -66,8 +66,9 @@ public class RudpPack {
         rudp.sendFinish();
     }
 
-    public void notifySendEvent() {
-        SndTask task = SndTask.New(this);
+    //测试,添加name
+    public void notifySendEvent(String name) {
+        SndTask task = SndTask.New(this,name);
         this.executor.execute(task);
     }
 

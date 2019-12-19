@@ -195,7 +195,7 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
-                System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " output sn:" + frg.sn + " address:" + this.output.getConn().getAddress());
+                System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " output sn:" + frg.sn + " address:" + this.output.getConn().getAddress() + " ackonly:" + ackonly);
                 output(flushbuf, frg.sn);
             }
         }

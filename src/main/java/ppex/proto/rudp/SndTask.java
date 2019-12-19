@@ -9,10 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SndTask implements ITask {
 
     private RudpPack rudpkg;
+    private String name;
 
-    public static SndTask New(RudpPack rudpkg) {
+    public static SndTask New(RudpPack rudpkg,String name) {
         SndTask sendTask = new SndTask();
         sendTask.rudpkg = rudpkg;
+        sendTask.name = name;
         return sendTask;
     }
 
@@ -27,6 +29,7 @@ public class SndTask implements ITask {
                 this.rudpkg.send(msg);
             }
             long cur = System.currentTimeMillis();
+            System.out.println("sntask hash:" + this.hashCode() + " thread:" + Thread.currentThread().getName() + " rudp:" + rudpkg.getRudp().hashCode() + " toaddr:" + rudpkg.getOutput().getConn().getAddress() + " name:" + name);
             this.rudpkg.flush(cur,false);
         } catch (Exception e) {
             e.printStackTrace();

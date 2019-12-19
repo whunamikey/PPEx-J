@@ -54,11 +54,11 @@ public class RudpScheduleTask implements ITask {
 //            System.out.println("Schedule task flush thread:" + Thread.currentThread().getName());
             long next = rudpPack.flush(now,true);
             addrManager.getAllEntry().forEach(entry->{
-                System.out.println("RudpSche:" + this.hashCode() +" inet:" + entry.getKey() +  " pk:" + entry.getValue().getRudp().hashCode() + " toAddr:" + entry.getValue().getOutput().getConn().getAddress() + " thread:" + Thread.currentThread().getName());
+                System.out.println("RudpSche:" + this.hashCode() +" inet:" + entry.getKey() +" cur:" + rudpPack.getRudp().hashCode() + " curaddre:" + rudpPack.getOutput().getConn().getAddress()+ " pk:" + entry.getValue().getRudp().hashCode() + " toAddr:" + entry.getValue().getOutput().getConn().getAddress() + " thread:" + Thread.currentThread().getName());
             });
             executor.executeTimerTask(this,next);
             if (!rudpPack.getQueue_snd().isEmpty() && rudpPack.canSend(false)){
-                rudpPack.notifySendEvent();
+                rudpPack.notifySendEvent("RudpSchedule");
             }
         } catch (Exception e) {
             e.printStackTrace();
