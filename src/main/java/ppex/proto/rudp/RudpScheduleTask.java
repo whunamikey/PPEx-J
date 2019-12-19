@@ -53,9 +53,6 @@ public class RudpScheduleTask implements ITask {
             //这个Next时间要看后面得到的时间长短来确定
 //            System.out.println("Schedule task flush thread:" + Thread.currentThread().getName());
             long next = rudpPack.flush(now,true);
-            addrManager.getAllEntry().forEach(entry->{
-                System.out.println("RudpSche:" + this.hashCode() +" inet:" + entry.getKey() +" cur:" + rudpPack.getRudp().hashCode() + " curaddre:" + rudpPack.getOutput().getConn().getAddress()+ " pk:" + entry.getValue().getRudp().hashCode() + " toAddr:" + entry.getValue().getOutput().getConn().getAddress() + " thread:" + Thread.currentThread().getName());
-            });
             executor.executeTimerTask(this,next);
             if (!rudpPack.getQueue_snd().isEmpty() && rudpPack.canSend(false)){
                 rudpPack.notifySendEvent("RudpSchedule");
