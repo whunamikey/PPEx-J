@@ -46,7 +46,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 recvinfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.SAVE_CONNINFO.ordinal(), "fail");
             }
             ttmsg.setContent(JSON.toJSONString(recvinfo));
-//            ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
             rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
 
         } catch (Exception e) {
@@ -61,7 +60,6 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             List<Connection> connections = ConnectionService.getInstance().getAllConnections();
             RecvInfo recvinfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.GET_CONNINFO.ordinal(), JSON.toJSONString(connections));
             ttmsg.setContent(JSON.toJSONString(recvinfo));
-//            ctx.writeAndFlush(MessageUtil.throughmsg2Packet(ttmsg, address));
             rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
         } catch (Exception e) {
             e.printStackTrace();

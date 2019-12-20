@@ -35,8 +35,10 @@ public class Server {
     @Autowired
     private ServerParam param;
 
-    private String HOST_SERVER1 = "10.5.11.162";
-    private String HOST_SERVER2 = "10.5.11.55";
+    //    private String HOST_SERVER1 = "10.5.11.162";
+//    private String HOST_SERVER2 = "10.5.11.55";
+    private String HOST_SERVER1 = "192.168.1.100";
+    private String HOST_SERVER2 = "192.168.1.102";
     private int PORT_1 = 9123;
     private int PORT_2 = 9124;
     private int PORT_3 = 9125;

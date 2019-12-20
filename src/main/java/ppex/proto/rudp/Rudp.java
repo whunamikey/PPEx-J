@@ -195,7 +195,6 @@ public class Rudp {
                 if (frg.data.readableBytes() > 0) {
                     flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
                 }
-                System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " output sn:" + frg.sn + " address:" + this.output.getConn().getAddress() + " ackonly:" + ackonly);
                 output(flushbuf, frg.sn);
             }
         }
@@ -314,7 +313,6 @@ public class Rudp {
                     }
                     break;
                 case CMD_FINISH:
-                    System.out.println(this.hashCode() + " thread:" + Thread.currentThread().getName() + " rcv finish " + this.output.getConn().getAddress());
                     stop = true;
                     break;
             }
@@ -343,7 +341,6 @@ public class Rudp {
     }
 
     private void affirmAck(long sn) {
-        System.out.println(this.hashCode() + "affirm sn:" + sn + " address:" + this.output.getConn().getAddress());
         if (sn == 0){
             isNew = false;
         }
@@ -390,7 +387,6 @@ public class Rudp {
 
     private void parseRcvData(Frg frg) {
         long sn = frg.sn;
-        System.out.println(this.hashCode() + " thread: " + Thread.currentThread().getName() + " rcv sn:" + frg.sn);
         if (itimediff(sn, rcv_nxt + wnd_rcv) >= 0 || itimediff(sn, rcv_nxt) < 0) {
             return;
         }

@@ -29,7 +29,6 @@ public class SndTask implements ITask {
                 this.rudpkg.send(msg);
             }
             long cur = System.currentTimeMillis();
-            System.out.println("sntask hash:" + this.hashCode() + " thread:" + Thread.currentThread().getName() + " rudp:" + rudpkg.getRudp().hashCode() + " toaddr:" + rudpkg.getOutput().getConn().getAddress() + " name:" + name);
             this.rudpkg.flush(cur,false);
         } catch (Exception e) {
             e.printStackTrace();
