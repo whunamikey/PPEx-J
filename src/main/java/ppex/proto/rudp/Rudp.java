@@ -164,38 +164,40 @@ public class Rudp {
                 snd_nxt++;
             }
         }
-        for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
-            Frg frg = itr.next();
-            boolean send = false;
-            if (frg.xmit == 0) {             //第一次发送
-                send = true;
-                frg.rto = rx_rto;
-                frg.ts_resnd = current + frg.rto;
-            } else if (frg.fastack >= resend) {           //每次接收ack的时候,看序号,给fastack加1.超过10个就重传
-                send = true;
-                frg.fastack = 0;
-                frg.rto = rx_rto;
-                frg.ts_resnd = current + frg.rto;
-            } else if (itimediff(current, frg.ts_resnd) >= 0) {    //超过重传时间戳就开始重传
-                send = true;
-                frg.rto += rx_rto;              //rto翻倍
-                frg.fastack = 0;
-                frg.ts_resnd = current + frg.rto;
-            }
-            if (send) {
-                frg.xmit++;
-                if (frg.xmit >= deadLink) {
-                    stop = true;
+        synchronized (queue_sndack) {
+            for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
+                Frg frg = itr.next();
+                boolean send = false;
+                if (frg.xmit == 0) {             //第一次发送
+                    send = true;
+                    frg.rto = rx_rto;
+                    frg.ts_resnd = current + frg.rto;
+                } else if (frg.fastack >= resend) {           //每次接收ack的时候,看序号,给fastack加1.超过10个就重传
+                    send = true;
+                    frg.fastack = 0;
+                    frg.rto = rx_rto;
+                    frg.ts_resnd = current + frg.rto;
+                } else if (itimediff(current, frg.ts_resnd) >= 0) {    //超过重传时间戳就开始重传
+                    send = true;
+                    frg.rto += rx_rto;              //rto翻倍
+                    frg.fastack = 0;
+                    frg.ts_resnd = current + frg.rto;
                 }
-                frg.ts = current;
-                frg.wnd = wndUnuse();
-                frg.una = rcv_nxt;
-                ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN + frg.data.readableBytes());
-                encodeFlushBuf(flushbuf, frg);
-                if (frg.data.readableBytes() > 0) {
-                    flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
+                if (send) {
+                    frg.xmit++;
+                    if (frg.xmit >= deadLink) {
+                        stop = true;
+                    }
+                    frg.ts = current;
+                    frg.wnd = wndUnuse();
+                    frg.una = rcv_nxt;
+                    ByteBuf flushbuf = createEmptyByteBuf(HEAD_LEN + frg.data.readableBytes());
+                    encodeFlushBuf(flushbuf, frg);
+                    if (frg.data.readableBytes() > 0) {
+                        flushbuf.writeBytes(frg.data, frg.data.readerIndex(), frg.data.readableBytes());
+                    }
+                    output(flushbuf, frg.sn);
                 }
-                output(flushbuf, frg.sn);
             }
         }
         return interval;
@@ -278,7 +280,7 @@ public class Rudp {
                         reset();
                         zeroSnTimeStamp = ts;
                     }
-                    if (sn != 0 && isNew){
+                    if (sn != 0 && isNew) {
                         snd_nxt = una;
                         rcv_nxt = sn;
                         snd_una = snd_nxt;
@@ -321,12 +323,14 @@ public class Rudp {
     }
 
     private void parseUna(long una) {
-        for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
-            Frg frg = itr.next();
-            if (itimediff(una, frg.sn) > 0) {
-                itr.remove();
-            } else {
-                break;
+        synchronized (queue_sndack) {
+            for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
+                Frg frg = itr.next();
+                if (itimediff(una, frg.sn) > 0) {
+                    itr.remove();
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -341,18 +345,20 @@ public class Rudp {
     }
 
     private void affirmAck(long sn) {
-        if (sn == 0){
+        if (sn == 0) {
             isNew = false;
         }
         if (itimediff(sn, snd_una) < 0 || itimediff(sn, snd_nxt) >= 0) {
             return;
         }
-        for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
-            Frg frg = itr.next();
-            if (sn == frg.sn) {
-                frg.data.release();
-                itr.remove();
-                break;
+        synchronized (queue_sndack) {
+            for (Iterator<Frg> itr = queue_sndack.iterator(); itr.hasNext(); ) {
+                Frg frg = itr.next();
+                if (sn == frg.sn) {
+                    frg.data.release();
+                    itr.remove();
+                    break;
+                }
             }
         }
     }
@@ -408,16 +414,18 @@ public class Rudp {
     }
 
     private void arrangeRcvData() {
-        for (Iterator<Frg> itr = queue_rcv_shambles.iterator(); itr.hasNext(); ) {
-            Frg frg = itr.next();
-            if (frg.sn == rcv_nxt && queue_rcv_shambles.size() < wnd_rcv) {
-                itr.remove();
-                queue_rcv_order.add(frg);
-                rcv_nxt++;
-            } else if (frg.sn < rcv_nxt) {
-                itr.remove();
-            } else {
-                break;
+        synchronized (queue_rcv_shambles) {
+            for (Iterator<Frg> itr = queue_rcv_shambles.iterator(); itr.hasNext(); ) {
+                Frg frg = itr.next();
+                if (frg.sn == rcv_nxt && queue_rcv_shambles.size() < wnd_rcv) {
+                    itr.remove();
+                    queue_rcv_order.add(frg);
+                    rcv_nxt++;
+                } else if (frg.sn < rcv_nxt) {
+                    itr.remove();
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -431,15 +439,17 @@ public class Rudp {
         if (len < 0)
             return null;
         ByteBuf buf = byteBufAllocator.buffer(len);
-        for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
-            Frg frg = itr.next();
-            itr.remove();
-            if (buf.readableBytes() == len && frg.tot == 0) {
-                break;
-            }
-            buf.writeBytes(frg.data);
-            if (frg.tot == 0) {
-                break;
+        synchronized (queue_rcv_order) {
+            for (Iterator<Frg> itr = queue_rcv_order.iterator(); itr.hasNext(); ) {
+                Frg frg = itr.next();
+                itr.remove();
+                if (buf.readableBytes() == len && frg.tot == 0) {
+                    break;
+                }
+                buf.writeBytes(frg.data);
+                if (frg.tot == 0) {
+                    break;
+                }
             }
         }
         arrangeRcvData();
