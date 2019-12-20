@@ -2,7 +2,8 @@ package ppex.server.handlers;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.channel.Channel;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ppex.proto.entity.Connection;
 import ppex.proto.entity.through.Connect;
 import ppex.proto.entity.through.RecvInfo;
@@ -21,12 +22,12 @@ import java.util.List;
 
 public class ThroughTypeMsgHandler implements TypeMessageHandler {
 
-    private static Logger LOGGER = Logger.getLogger(ThroughTypeMsgHandler.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ThroughTypeMsg.class);
 
     @Override
     public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
-
         ThroughTypeMsg ttmsg = JSON.parseObject(tmsg.getBody(), ThroughTypeMsg.class);
+        LOGGER.info("Server handle through msg:" + ttmsg.getContent());
         if (ttmsg.getAction() == ThroughTypeMsg.ACTION.SAVE_CONNINFO.ordinal()) {
             handleSaveInfo(ttmsg, rudpPack);
         } else if (ttmsg.getAction() == ThroughTypeMsg.ACTION.GET_CONNINFO.ordinal()) {
