@@ -118,7 +118,7 @@ public class Server {
         Class<? extends Channel> chnCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(chnCls).group(eventLoopGroup);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(Rudp.HEAD_LEN, Rudp.MTU_DEFUALT, Rudp.MTU_DEFUALT));
+                .option(ChannelOption.SO_RCVBUF, Rudp.MTU_DEFUALT);
 
         bootstrap.handler(serverHandler);
     }
