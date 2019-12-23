@@ -86,7 +86,11 @@ public class ByteUtil {
         for (int i = 0; i < src.length; i++) {
             length += src[i].length;
         }
-
+        result = new byte[length];
+        for (int i = 0;i < src.length;i++){
+            System.arraycopy(src[i],0,result,mtu*i,src[i].length);
+        }
+        return result;
     }
 
 }

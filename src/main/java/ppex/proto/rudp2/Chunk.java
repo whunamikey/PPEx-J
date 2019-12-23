@@ -2,9 +2,21 @@ package ppex.proto.rudp2;
 
 public class Chunk {
 
-    private Chunk(){}
+    private Chunk() {
+        xmit = 0;
+        dataLen = 0;
+        cmd = 0;
+        tot = 0;
+        wnd = 0;
+        ts = 0;
+        sn = 0;
+        una = 0;
+        ts_resnd = 0;
+        rto = 0;
+        fastack = 0;
+    }
 
-    public static Chunk newChunk(byte[] data){
+    public static Chunk newChunk(byte[] data) {
         Chunk chunk = new Chunk();
         chunk.data = data;
         return chunk;
@@ -23,7 +35,5 @@ public class Chunk {
     public int rto;
     public int fastack;
     public int xmit;
-    public long ackMask;
-    public int ackMaskSize;
 
 }
