@@ -166,12 +166,12 @@ public class RudpPack {
         return rudp;
     }
 
-    public static RudpPack newInstance(IOutput output, IThreadExecute executor, ResponseListener responseListener,IAddrManager addrManager) {
+    public static RudpPack newInstance(IOutput output, IThreadExecute executor, ResponseListener responseListener, IAddrManager addrManager) {
         RudpPack rudpPack = new RudpPack(output,executor,responseListener);
 //        RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
 //        executor.executeTimerTask(scheduleTask, rudpPack.getInterval());
         ScheduleTask scheduleTask = new ScheduleTask(executor,rudpPack,addrManager);
-        executor.executeTimerTask(scheduleTask,rudpPack.getInterval());
+        executor.executeTimerTask(scheduleTask,rudpPack.getInterval2());
         return rudpPack;
     }
 
@@ -188,6 +188,10 @@ public class RudpPack {
     public void notifySndTask2() {
         ppex.proto.rudp2.SndTask st = ppex.proto.rudp2.SndTask.New(this, "");
         this.executor.execute(st);
+    }
+
+    public void send2Rudp2(Message msg){
+        this.rudp2.snd(msg);
     }
 
     public void rcv2(ByteBuf buf){

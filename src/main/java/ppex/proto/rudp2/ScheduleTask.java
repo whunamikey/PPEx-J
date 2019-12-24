@@ -5,7 +5,6 @@ import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.RudpPack;
 import ppex.proto.tpool.ITask;
 import ppex.proto.tpool.IThreadExecute;
-import ppex.server.socket.Server;
 
 public class ScheduleTask implements ITask {
 
@@ -42,9 +41,6 @@ public class ScheduleTask implements ITask {
             executor.executeTimerTask(this, nxt);
             if (!rudpPack.getQueue_snd().isEmpty()) {
                 rudpPack.notifySndTask2();
-            }
-            if (rudpPack.canRcv2() != -1) {
-                rudpPack.notifyRcvTask2();
             }
 
         } catch (Exception e) {

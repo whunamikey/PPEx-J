@@ -12,7 +12,7 @@ public class SndTask implements ITask {
     private RudpPack rpkg;
     private String name;
 
-    public static SndTask New(RudpPack rpkg,String name){
+    public static SndTask New(RudpPack rpkg, String name){
         SndTask sndTask = new SndTask();
         sndTask.rpkg = rpkg;
         sndTask.name = name;
@@ -27,7 +27,7 @@ public class SndTask implements ITask {
                 Message msg = msgs.poll();
                 if (msg == null)
                     continue;
-                this.rpkg.send2(msg);
+                this.rpkg.send2Rudp2(msg);
             }
             long timeCur = System.currentTimeMillis();
             this.rpkg.flush2(timeCur);
