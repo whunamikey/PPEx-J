@@ -15,6 +15,15 @@ package ppex.proto.rudp2;
  *  length 表示后面的数据长度,可以使用short简化,因为不会超过MTU_DEFAULT
  *
  *  1+8+4+4+8+8+8+4=45个字节,后面可以根据实际优化msg id,tot,wnd,sn,una,length.都可以变成short以及int
+ *
+ *  2019-12-24,新改动.无序到达
+ *+-----8bit----+-----64bit----+----32bit-----+---32bit---+--64bit---+----64bit----+----32bit----+----32bit----+
+ *+     cmd     +     msg id   +     tot      +    all    +   ts     +     sn      +     sndmax     +    length   +
+ *+-------------+--------------+--------------+-----------+----------+-------------+-------------+-------------+
+ *  与上面一版相比,先将wnd替换为all.就一个msg分成了all段.una也变成32bit,una变成sndmax
+ *
+ *  1+8+4+4+8+8+4+4 = 41
+ *
  */
 
 public class RudpParam {
@@ -33,7 +42,7 @@ public class RudpParam {
     public static final int DEAD_LINK = 20;
 
     //头部数据长度
-    public static final int HEAD_LEN = 45;
+    public static final int HEAD_LEN = 41;
     //MTU默认长度
     public static final int MTU_DEFAULT = 1445;
     //除去头部数据长度之后剩下长度
@@ -42,6 +51,9 @@ public class RudpParam {
     //默认窗口
     public static final int WND_SND = 32;
     public static final int WND_RCV = 32;
+
+    //默认周期
+    public static final int INTERVAL_DEFAULT = 100;
 
 
 }

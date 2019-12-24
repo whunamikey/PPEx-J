@@ -1,7 +1,6 @@
 package ppex.server.socket;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -13,7 +12,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import ppex.proto.entity.Connection;
 import ppex.proto.rudp.*;
@@ -35,10 +33,10 @@ public class Server {
     @Autowired
     private ServerParam param;
 
-    //    private String HOST_SERVER1 = "10.5.11.162";
-//    private String HOST_SERVER2 = "10.5.11.55";
-    private String HOST_SERVER1 = "192.168.1.100";
-    private String HOST_SERVER2 = "192.168.1.102";
+    private String HOST_SERVER1 = "10.5.11.162";
+    private String HOST_SERVER2 = "10.5.11.55";
+    //    private String HOST_SERVER1 = "192.168.1.100";
+//    private String HOST_SERVER2 = "192.168.1.102";
     private int PORT_1 = 9123;
     private int PORT_2 = 9124;
     private int PORT_3 = 9125;
@@ -130,33 +128,39 @@ public class Server {
 
             connServer2p1 = new Connection("Server2P1", addrServer2p1, "Server2P1", NatTypeUtil.NatType.UNKNOWN.getValue());
             IOutput output = new ServerOutput(channel, connServer2p1);
-            outputManager.put(addrServer2p1, output);
-            RudpPack rudpPack = new RudpPack(output, executor, responseListener);
+//            outputManager.put(addrServer2p1, output);
+//            RudpPack rudpPack = new RudpPack(output, executor, responseListener);
+//            addrManager.New(addrServer2p1, rudpPack);
+            RudpPack rudpPack = RudpPack.newInstance(output, executor, responseListener, addrManager);
             addrManager.New(addrServer2p1, rudpPack);
 
             connServer2p2 = new Connection("Server2P2", addrServer2p2, "Server2P2", NatTypeUtil.NatType.UNKNOWN.getValue());
             IOutput output2p2 = new ServerOutput(channel, connServer2p2);
-            outputManager.put(addrServer2p2, output2p2);
-            RudpPack rudpPack2p2 = new RudpPack(output2p2, executor, responseListener);
+//            outputManager.put(addrServer2p2, output2p2);
+//            RudpPack rudpPack2p2 = new RudpPack(output2p2, executor, responseListener);
+//            addrManager.New(addrServer2p2, rudpPack2p2);
+            RudpPack rudpPack2p2 = RudpPack.newInstance(output2p2, executor, responseListener, addrManager);
             addrManager.New(addrServer2p2, rudpPack2p2);
 
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
-            executor.executeTimerTask(scheduleTask, rudpPack.getInterval());
+//            RudpScheduleTask scheduleTask = new RudpScheduleTask(executor, rudpPack, addrManager);
+//            executor.executeTimerTask(scheduleTask, rudpPack.getInterval());
 
-            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack2p2, addrManager);
-            executor.executeTimerTask(scheduleTask2, rudpPack2p2.getInterval());
+//            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack2p2, addrManager);
+//            executor.executeTimerTask(scheduleTask2, rudpPack2p2.getInterval());
 
         } else if (type == Identity.Type.SERVER2_PORT1) {
             channel = bootstrap.bind(PORT_1).sync().channel();
 
             connServer2p2 = new Connection("Server2P2", addrServer2p2, "Server2P2", NatTypeUtil.NatType.UNKNOWN.getValue());
             IOutput output = new ServerOutput(channel, connServer2p2);
-            outputManager.put(addrServer2p2, output);
-            RudpPack rudpPack = new RudpPack(output, executor, responseListener);
+//            outputManager.put(addrServer2p2, output);
+//            RudpPack rudpPack = new RudpPack(output, executor, responseListener);
+//            addrManager.New(addrServer2p2, rudpPack);
+            RudpPack rudpPack = RudpPack.newInstance(output, executor, responseListener, addrManager);
             addrManager.New(addrServer2p2, rudpPack);
 
-            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack, addrManager);
-            executor.executeTimerTask(scheduleTask2, rudpPack.getInterval());
+//            RudpScheduleTask scheduleTask2 = new RudpScheduleTask(executor, rudpPack, addrManager);
+//            executor.executeTimerTask(scheduleTask2, rudpPack.getInterval());
 
         } else if (type == Identity.Type.SERVER2_PORT2) {
             channel = bootstrap.bind(PORT_2).sync().channel();
@@ -171,6 +175,21 @@ public class Server {
         }
         if (eventLoopGroup != null) {
             eventLoopGroup.shutdownGracefully();
+        }
+    }
+
+    /**
+     * ----------测试专用
+     *
+     * @return
+     */
+    public void startTestServer() {
+        initParam();
+        initBootStrap();
+        try {
+            channel = bootstrap.bind(PORT_1).sync().channel();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

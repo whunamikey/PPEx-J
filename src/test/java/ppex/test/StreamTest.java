@@ -46,4 +46,18 @@ public class StreamTest {
 
     }
 
+    @Test
+    public void ItemRemoveTest(){
+        LinkedList<Chunk> chunks = new LinkedList<>();
+        IntStream.range(0,100).forEach(val ->{
+            Chunk chunk = Chunk.newChunk(new byte[0]);
+            chunk.sn = val;
+            chunks.add(chunk);
+        });
+        IntStream.range(0,90).forEach(val ->{
+            chunks.removeIf(chunk -> chunk.sn == val);
+        });
+        chunks.forEach(chunk -> System.out.println("chunk sn:" + chunk.sn));
+    }
+
 }

@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import ppex.proto.entity.Connection;
 import ppex.proto.rudp.IOutput;
 import ppex.proto.rudp.RudpPack;
-import ppex.proto.rudp.RudpScheduleTask;
 import ppex.server.rudp.ServerOutput;
 import ppex.utils.NatTypeUtil;
 
@@ -53,18 +52,19 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
             if (rudpPack != null){
                 rudpPack.getOutput().update(channel);
                 rudpPack.getOutput().getConn().setAddress(datagramPacket.sender());
-                rudpPack.read(datagramPacket.content());
+                rudpPack.rcv2(datagramPacket.content());
                 return;
             }
 
             Connection connection = new Connection("Unknown",datagramPacket.sender(),"Unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
             IOutput output = new ServerOutput(channel,connection);
-            rudpPack = new RudpPack(output,server.getExecutor(),server.getResponseListener());
+//            rudpPack = new RudpPack(output,server.getExecutor(),server.getResponseListener());
+            rudpPack = RudpPack.newInstance(output,server.getExecutor(),server.getResponseListener(),server.getAddrManager());
             server.getAddrManager().New(datagramPacket.sender(),rudpPack);
-            rudpPack.read(datagramPacket.content());
+            rudpPack.rcv2(datagramPacket.content());
 
-            RudpScheduleTask scheduleTask = new RudpScheduleTask(server.getExecutor(),rudpPack,server.getAddrManager());
-            server.getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
+//            RudpScheduleTask scheduleTask = new RudpScheduleTask(server.getExecutor(),rudpPack,server.getAddrManager());
+//            server.getExecutor().executeTimerTask(scheduleTask,rudpPack.getInterval());
 
         } catch (Exception e) {
             System.out.println("server recv msg error");

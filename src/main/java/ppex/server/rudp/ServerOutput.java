@@ -7,6 +7,7 @@ import io.netty.channel.socket.DatagramPacket;
 import ppex.proto.entity.Connection;
 import ppex.proto.rudp.IOutput;
 import ppex.proto.rudp.Rudp;
+import ppex.proto.rudp2.Rudp2;
 
 public class ServerOutput implements IOutput {
 
@@ -52,4 +53,21 @@ public class ServerOutput implements IOutput {
         return this.connection;
     }
 
+    @Override
+    public void output(ByteBuf data, Rudp2 rudp2, long sn) {
+        DatagramPacket packet = new DatagramPacket(data, connection.getAddress());
+        if (channel.isActive() && channel.isOpen()) {
+            ChannelFuture fu = channel.writeAndFlush(packet);
+            fu.addListener(future -> {
+                if (future.isSuccess()) {
+//                    System.out.println("channel writeandflush succ" + sn);
+                } else {
+                    System.out.println("channel writeandflush failed");
+                    future.cause().printStackTrace();
+                }
+            });
+        } else {
+            System.out.println("channel is close");
+        }
+    }
 }

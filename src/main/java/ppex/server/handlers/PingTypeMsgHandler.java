@@ -15,7 +15,7 @@ public class PingTypeMsgHandler implements TypeMessageHandler {
     @Override
     public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
         PongTypeMsg pongTypeMsg = new PongTypeMsg();
-        rudpPack.write(MessageUtil.pongmsg2Msg(pongTypeMsg));
+        rudpPack.send2(MessageUtil.pongmsg2Msg(pongTypeMsg));
 //        ctx.writeAndFlush(MessageUtil.pongMsg2Packet(pongTypeMsg, fromAddress));
     }
 }

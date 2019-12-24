@@ -51,7 +51,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 recvinfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.SAVE_CONNINFO.ordinal(), "fail");
             }
             ttmsg.setContent(JSON.toJSONString(recvinfo));
-            rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+            rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +65,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
             List<Connection> connections = ConnectionService.getInstance().getAllConnections();
             RecvInfo recvinfo = new RecvInfo(ThroughTypeMsg.RECVTYPE.GET_CONNINFO.ordinal(), JSON.toJSONString(connections));
             ttmsg.setContent(JSON.toJSONString(recvinfo));
-            rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+            rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,9 +90,9 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                     IOutput output = new ServerOutput(channel, connections.get(1));
                     rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                     addrManager.New(connections.get(1).getAddress(), rudpPack);
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }else{
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }
             } else if (connect.getType() == Connect.TYPE.CONNECTING.ordinal()) {
                 LOGGER.info("server handle connect connecting msg :" + connect.toString());
@@ -106,7 +106,7 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                 recvInfo.recvinfos = JSON.toJSONString(connect);
                 ttmsg.setContent(JSON.toJSONString(recvInfo));
                 rudpPack = addrManager.get(connections.get(0).getAddress());
-                rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
             } else if (connect.getType() == Connect.TYPE.REVERSE.ordinal()) {
                 LOGGER.info("server handle connect reverse msg :" + connect.toString());
                 recvInfo.recvinfos = JSON.toJSONString(connect);
@@ -116,9 +116,9 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                     IOutput output = new ServerOutput(channel, connections.get(1));
                     rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                     addrManager.New(connections.get(1).getAddress(), rudpPack);
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }else{
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }
             } else if (connect.getType() == Connect.TYPE.FORWARD.ordinal()) {
                 LOGGER.info("server handle connect forward msg :" + connect.toString());
@@ -129,9 +129,9 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                     IOutput output = new ServerOutput(channel, connections.get(1));
                     rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                     addrManager.New(connections.get(1).getAddress(), rudpPack);
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }else{
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }
             } else if (connect.getType() == Connect.TYPE.RETURN_FORWARD.ordinal()) {
                 LOGGER.info("server handle connect return_forward msg :" + connect.toString());
@@ -142,9 +142,9 @@ public class ThroughTypeMsgHandler implements TypeMessageHandler {
                     IOutput output = new ServerOutput(channel, connections.get(0));
                     rudpPack = new RudpPack(output, Server.getInstance().getExecutor(), Server.getInstance().getResponseListener());
                     addrManager.New(connections.get(0).getAddress(), rudpPack);
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }else{
-                    rudpPack.write(MessageUtil.throughmsg2Msg(ttmsg));
+                    rudpPack.send2(MessageUtil.throughmsg2Msg(ttmsg));
                 }
             } else {
                 throw new Exception("Unknow connect operate :" + connect.toString());
