@@ -3,6 +3,8 @@ package ppex.proto.rudp2;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ppex.proto.msg.Message;
 import ppex.proto.rudp.IOutput;
 import ppex.utils.ByteUtil;
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 那么接收的sn顺序在rcvNxt于sndUna之间都可以接收.rcvNxt每一次.当rcvNxt==sndUna时是没有消息发送的
  */
 public class Rudp2 {
-
+    private static Logger LOGGER = LoggerFactory.getLogger(Rudp2.class);
     //发送数据与接收数据的集合
     private LinkedList<Chunk> sndList = new LinkedList<>();
     private LinkedList<Chunk> sndAckList = new LinkedList<>();
@@ -40,9 +42,6 @@ public class Rudp2 {
     private int mtuBody = RudpParam.MTU_BODY;
     //表示段的发送与接收的数值
     private int sndNxt, sndMax, sndMin, rcvMax, rcvMin;
-    //处理窗口值
-    private int wnd_snd = RudpParam.WND_SND;
-    private int wnd_rcv = RudpParam.WND_RCV;
     //超过发送次数就认为连接断开的值
     private int deadLink = RudpParam.DEAD_LINK;
     //rudp是否已经断开连接标志
@@ -150,7 +149,7 @@ public class Rudp2 {
             if (buf.readableBytes() < length) {
                 return;
             }
-            if (cmd != RudpParam.CMD_SND || cmd != RudpParam.CMD_ACK) {
+            if (cmd != RudpParam.CMD_SND && cmd != RudpParam.CMD_ACK) {
                 return;
             }
             switch (cmd) {
