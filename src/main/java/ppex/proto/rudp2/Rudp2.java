@@ -87,7 +87,7 @@ public class Rudp2 {
         return true;
     }
 
-    private void mvChkFromSnd2SndAck() {
+    public void mvChkFromSnd2SndAck() {
         LinkedList<Chunk> tmpList = new LinkedList<>();
         synchronized (sndLock) {
             while (!sndList.isEmpty()) {

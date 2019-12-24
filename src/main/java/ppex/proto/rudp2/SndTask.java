@@ -28,6 +28,7 @@ public class SndTask implements ITask {
                 if (msg == null)
                     continue;
                 this.rpkg.send2Rudp2(msg);
+                this.rpkg.mvChkFromSnd2SndAck();
             }
             long timeCur = System.currentTimeMillis();
             this.rpkg.flush2(timeCur);
