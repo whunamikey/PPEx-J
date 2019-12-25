@@ -1,12 +1,16 @@
 package ppex.proto.rudp2;
 
 import io.netty.util.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ppex.proto.rudp.IAddrManager;
 import ppex.proto.rudp.RudpPack;
 import ppex.proto.tpool.ITask;
 import ppex.proto.tpool.IThreadExecute;
 
 public class ScheduleTask implements ITask {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(ScheduleTask.class);
 
     private IThreadExecute executor;
     private RudpPack rudpPack;
@@ -41,6 +45,9 @@ public class ScheduleTask implements ITask {
             executor.executeTimerTask(this, nxt);
             if (!rudpPack.getQueue_snd().isEmpty()) {
                 rudpPack.notifySndTask2();
+            }
+            if (rudpPack.getRcvOrder().size() != 0 || rudpPack.getRcvShambles().size() != 0) {
+                rudpPack.notifyRcvTask2();
             }
 
         } catch (Exception e) {

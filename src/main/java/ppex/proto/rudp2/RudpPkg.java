@@ -60,12 +60,12 @@ public class RudpPkg {
         this.rudp2.flush(time);
     }
 
-    public long canRcv(){
+    public boolean canRcv(){
         return this.rudp2.canRcv();
     }
 
-    public Message getMsg(long msgid){
-        return rudp2.mergeMsg(msgid);
+    public Message getMsg(){
+        return rudp2.mergeMsg();
     }
 
     public ConcurrentLinkedQueue<Message> getSndList() {

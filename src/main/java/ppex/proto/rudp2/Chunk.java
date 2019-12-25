@@ -14,7 +14,7 @@ public class Chunk {
         all = 0;
         ts = 0;
         sn = 0;
-        sndMax = 0;
+        una = 0;
         ts_resnd = 0;
         rto = 0;
         fastack = 0;
@@ -34,8 +34,8 @@ public class Chunk {
     public int tot;
     public int all;
     public long ts;
-    public long sn;
-    public int sndMax;
+    public int sn;
+    public int una;
     public int length;          //其实是data的长度
 
     public long ts_resnd;
@@ -52,7 +52,7 @@ public class Chunk {
                 ", all=" + all +
                 ", ts=" + ts +
                 ", sn=" + sn +
-                ", sndMax=" + sndMax +
+                ", una=" + una +
                 ", length=" + length +
                 '}';
     }

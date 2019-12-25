@@ -4,10 +4,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import ppex.proto.msg.Message;
+import ppex.proto.rudp2.Chunk;
 import ppex.proto.rudp2.Rudp2;
 import ppex.proto.rudp2.ScheduleTask;
 import ppex.proto.tpool.IThreadExecute;
 
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RudpPack {
@@ -157,7 +159,6 @@ public class RudpPack {
         return sndQueue;
     }
 
-
     public IOutput getOutput() {
         return output;
     }
@@ -218,16 +219,24 @@ public class RudpPack {
         return this.rudp2.flush(time);
     }
 
-    public long canRcv2(){
+    public boolean canRcv2(){
         return this.rudp2.canRcv();
     }
 
-    public Message getMsg2(long msgId){
-        return this.rudp2.mergeMsg(msgId);
+    public Message getMsg2(){
+        return this.rudp2.mergeMsg();
     }
 
     public int getInterval2(){
         return this.rudp2.getInterval();
+    }
+
+    public LinkedList<Chunk> getRcvOrder(){
+        return rudp2.getRcvOrder();
+    }
+
+    public LinkedList<Chunk> getRcvShambles(){
+        return rudp2.getRcvShambles();
     }
 
 }

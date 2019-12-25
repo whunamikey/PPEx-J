@@ -21,8 +21,16 @@ package ppex.proto.rudp2;
  *+     cmd     +     msg id   +     tot      +    all    +   ts     +     sn      +     sndmax     +    length   +
  *+-------------+--------------+--------------+-----------+----------+-------------+-------------+-------------+
  *  与上面一版相比,先将wnd替换为all.就一个msg分成了all段.una也变成32bit,una变成sndmax
- *
  *  1+8+4+4+8+8+4+4 = 41
+ *
+ *   *  2019-12-25,新改动.还是做顺序到达.到时候再更改断开的情况
+ *  +-----8bit----+-----64bit----+----32bit-----+---32bit---+--64bit---+----32bit----+----32bit-------+----32bit----+
+ *  +     cmd     +     msg id   +     tot      +    all    +   ts     +     sn      +     una        +    length   +
+ *  +-------------+--------------+--------------+-----------+----------+-------------+----------------+-------------+
+ *
+ * 只是将上面的sndMax改成原来的una.sn改为32为
+ * 1+8+4+4+8+4+4+4=37
+ *
  *
  */
 
@@ -42,7 +50,7 @@ public class RudpParam {
     public static final int DEAD_LINK = 20;
 
     //头部数据长度
-    public static final int HEAD_LEN = 41;
+    public static final int HEAD_LEN = 37;
     //MTU默认长度
     public static final int MTU_DEFAULT = 1445;
     //除去头部数据长度之后剩下长度

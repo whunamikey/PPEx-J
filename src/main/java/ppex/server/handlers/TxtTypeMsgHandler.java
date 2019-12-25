@@ -15,7 +15,7 @@ public class TxtTypeMsgHandler implements TypeMessageHandler {
 
     @Override
     public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
-        LOGGER.info("TxtTypemsg handle:" + tmsg.getBody());
+//        LOGGER.info("TxtTypemsg handle:" + tmsg.getBody());
         TxtTypeMsg txtTypeMsg = JSON.parseObject(tmsg.getBody(), TxtTypeMsg.class);
 //        if (txtTypeMsg.isReq()){
 //            RudpPack torudppack = addrManager.get(txtTypeMsg.getTo());
