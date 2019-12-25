@@ -31,6 +31,11 @@ package ppex.proto.rudp2;
  * 只是将上面的sndMax改成原来的una.sn改为32为
  * 1+8+4+4+8+4+4+4=37
  *
+ *  2019-12-25.开头新增一个tag。表示rudp是刚开始新的没有接收过消息的。
+ * +--8bit--+-----8bit----+-----64bit----+----32bit-----+---32bit---+--64bit---+----32bit----+----32bit-------+----32bit----+
+ * +  tag   +     cmd     +     msg id   +     tot      +    all    +   ts     +     sn      +     una        +    length   +
+ * +--------+-------------+--------------+--------------+-----------+----------+-------------+----------------+-------------+
+ *
  *
  */
 
@@ -50,7 +55,7 @@ public class RudpParam {
     public static final int DEAD_LINK = 20;
 
     //头部数据长度
-    public static final int HEAD_LEN = 37;
+    public static final int HEAD_LEN = 38;
     //MTU默认长度
     public static final int MTU_DEFAULT = 1445;
     //除去头部数据长度之后剩下长度
@@ -63,5 +68,8 @@ public class RudpParam {
     //默认周期
     public static final int INTERVAL_DEFAULT = 100;
 
+    //Tag默认值
+    public static final byte TAG_NEW = 1;
+    public static final byte TAG_OLD = 2;
 
 }
