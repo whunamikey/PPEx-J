@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ppex.proto.entity.Connection;
 import ppex.proto.rudp.*;
+import ppex.proto.rudp2.RudpParam;
 import ppex.proto.tpool.IThreadExecute;
 import ppex.proto.tpool.ThreadExecute;
 import ppex.server.rudp.ServerAddrManager;
@@ -116,7 +117,7 @@ public class Server {
         Class<? extends Channel> chnCls = epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
         bootstrap.channel(chnCls).group(eventLoopGroup);
         bootstrap.option(ChannelOption.SO_BROADCAST, true).option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.SO_RCVBUF, Rudp.MTU_DEFUALT);
+                .option(ChannelOption.SO_RCVBUF, RudpParam.MTU_DEFAULT);
 
         bootstrap.handler(serverHandler);
     }

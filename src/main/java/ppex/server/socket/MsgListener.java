@@ -1,6 +1,7 @@
 package ppex.server.socket;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
@@ -11,7 +12,7 @@ import ppex.proto.rudp.RudpPack;
 import ppex.server.handlers.*;
 
 public class MsgListener implements ResponseListener {
-    private static Logger LOGGER = Logger.getLogger(MsgListener.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(MsgListener.class);
 
     private MessageHandler msgHandler;
     private IAddrManager addrManager;

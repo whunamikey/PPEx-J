@@ -238,8 +238,9 @@ public class Rudp2 {
 
     private void arrangeRcvShambles() {
         LinkedList<Chunk> shambleCpy = new LinkedList<>();
-        Collections.copy(rcvShambles, shambleCpy);
+        shambleCpy.addAll(rcvShambles);
         LinkedList<Chunk> delList = new LinkedList<>();
+        LOGGER.info("shamblecpy size:" + shambleCpy.size() + " rcvShamble size:" + rcvShambles.size());
         synchronized (rcvMsgsLock) {
             shambleCpy.forEach(chunk -> {
                 long msgid = chunk.msgid;
@@ -251,7 +252,7 @@ public class Rudp2 {
                     }
                     rcvMsgs.put(msgid, chunks);
                 }
-                rcvMsgs.get(msgid).add(chunk.tot, chunk);
+                rcvMsgs.get(msgid).set(chunk.tot,chunk);
                 delList.add(chunk);
             });
         }
@@ -278,7 +279,7 @@ public class Rudp2 {
         int length = chunks.stream().mapToInt(chunk -> chunk.length).sum();
         byte[] result = new byte[length];
         for (int i = 0; i < chunks.size(); i++) {
-            System.arraycopy(chunks.get(i),0,result,mtuBody*i,chunks.get(i).length);
+            System.arraycopy(chunks.get(i).data, 0, result, mtuBody * i, chunks.get(i).data.length);
         }
         removeMsgsByMsgId(msgid);
         arrangeRcvShambles();
