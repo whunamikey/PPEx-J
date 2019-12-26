@@ -47,6 +47,8 @@ public class Rudp2 {
     private int sndNxt, rcvNxt, sndUna;
     //超过发送次数就认为连接断开的值
     private int deadLink = RudpParam.DEAD_LINK;
+    //快速重传
+    private int fastAck = RudpParam.FASTACK_DEFAULT;
     //rudp是否已经断开连接标志
     private boolean stop = false;
     private int rto = RudpParam.RTO_DEFAULT;
@@ -151,7 +153,7 @@ public class Rudp2 {
                     if (chunk.xmit == 0) {
                         snd = true;
                         chunk.rto = rto;
-                    } else if (chunk.fastack >= 10) {
+                    } else if (chunk.fastack >= fastAck) {
                         snd = true;
                     } else if (timeDiff(chunk.ts_resnd, timeCur) >= 0) {
                         snd = true;
@@ -222,6 +224,8 @@ public class Rudp2 {
                             //清除所有发送数据
                             sndList.clear();
                             sndAckList.clear();
+                            rcvShambles.clear();
+                            rcvOrder.clear();
                         }
                     } else {
                         if (this.tag == RudpParam.TAG_NEW && tag == RudpParam.TAG_OLD) {
@@ -233,7 +237,7 @@ public class Rudp2 {
                         }
                     }
                     affirmSnd(tag, msgid, tot, all, ts, sn, sndMax, length, data);
-                    arrangeRcvShambles();
+//                    arrangeRcvShambles();
                     break;
                 case RudpParam.CMD_ACK:
                     affirmAck(sn, tag);
@@ -277,7 +281,7 @@ public class Rudp2 {
 
     private void affirmAck(int sn, byte tag) {
 //        LOGGER.info("rudp2 affirmAck :" + " order size:" + rcvOrder.size() + " sb size:" + rcvShambles.size());
-        if (sn == 0 && this.tag == RudpParam.TAG_NEW){
+        if (sn == 0 && this.tag == RudpParam.TAG_NEW) {
             this.tag = RudpParam.TAG_OLD;
         }
         synchronized (sndAckLock) {
@@ -290,6 +294,11 @@ public class Rudp2 {
                     this.tag = RudpParam.TAG_OLD;
                 }
                 sndAckList.removeIf(chunk -> chunk.sn == sn);
+                sndAckList.stream().forEach(chunk -> {
+                    if (chunk.sn < sn){
+                        chunk.fastack++;
+                    }
+                });
                 if (sndAckList.isEmpty()) {
                     sndUna = sndNxt;
                 } else {
@@ -328,6 +337,7 @@ public class Rudp2 {
                 if (!exist) {
                     rcvShambles.add(chunk);
                 }
+                LOGGER.info("rcv shambles add:" + chunk.sn + " exist:" + exist);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -346,7 +356,7 @@ public class Rudp2 {
         sndChunk(buf, sn);
     }
 
-    private void arrangeRcvShambles() {
+    public void arrangeRcvShambles() {
         LinkedList<Chunk> addList = new LinkedList<>();
         synchronized (rcvShamebleLock) {
             try {
@@ -364,6 +374,7 @@ public class Rudp2 {
                         itr.remove();
                     }
                 }
+                LOGGER.info("rcv shambles size:" + rcvShambles.size() + " rcvNxt:" + rcvNxt + " sn:" + getSnStrs(rcvShambles));
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -378,6 +389,7 @@ public class Rudp2 {
                 }
                 rcvOrderWait = true;
                 rcvOrder.addAll(addList);
+                LOGGER.info("rcv order size:" + rcvOrder.size() + " rcvNxt:" + rcvNxt + " sn:" + getSnStrs(rcvOrder));
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -448,7 +460,7 @@ public class Rudp2 {
             }
             msg = MessageUtil.bytes2Msg(result);
         }
-        arrangeRcvShambles();
+//        arrangeRcvShambles();
         return msg;
     }
 
@@ -467,5 +479,15 @@ public class Rudp2 {
 
     public LinkedList<Chunk> getRcvShambles() {
         return rcvShambles;
+    }
+
+    private String getSnStrs(LinkedList<Chunk> chunks) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Chunk chunk : chunks) {
+            sb.append(chunk.sn + " ");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

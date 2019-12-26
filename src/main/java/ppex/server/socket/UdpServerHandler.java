@@ -47,7 +47,7 @@ public class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket datagramPacket) throws Exception {
         try {
-            LOGGER.info("rcv from :" + datagramPacket.sender());
+//            LOGGER.info("rcv from :" + datagramPacket.sender());
             Channel channel = channelHandlerContext.channel();
             RudpPack rudpPack = server.getAddrManager().get(datagramPacket.sender());
             if (rudpPack != null){

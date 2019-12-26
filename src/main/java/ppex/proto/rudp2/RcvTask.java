@@ -36,10 +36,11 @@ public class RcvTask implements ITask {
                 rpkg.input2(buf,time);
                 buf.release();
             }
+            this.rpkg.arrangeRcvData();
             while(rpkg.canRcv2()){
                 Message msg = rpkg.getMsg2();
                 if (msg == null)
-                    continue;
+                    break;
                 rpkg.getListener().onResponse(rpkg,msg);
             }
         } catch (Exception e) {

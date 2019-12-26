@@ -210,6 +210,10 @@ public class RudpPack {
         this.rudp2.rcv(buf,time);
     }
 
+    public void arrangeRcvData(){
+        this.rudp2.arrangeRcvShambles();
+    }
+
     public void notifyRcvTask2() {
         ppex.proto.rudp2.RcvTask rt = ppex.proto.rudp2.RcvTask.New(this, "");
         this.executor.execute(rt);

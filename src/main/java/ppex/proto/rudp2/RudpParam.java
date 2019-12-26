@@ -68,6 +68,9 @@ public class RudpParam {
     //默认周期
     public static final int INTERVAL_DEFAULT = 100;
 
+    //快速重传默认值
+    public static final int FASTACK_DEFAULT = 5;
+
     //Tag默认值
     public static final byte TAG_NEW = 1;
     public static final byte TAG_OLD = 2;
