@@ -252,7 +252,6 @@ public class Rudp2 {
                     }
                     affirmSnd(tag, msgid, tot, all, ts, sn, sndMax, length, data);
 //                    arrangeRcvShambles();
-                    Statistic.rcvCount.getAndIncrement();
                     break;
                 case RudpParam.CMD_ACK:
                     affirmAck(sn, tag);
@@ -347,11 +346,13 @@ public class Rudp2 {
                     rcvShamebleLock.wait();
                 }
                 rcvShambleWait = true;
-                boolean exist = rcvShambles.stream().anyMatch(chunk1 -> chunk1.sn == sn);
+                boolean exist = rcvShambles.stream().anyMatch(chunk1 -> chunk1 == null ? false:(chunk1.sn== sn));
                 if (!exist) {
                     rcvShambles.add(chunk);
+                    LOGGER.info("add sn:" + chunk.sn);
                 }
                 flushAck(sn);
+                Statistic.rcvCount.getAndIncrement();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -387,7 +388,7 @@ public class Rudp2 {
                         itr.remove();
                     }
                 }
-                LOGGER.info("arrangercv:" + rcvNxt );
+//                LOGGER.info("arrangercv:" + rcvNxt );
 //                if (rcvNxt == snLost){
 //                    int lostC = lostCount.incrementAndGet();
 //                    long now = System.currentTimeMillis();

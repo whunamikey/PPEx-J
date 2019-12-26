@@ -2,10 +2,7 @@ package ppex.proto.msg;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.util.CharsetUtil;
-import org.bouncycastle.pqc.math.linearalgebra.CharUtils;
 import ppex.proto.msg.type.TypeMessage;
-
-import java.nio.charset.Charset;
 
 /**
  * -----16bits-----+-----16bits-----+-----32bits------+-----content-----+
