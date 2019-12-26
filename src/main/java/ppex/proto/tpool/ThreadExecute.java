@@ -16,7 +16,9 @@ public class ThreadExecute implements IThreadExecute {
     @Override
     public void start() {
         defaultThreadFactory = new DefaultThreadFactory();
-        executorService = Executors.newCachedThreadPool(defaultThreadFactory);
+//        executorService = Executors.newCachedThreadPool(defaultThreadFactory);
+        int cpunum = Runtime.getRuntime().availableProcessors();
+        executorService = Executors.newFixedThreadPool(cpunum,defaultThreadFactory);
         hashedWheelTimer = new HashedWheelTimer(defaultThreadFactory,1, TimeUnit.MILLISECONDS);
     }
 

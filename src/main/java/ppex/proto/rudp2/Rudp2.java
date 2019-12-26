@@ -87,7 +87,6 @@ public class Rudp2 {
                     chunk.una = sndUna;
                     chunk.all = msgArrs.length;
                     chunk.msgid = msg.getMsgid();
-                    chunk.data = msgArrs[i];
                     chunk.length = chunk.data.length;
                     sndList.add(chunk);
                 }
@@ -220,12 +219,20 @@ public class Rudp2 {
                             sndNxt = 0;
                             sndUna = 0;
                             rcvNxt = 0;
-                            rcvNxt++;
-                            mvChkFromSnd2SndAck();
-                            flush(System.currentTimeMillis());
+                            //清除所有发送数据
+                            sndList.clear();
+                            sndAckList.clear();
+                        }
+                    } else {
+                        if (this.tag == RudpParam.TAG_NEW && tag == RudpParam.TAG_OLD) {
+                            Message msg = new Message(-1);
+                            msg.setContent("");
+                            snd(msg);
+                            flushAck(sn);
+                            break;
                         }
                     }
-                    affirmSnd(tag,msgid, tot, all, ts, sn, sndMax, length, data);
+                    affirmSnd(tag, msgid, tot, all, ts, sn, sndMax, length, data);
                     arrangeRcvShambles();
                     break;
                 case RudpParam.CMD_ACK:
@@ -270,6 +277,9 @@ public class Rudp2 {
 
     private void affirmAck(int sn, byte tag) {
 //        LOGGER.info("rudp2 affirmAck :" + " order size:" + rcvOrder.size() + " sb size:" + rcvShambles.size());
+        if (sn == 0 && this.tag == RudpParam.TAG_NEW){
+            this.tag = RudpParam.TAG_OLD;
+        }
         synchronized (sndAckLock) {
             try {
                 while (sndAckWait) {
@@ -298,7 +308,7 @@ public class Rudp2 {
     private void dealTag(int sn, byte tag) {
     }
 
-    private void affirmSnd(byte tag,long msgid, int tot, int all, long ts, int sn, int una, int length, byte[] data) {
+    private void affirmSnd(byte tag, long msgid, int tot, int all, long ts, int sn, int una, int length, byte[] data) {
         Chunk chunk = Chunk.newChunk(data);
         chunk.msgid = msgid;
         chunk.tot = tot;
