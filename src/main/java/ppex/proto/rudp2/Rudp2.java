@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ppex.proto.Statistic;
 import ppex.proto.msg.Message;
 import ppex.proto.rudp.IOutput;
 import ppex.utils.ByteUtil;
@@ -27,19 +28,16 @@ public class Rudp2 {
     private LinkedList<Chunk> sndAckList = new LinkedList<>();
     private LinkedList<Chunk> rcvOrder = new LinkedList<>();
     private LinkedList<Chunk> rcvShambles = new LinkedList<>();
-    private LinkedList<Chunk> oldDataList = new LinkedList<>();
 
     //多线程操作使用同步
     private Object sndLock = new Object();
-    private boolean sndWait = false;
+    private volatile boolean sndWait = false;
     private Object sndAckLock = new Object();
-    private boolean sndAckWait = false;
+    private volatile boolean sndAckWait = false;
     private Object rcvOrderLock = new Object();
-    private boolean rcvOrderWait = false;
+    private volatile boolean rcvOrderWait = false;
     private Object rcvShamebleLock = new Object();
-    private boolean rcvShambleWait = false;
-    private Object oldDataLock = new Object();
-    private boolean oldDataWait = false;
+    private volatile boolean rcvShambleWait = false;
 
     //数据长度
     private int mtuBody = RudpParam.MTU_BODY;
@@ -91,6 +89,7 @@ public class Rudp2 {
                     chunk.msgid = msg.getMsgid();
                     chunk.length = chunk.data.length;
                     sndList.add(chunk);
+//                    Statistic.sndCount.incrementAndGet();
                 }
             } catch (Exception e) {
             } finally {
@@ -131,6 +130,7 @@ public class Rudp2 {
                 }
                 sndAckWait = true;
                 sndAckList.addAll(tmpList);
+                Statistic.sndAckCount.getAndAdd(tmpList.size());
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -238,9 +238,11 @@ public class Rudp2 {
                     }
                     affirmSnd(tag, msgid, tot, all, ts, sn, sndMax, length, data);
 //                    arrangeRcvShambles();
+                    Statistic.rcvCount.getAndIncrement();
                     break;
                 case RudpParam.CMD_ACK:
                     affirmAck(sn, tag);
+                    Statistic.rcvAckCount.getAndIncrement();
                     break;
             }
         }
@@ -274,6 +276,7 @@ public class Rudp2 {
     private void sndChunk(ByteBuf buf, long sn) {
         if (output != null) {
             output.output(buf, this, sn);
+            Statistic.outputCount.getAndIncrement();
         } else {
             System.out.println("output is null");
         }
@@ -295,7 +298,7 @@ public class Rudp2 {
                 }
                 sndAckList.removeIf(chunk -> chunk.sn == sn);
                 sndAckList.stream().forEach(chunk -> {
-                    if (chunk.sn < sn){
+                    if (chunk.sn < sn) {
                         chunk.fastack++;
                     }
                 });
@@ -337,7 +340,7 @@ public class Rudp2 {
                 if (!exist) {
                     rcvShambles.add(chunk);
                 }
-                LOGGER.info("rcv shambles add:" + chunk.sn + " exist:" + exist);
+                flushAck(sn);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -345,7 +348,6 @@ public class Rudp2 {
                 rcvShamebleLock.notifyAll();
             }
         }
-        flushAck(sn);
     }
 
     private void flushAck(int sn) {
@@ -374,7 +376,7 @@ public class Rudp2 {
                         itr.remove();
                     }
                 }
-                LOGGER.info("rcv shambles size:" + rcvShambles.size() + " rcvNxt:" + rcvNxt + " sn:" + getSnStrs(rcvShambles));
+//                LOGGER.info("arrangercv:" + rcvNxt + " sn:" + getSnStrs(rcvShambles));
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -389,7 +391,7 @@ public class Rudp2 {
                 }
                 rcvOrderWait = true;
                 rcvOrder.addAll(addList);
-                LOGGER.info("rcv order size:" + rcvOrder.size() + " rcvNxt:" + rcvNxt + " sn:" + getSnStrs(rcvOrder));
+                Statistic.rcvOrderCount.getAndAdd(addList.size());
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
