@@ -388,21 +388,21 @@ public class Rudp2 {
                     }
                 }
                 LOGGER.info("arrangercv:" + rcvNxt );
-                if (rcvNxt == snLost){
-                    int lostC = lostCount.incrementAndGet();
-                    long now = System.currentTimeMillis();
-                    //消失次数在5000次而且时间在2秒内
-                    if (lostC >= RudpParam.LOST_DEFAULT || timeDiff(lostTime,now) > 2000){
-                        Statistic.lostChunkCount.incrementAndGet();
-                        rcvNxt++;
-                        lostCount.set(0);
-                        snLost = rcvNxt;
-                        lostTime = System.currentTimeMillis();
-                    }
-                }else{
-                    snLost = rcvNxt;
-                    lostTime = System.currentTimeMillis();
-                }
+//                if (rcvNxt == snLost){
+//                    int lostC = lostCount.incrementAndGet();
+//                    long now = System.currentTimeMillis();
+//                    //消失次数在5000次而且时间在2秒内
+//                    if (lostC >= RudpParam.LOST_DEFAULT || timeDiff(lostTime,now) > 2000){
+//                        Statistic.lostChunkCount.incrementAndGet();
+//                        rcvNxt++;
+//                        lostCount.set(0);
+//                        snLost = rcvNxt;
+//                        lostTime = System.currentTimeMillis();
+//                    }
+//                }else{
+//                    snLost = rcvNxt;
+//                    lostTime = System.currentTimeMillis();
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -468,7 +468,7 @@ public class Rudp2 {
                 while (!rcvOrder.isEmpty()) {
                     Chunk chunk = rcvOrder.removeFirst();
                     chunks.add(chunk);
-                    if (chunk.tot == (chunk.all - 1))
+                    if (chunk.tot + 1 == chunk.all)
                         break;
                 }
             } catch (Exception e) {
@@ -481,6 +481,7 @@ public class Rudp2 {
         }
         Message msg = null;
         if (!chunks.isEmpty()) {
+
             int length = chunks.stream().mapToInt(chunk -> chunk.length).sum();
             byte[] result = new byte[length];
             for (int i = 0; i < chunks.size(); i++) {

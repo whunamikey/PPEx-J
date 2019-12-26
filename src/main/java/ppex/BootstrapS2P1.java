@@ -1,7 +1,6 @@
 package ppex;
 
 import ppex.server.socket.Server;
-import ppex.server.socket.UdpServer;
 import ppex.utils.Identity;
 
 public class BootstrapS2P1 {
