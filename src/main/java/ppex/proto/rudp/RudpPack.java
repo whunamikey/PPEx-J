@@ -219,6 +219,10 @@ public class RudpPack {
         this.executor.execute(rt);
     }
 
+    public int getRcvNxt2(){
+        return rudp2.getRcvNxt();
+    }
+
     public long flush2(long time){
         return this.rudp2.flush(time);
     }

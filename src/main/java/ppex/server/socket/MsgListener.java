@@ -2,6 +2,7 @@ package ppex.server.socket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ppex.proto.Statistic;
 import ppex.proto.msg.Message;
 import ppex.proto.msg.MessageHandler;
 import ppex.proto.msg.StandardMessageHandler;
@@ -30,6 +31,7 @@ public class MsgListener implements ResponseListener {
     @Override
     public void onResponse(RudpPack rudpPack, Message message) {
 //        msgHandler.handleMessage(rudpPack,addrManager,message);
-        LOGGER.info("onresponse msg :" +message.getMsgid());
+//        LOGGER.info("onresponse msg :" +message.getMsgid());
+        Statistic.responseCount.getAndIncrement();
     }
 }

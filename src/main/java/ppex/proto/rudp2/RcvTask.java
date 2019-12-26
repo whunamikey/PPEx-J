@@ -43,7 +43,6 @@ public class RcvTask implements ITask {
                 if (msg == null)
                     break;
                 rpkg.getListener().onResponse(rpkg,msg);
-                Statistic.responseCount.getAndIncrement();
             }
         } catch (Exception e) {
             e.printStackTrace();

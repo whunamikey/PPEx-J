@@ -71,6 +71,9 @@ public class RudpParam {
     //快速重传默认值
     public static final int FASTACK_DEFAULT = 5;
 
+    //遗漏默认操作数
+    public static final int LOST_DEFAULT = 5000;
+
     //Tag默认值
     public static final byte TAG_NEW = 1;
     public static final byte TAG_OLD = 2;

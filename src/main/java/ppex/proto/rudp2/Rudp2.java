@@ -8,11 +8,14 @@ import org.slf4j.LoggerFactory;
 import ppex.proto.Statistic;
 import ppex.proto.msg.Message;
 import ppex.proto.rudp.IOutput;
+import ppex.proto.rudp.Rudp;
 import ppex.utils.ByteUtil;
 import ppex.utils.MessageUtil;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 2019-12-23.暂不考虑其他重传算法以及RTT,RTO等时间计算.直接简单粗暴发送与接收
@@ -58,6 +61,15 @@ public class Rudp2 {
     //添加该标识位为了解决断开重连后消息处理问题
     private byte tag = RudpParam.TAG_NEW;
 
+    //出现在arrangeRcvShambles方法里面
+    //在rcv的时候,有时候已经处理了sn未某个号码了,也已经返回了ack给client.但是后面处理的时候rcvShambles里面并没有该sn保存.
+    // 猜测理由是在affirmSnd的时候没有保存进去.暂时使用一个变量跳过该sn,超过5次就跳过该sn.暂时标记为lost
+    //当时同一个snLost超过5000次,而且时间在2秒之内
+    private AtomicInteger lostCount;
+    private int snLost;
+    private long lostTime;
+
+
     //发送数据公共接口
     private IOutput output;
 
@@ -67,6 +79,8 @@ public class Rudp2 {
         rcvNxt = 0;
         sndUna = 0;
         tag = RudpParam.TAG_NEW;
+        lostCount = new AtomicInteger(0);
+        snLost = -1;
         LOGGER.info("sndLock:" + Integer.toHexString(System.identityHashCode(sndLock)) + " sndackLock:" + Integer.toHexString(System.identityHashCode(sndAckLock)) +
                 " rcvorderLock:" + Integer.toHexString(System.identityHashCode(rcvOrderLock)) + " rcvShamblesLock:" + Integer.toHexString(System.identityHashCode(rcvShamebleLock)));
     }
@@ -293,9 +307,6 @@ public class Rudp2 {
                     sndAckLock.wait();
                 }
                 sndAckWait = true;
-                if (sn == 0 && tag == RudpParam.TAG_OLD) {
-                    this.tag = RudpParam.TAG_OLD;
-                }
                 sndAckList.removeIf(chunk -> chunk.sn == sn);
                 sndAckList.stream().forEach(chunk -> {
                     if (chunk.sn < sn) {
@@ -376,7 +387,22 @@ public class Rudp2 {
                         itr.remove();
                     }
                 }
-//                LOGGER.info("arrangercv:" + rcvNxt + " sn:" + getSnStrs(rcvShambles));
+                LOGGER.info("arrangercv:" + rcvNxt );
+                if (rcvNxt == snLost){
+                    int lostC = lostCount.incrementAndGet();
+                    long now = System.currentTimeMillis();
+                    //消失次数在5000次而且时间在2秒内
+                    if (lostC >= RudpParam.LOST_DEFAULT || timeDiff(lostTime,now) > 2000){
+                        Statistic.lostChunkCount.incrementAndGet();
+                        rcvNxt++;
+                        lostCount.set(0);
+                        snLost = rcvNxt;
+                        lostTime = System.currentTimeMillis();
+                    }
+                }else{
+                    snLost = rcvNxt;
+                    lostTime = System.currentTimeMillis();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -481,6 +507,10 @@ public class Rudp2 {
 
     public LinkedList<Chunk> getRcvShambles() {
         return rcvShambles;
+    }
+
+    public int getRcvNxt() {
+        return rcvNxt;
     }
 
     private String getSnStrs(LinkedList<Chunk> chunks) {

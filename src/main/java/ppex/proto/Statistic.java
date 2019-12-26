@@ -10,6 +10,7 @@ public class Statistic {
     public static volatile AtomicLong rcvOrderCount = new AtomicLong(0);
     public static volatile AtomicLong rcvAckCount = new AtomicLong(0);
     public static volatile AtomicLong responseCount = new AtomicLong(0);
-
+    public static volatile AtomicLong lostMsgCount = new AtomicLong(0);
+    public static volatile AtomicLong lostChunkCount = new AtomicLong(0);
 
 }

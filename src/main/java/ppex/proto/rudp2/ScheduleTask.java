@@ -5,9 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ppex.proto.Statistic;
 import ppex.proto.rudp.IAddrManager;
+import ppex.proto.rudp.ResponseListener;
 import ppex.proto.rudp.RudpPack;
 import ppex.proto.tpool.ITask;
 import ppex.proto.tpool.IThreadExecute;
+
+import java.util.LinkedList;
 
 public class ScheduleTask implements ITask {
 
@@ -31,15 +34,19 @@ public class ScheduleTask implements ITask {
                 rudpPack.close();
             }
             if (!rudpPack.isActive()) {
+                createTailTask(rudpPack.getRcvOrder(),rudpPack.getRcvShambles(),rudpPack.getRcvNxt2(),rudpPack.getListener());
                 rudpPack.release();
                 addrManager.Del(rudpPack);
                 rudpPack = null;
+                LOGGER.info("rudp is not active");
                 return;
             }
             if (rudpPack.isStop2()) {
+                createTailTask(rudpPack.getRcvOrder(),rudpPack.getRcvShambles(),rudpPack.getRcvNxt2(),rudpPack.getListener());
                 rudpPack.release();
                 addrManager.Del(rudpPack);
                 rudpPack = null;
+                LOGGER.info("rudp is stop");
                 return;
             }
             long nxt = rudpPack.flush2(now);
@@ -50,8 +57,8 @@ public class ScheduleTask implements ITask {
             if (rudpPack.getRcvOrder().size() != 0 || rudpPack.getRcvShambles().size() != 0) {
                 rudpPack.notifyRcvTask2();
             }
-            System.out.printf("sndCount:%d,sndAckCount:%d,outputCount:%d,rcvCount:%d,rcvOrderCount:%d,rcvAckCount:%d,responseCount:%d\n",
-                    Statistic.sndCount.get(),Statistic.sndAckCount.get(),Statistic.outputCount.get(),Statistic.rcvCount.get(),Statistic.rcvOrderCount.get(),Statistic.rcvAckCount.get(),Statistic.responseCount.get());
+            System.out.printf("snd:%d,sndAck:%d,output:%d,rcv:%d,rcvOrder:%d,rcvAck:%d,response:%d,lostChunk:%d,order:%d,shambles:%d\n",
+                    Statistic.sndCount.get(),Statistic.sndAckCount.get(),Statistic.outputCount.get(),Statistic.rcvCount.get(),Statistic.rcvOrderCount.get(),Statistic.rcvAckCount.get(),Statistic.responseCount.get(),Statistic.lostChunkCount.get(),rudpPack.getRcvOrder().size(),rudpPack.getRcvShambles().size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,5 +72,11 @@ public class ScheduleTask implements ITask {
     @Override
     public void run() {
         execute();
+    }
+
+    //create TailTask
+    private void createTailTask(LinkedList<Chunk> order, LinkedList<Chunk> shambles, int rcvNxt, ResponseListener listener){
+        TailTask tt = TailTask.newTailTask(order,shambles,rcvNxt,listener);
+        this.executor.execute(tt);
     }
 }
