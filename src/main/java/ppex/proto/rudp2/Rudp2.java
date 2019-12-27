@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ppex.proto.Statistic;
 import ppex.proto.msg.Message;
 import ppex.proto.rudp.IOutput;
+import ppex.proto.rudp.Rudp;
 import ppex.utils.ByteUtil;
 import ppex.utils.MessageUtil;
 
@@ -60,7 +61,7 @@ public class Rudp2 {
 
     //添加该标识位为了解决断开重连后消息处理问题
     private byte tag = RudpParam.TAG_NEW;
-    private long tagMsgId = -1;
+    private long tagOts = -2;
 
     //出现在arrangeRcvShambles方法里面
     //在rcv的时候,有时候已经处理了sn未某个号码了,也已经返回了ack给client.但是后面处理的时候rcvShambles里面并没有该sn保存.
@@ -82,8 +83,8 @@ public class Rudp2 {
         tag = RudpParam.TAG_NEW;
         lostCount = new AtomicInteger(0);
         snLost = -1;
-        LOGGER.info("sndLock:" + Integer.toHexString(System.identityHashCode(sndLock)) + " sndackLock:" + Integer.toHexString(System.identityHashCode(sndAckLock)) +
-                " rcvorderLock:" + Integer.toHexString(System.identityHashCode(rcvOrderLock)) + " rcvShamblesLock:" + Integer.toHexString(System.identityHashCode(rcvShamebleLock)));
+//        LOGGER.info("sndLock:" + Integer.toHexString(System.identityHashCode(sndLock)) + " sndackLock:" + Integer.toHexString(System.identityHashCode(sndAckLock)) +
+//                " rcvorderLock:" + Integer.toHexString(System.identityHashCode(rcvOrderLock)) + " rcvShamblesLock:" + Integer.toHexString(System.identityHashCode(rcvShamebleLock)));
     }
 
     //外面将msg放入Rudp的开始,可能有多个线程同时操作sndList
@@ -96,13 +97,15 @@ public class Rudp2 {
                     sndLock.wait();
                 }
                 sndWait = true;
+                long now = System.currentTimeMillis();
                 for (int i = 0; i < msgArrs.length; i++) {
                     Chunk chunk = Chunk.newChunk(msgArrs[i]);
                     chunk.tag = tag;
-                    chunk.tot = i;
-                    chunk.una = sndUna;
-                    chunk.all = msgArrs.length;
                     chunk.msgid = msg.getMsgid();
+                    chunk.tot = i;
+                    chunk.all = msgArrs.length;
+                    chunk.ots = now;
+                    chunk.una = sndUna;
                     chunk.length = chunk.data.length;
                     sndList.add(chunk);
 //                    Statistic.sndCount.incrementAndGet();
@@ -211,6 +214,7 @@ public class Rudp2 {
             long msgid = buf.readLong();
             int tot = buf.readInt();
             int all = buf.readInt();
+            long ots = buf.readLong();
             long ts = buf.readLong();
             int sn = buf.readInt();
             int sndMax = buf.readInt();
@@ -231,30 +235,57 @@ public class Rudp2 {
                     //当己方为new时且对方消息为old时,不需要处理数据,发送sn为0的new数据。
                     //出现一个情况就是,当双方都是new时,改变了自己的tag为old之后,还会收到sn为0的sn,这时候直接进入了第二个this.tag = old and tag = new的情况,直接清掉了rcvShamble和order的所有数据
                     //利用Msgid来确认第二次的sn与第一次的sn是同一个sn.防止进入第二个this.tag=old
+                    //上面说利用Msgid来确认情况也会出现错误
+                    //新增一个ots字段来确认是同一个sn
                     if (sn == 0) {
                         if (this.tag == RudpParam.TAG_NEW && tag == RudpParam.TAG_NEW) {
                             this.tag = RudpParam.TAG_OLD;
-                            this.tagMsgId = msgid;
+                            this.tagOts = ots;
                         }
-                        if (this.tag == RudpParam.TAG_OLD && tag == RudpParam.TAG_NEW && (msgid == -1)) {
-                            sndNxt = 0;
-                            sndUna = 0;
-                            rcvNxt = 0;
-                            //清除所有发送数据
-                            sndList.clear();
-                            sndAckList.clear();
-                            rcvShambles.clear();
-                            rcvOrder.clear();
+                        if (this.tag == RudpParam.TAG_OLD && tag == RudpParam.TAG_NEW) {
+                            //当新的收到旧的发来的信息时,上面的第三个注释,当己方为new时且对方消息为old.对应下面的else中的if情况
+                            if (msgid == -1) {
+                                sndNxt = 0;
+                                sndUna = 0;
+                                rcvNxt = 0;
+                                sndList.clear();
+                                sndAckList.clear();
+                                rcvShambles.clear();
+                                rcvOrder.clear();
+                            }
+                            //重复收到sn为0.即一开始都是NEW,但是己方改为old之后还能收到NEW(重传)重复发过来的sn为0的情况.
+                            if (this.tagOts != ots) {
+                                sndNxt = 0;
+                                sndUna = 0;
+                                rcvNxt = 0;
+                                sndList.clear();
+                                sndAckList.clear();
+                                rcvShambles.clear();
+                                rcvOrder.clear();
+                            }
                         }
-                    } else {
-                        if (this.tag == RudpParam.TAG_NEW && tag == RudpParam.TAG_OLD) {
-                            Message msg = new Message(-1);
-                            msg.setContent("");
-                            snd(msg);
-                            flushAck(sn);
-                            break;
-                        }
+                    }else{
+
                     }
+                    //当新的收到旧的发来的信息时,上面的第三个注释,当己方为new时且对方消息为old
+                    if (this.tag == RudpParam.TAG_NEW && tag == RudpParam.TAG_OLD) {
+                        //直接发送一个chunk
+                        Chunk chunk = Chunk.newChunk(new byte[0]);
+                        chunk.tag = tag;
+                        chunk.cmd = RudpParam.CMD_SND;
+                        chunk.msgid = -1;
+                        chunk.tot = 0;
+                        chunk.all =1;
+                        chunk.ots = System.currentTimeMillis();
+                        chunk.ts = System.currentTimeMillis();
+                        chunk.sn = 0;
+                        chunk.una = sndUna;
+                        chunk.length = chunk.data.length;
+                        ByteBuf buf1 = createOutputByteBuf(chunk);
+                        sndChunk(buf1,0);
+                        break;
+                    }
+
                     affirmSnd(tag, msgid, tot, all, ts, sn, sndMax, length, data);
 //                    arrangeRcvShambles();
                     break;
@@ -284,6 +315,7 @@ public class Rudp2 {
         buf.writeLong(chunk.msgid);
         buf.writeInt(chunk.tot);
         buf.writeInt(chunk.all);
+        buf.writeLong(chunk.ots);
         buf.writeLong(chunk.ts);
         buf.writeInt(chunk.sn);
         buf.writeInt(chunk.una);
@@ -368,7 +400,6 @@ public class Rudp2 {
 
     private void flushAck(int sn) {
         Chunk chunk = Chunk.newChunk(new byte[0]);
-        chunk.tag = tag;
         chunk.cmd = RudpParam.CMD_ACK;
         chunk.sn = sn;
         ByteBuf buf = createOutputByteBuf(chunk);
@@ -393,7 +424,7 @@ public class Rudp2 {
                         itr.remove();
                     }
                 }
-//                LOGGER.info("arrangeRcvShambles rcvNxt:" + rcvNxt);
+                LOGGER.info("arrangeRcvShambles rcvNxt:" + rcvNxt);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -456,25 +487,8 @@ public class Rudp2 {
                     rcvOrderLock.wait();
                 }
                 rcvOrderWait = true;
-//                Chunk target = rcvOrder.stream().filter(chunk -> chunk == null ? false : (chunk.tot + 1) == chunk.all).findAny().orElse(null);
-//                if (target != null) {
-//                    for (Iterator<Chunk> itr = rcvOrder.iterator(); itr.hasNext(); ) {
-//                        Chunk chunk = itr.next();
-//                        if (chunk.msgid == target.msgid) {
-//                            chunks.addLast(chunk);
-//                            itr.remove();
-//                        }
-//                    }
-//                    if (!chunks.isEmpty()) {
-//                        if (chunks.size() != target.all) {
-//                            chunks.forEach(chunk -> LOGGER.info("get wrong sn:" + chunk.sn + " toto:" + chunk.tot + " all:" + chunk.all + " msgid:" + chunk.msgid));
-//                            rcvOrder.addAll(0, chunks);
-//                            chunks.clear();
-//                        }
-//                    }
-//                }
-                if (!rcvOrder.isEmpty()) {
-                    Chunk target = rcvOrder.getFirst();
+                Chunk target = rcvOrder.stream().filter(chunk -> chunk == null ? false : (chunk.tot + 1) == chunk.all).findFirst().orElse(null);
+                if (target != null) {
                     for (Iterator<Chunk> itr = rcvOrder.iterator(); itr.hasNext(); ) {
                         Chunk chunk = itr.next();
                         if (chunk.msgid == target.msgid) {
@@ -483,7 +497,8 @@ public class Rudp2 {
                         }
                     }
                     if (!chunks.isEmpty()) {
-                        if (target.all != chunks.size()) {
+                        if (chunks.size() != target.all) {
+                            chunks.forEach(chunk -> LOGGER.info("get wrong sn:" + chunk.sn + " toto:" + chunk.tot + " all:" + chunk.all + " msgid:" + chunk.msgid));
                             rcvOrder.addAll(0, chunks);
                             chunks.clear();
                         }
@@ -500,9 +515,6 @@ public class Rudp2 {
         if (!chunks.isEmpty()) {
             int length = chunks.stream().mapToInt(chunk -> chunk.length).sum();
             byte[] result = new byte[length];
-            //todo chunks中的元素可能是颠倒的,进行一个排序
-//            sortChunks(chunks);
-
             Collections.sort(chunks, Comparator.comparingInt(o -> o.tot));
             for (int i = 0; i < chunks.size(); i++) {
                 try {
@@ -514,9 +526,8 @@ public class Rudp2 {
                     e.printStackTrace();
                 }
             }
-            msg = MessageUtil.bytes2Msg(result, chunks);
+            msg = MessageUtil.bytes2Msg(result);
         }
-//        arrangeRcvShambles();
         return msg;
     }
 
@@ -541,6 +552,7 @@ public class Rudp2 {
         return rcvNxt;
     }
 
+    @Deprecated
     private void sortChunks(LinkedList<Chunk> chunks) {
         Collections.sort(chunks, new Comparator<Chunk>() {
             @Override
@@ -553,6 +565,7 @@ public class Rudp2 {
         });
     }
 
+    @Deprecated
     private String getSnStrs(LinkedList<Chunk> chunks) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -563,6 +576,7 @@ public class Rudp2 {
         return sb.toString();
     }
 
+    @Deprecated
     private String getIDStrs(LinkedList<Chunk> chunks) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");

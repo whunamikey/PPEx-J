@@ -13,6 +13,7 @@ public class Chunk {
         cmd = 0;
         tot = 0;
         all = 0;
+        ots = 0;
         ts = 0;
         sn = 0;
         una = 0;
@@ -35,6 +36,7 @@ public class Chunk {
     public long msgid;
     public int tot;
     public int all;
+    public long ots;            //origin ts,一开始确定要发送的时间,不会改变
     public long ts;
     public int sn;
     public int una;

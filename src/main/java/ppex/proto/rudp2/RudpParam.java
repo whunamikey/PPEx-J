@@ -36,7 +36,12 @@ package ppex.proto.rudp2;
  * +  tag   +     cmd     +     msg id   +     tot      +    all    +   ts     +     sn      +     una        +    length   +
  * +--------+-------------+--------------+--------------+-----------+----------+-------------+----------------+-------------+
  *
+ * 2019-12-27.新增一个ots。用来确认消息是不是同一个sn...跟2019-12-25一样.ots和tag新增是为了解决new和old的问题
+ * +--8bit--+-----8bit----+-----64bit----+----32bit-----+---32bit---+----64bit----+--64bit---+----32bit----+----32bit-------+----32bit----+
+ * +  tag   +     cmd     +     msg id   +     tot      +    all    +     ots     +   ts     +     sn      +     una        +    length   +
+ * +--------+-------------+--------------+--------------+-----------+-------------+----------+-------------+----------------+-------------+
  *
+ * 1+1+8+4+4+8+8+4+4+4=46
  */
 
 public class RudpParam {
@@ -55,9 +60,9 @@ public class RudpParam {
     public static final int DEAD_LINK = 20;
 
     //头部数据长度
-    public static final int HEAD_LEN = 38;
+    public static final int HEAD_LEN = 46;
     //MTU默认长度
-    public static final int MTU_DEFAULT = 1445;
+    public static final int MTU_DEFAULT = 1446;
     //除去头部数据长度之后剩下长度
     public static final int MTU_BODY =  MTU_DEFAULT - HEAD_LEN;
 

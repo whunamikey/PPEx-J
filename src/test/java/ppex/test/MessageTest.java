@@ -13,7 +13,7 @@ public class MessageTest {
         msg.setContent("this is msg");
         System.out.println("version:" +msg.getVersion()+"msgid:" + msg.getMsgid() + " contentlen:" + msg.getLength() + " content:" + msg.getContent());
         byte[] result = MessageUtil.msg2Bytes(msg);
-        Message after = MessageUtil.bytes2Msg(result,null);
+        Message after = MessageUtil.bytes2Msg(result);
         System.out.println("version:" +after.getVersion()+"msgid:" + after.getMsgid() + " contentlen:" + after.getLength() + " content:" + after.getContent());
     }
 }

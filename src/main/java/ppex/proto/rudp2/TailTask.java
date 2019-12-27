@@ -77,7 +77,7 @@ public class TailTask implements ITask {
                 for (int i = 0; i < chunks.size(); i++) {
                     System.arraycopy(chunks.get(i).data, 0, result, RudpParam.MTU_BODY * i, chunks.get(i).data.length);
                 }
-                msg = MessageUtil.bytes2Msg(result, chunks);
+                msg = MessageUtil.bytes2Msg(result);
             }
             //todo 处理null的rudppack需要判断
             listener.onResponse(null, msg);

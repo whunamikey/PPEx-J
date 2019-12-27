@@ -153,6 +153,7 @@ public class RudpPack {
     public void release() {
 //        rudp.release();
         rcvQueue.forEach(buf -> buf.release());
+        this.rudp2 = null;
     }
 
     public ConcurrentLinkedQueue<Message> getQueue_snd() {
