@@ -8,6 +8,7 @@ package ppex.proto.rudp2;
 public class Chunk {
 
     private Chunk() {
+        tag = 0;
         xmit = 0;
         cmd = 0;
         tot = 0;
@@ -29,6 +30,7 @@ public class Chunk {
 
     public byte[] data;
 
+    public byte tag;
     public byte cmd;
     public long msgid;
     public int tot;
