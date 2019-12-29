@@ -66,6 +66,9 @@ public class Rudp2 {
 
     private ByteBufAllocator byteBufAllocator = PooledByteBufAllocator.DEFAULT;
 
+    //先暂定32个窗口
+    private volatile int wndSnd = RudpParam.WND_SND;
+    private volatile int wndRcv = RudpParam.WND_RCV;
 
     //发送数据公共接口
     private IOutput output;

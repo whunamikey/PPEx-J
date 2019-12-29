@@ -101,7 +101,7 @@ public class Server {
         executor.start();
         outputManager = new ServerOutputManager();
         serverHandler = new UdpServerHandler(getInstance());
-        responseListener = new MsgListener(addrManager);
+        responseListener = new MsgListener(addrManager,executor);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
     }
