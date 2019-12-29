@@ -42,6 +42,9 @@ package ppex.proto.rudp2;
  * +--------+-------------+--------------+--------------+-----------+-------------+----------+-------------+----------------+-------------+
  *
  * 1+1+8+4+4+8+8+4+4+4=46
+ *
+ * todo 2019-12-28.修改规则。
+ * 全是新的。然后需要通过start指令后，改为旧的才可以通信。
  */
 
 public class RudpParam {
@@ -54,7 +57,8 @@ public class RudpParam {
     public static final byte CMD_SND = 1;
     public static final byte CMD_ACK = 2;
     public static final byte CMD_START = 3;
-    public static final byte CMD_FINISH = 4;
+    public static final byte CMD_START_ACK = 4;
+    public static final byte CMD_FINISH = 5;
 
     //发送超过20次还没收到ack就相当于连接断开
     public static final int DEAD_LINK = 20;

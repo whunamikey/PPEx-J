@@ -12,7 +12,7 @@ public class SndTask implements ITask {
     private RudpPack rpkg;
     private String name;
 
-    public static SndTask New(RudpPack rpkg, String name){
+    public static SndTask New(RudpPack rpkg, String name) {
         SndTask sndTask = new SndTask();
         sndTask.rpkg = rpkg;
         sndTask.name = name;
@@ -23,15 +23,19 @@ public class SndTask implements ITask {
     public void execute() {
         try {
             ConcurrentLinkedQueue<Message> msgs = rpkg.getQueue_snd();
-            while(!msgs.isEmpty()){
-                Message msg = msgs.poll();
-                if (msg == null)
-                    continue;
-                this.rpkg.send2Rudp2(msg);
-                this.rpkg.mvChkFromSnd2SndAck();
+            if (rpkg.canSnd2()) {
+                while (!msgs.isEmpty()) {
+                    Message msg = msgs.poll();
+                    if (msg == null)
+                        continue;
+                    this.rpkg.send2Rudp2(msg);
+                    this.rpkg.mvChkFromSnd2SndAck();
+                }
+                long timeCur = System.currentTimeMillis();
+                this.rpkg.flush2(timeCur);
+            }else{
+                this.rpkg.sndStartConnecting();
             }
-            long timeCur = System.currentTimeMillis();
-            this.rpkg.flush2(timeCur);
         } catch (Exception e) {
             e.printStackTrace();
         }
