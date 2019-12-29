@@ -22,9 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 2019-12-23.暂不考虑其他重传算法以及RTT,RTO等时间计算.直接简单粗暴发送与接收
  * 2019-12-24.之前考虑的是有序到达,依靠sndNxt,rcvNxt,sndUna来确定有序到达的顺序.但是出现的问题是当一方断开之后,另一方不知道,还在继续发送.导致出现问题.
- * 所以考虑实现无序可靠到达.
- * 无序到达照样依靠sndNxt,rcvNxt,sndUna.sndNxt与之前一样,每一个就加1.sndUna就是加上每个消息的长度.可能就很大
- * 那么接收的sn顺序在rcvNxt于sndUna之间都可以接收.rcvNxt每一次.当rcvNxt==sndUna时是没有消息发送的
+ * 没有实现滑动窗口与拥塞控制
  */
 public class Rudp2 {
     private static Logger LOGGER = LoggerFactory.getLogger(Rudp2.class);
