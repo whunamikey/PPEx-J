@@ -33,7 +33,7 @@ public class MsgListener implements ResponseListener {
 
     @Override
     public void onResponse(RudpPack rudpPack, Message message) {
-//        msgHandler.handleMessage(rudpPack,addrManager,message);
+        msgHandler.handleMessage(rudpPack,addrManager,message);
 //        LOGGER.info("onresponse msg :" +message.getMsgid());
         Statistic.responseCount.getAndIncrement();
     }

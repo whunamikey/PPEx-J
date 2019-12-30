@@ -39,7 +39,7 @@ public class TailTask implements ITask {
 
     @Override
     public void execute() {
-        LOGGER.info("TailTask execute. order size:" + order.size() + " shamble:" + shambles.size());
+//        LOGGER.info("TailTask execute. order size:" + order.size() + " shamble:" + shambles.size());
         while (!shambles.isEmpty()) {
             for (Iterator<Chunk> itr = shambles.iterator(); itr.hasNext(); ) {
                 Chunk chunk = itr.next();
@@ -52,7 +52,7 @@ public class TailTask implements ITask {
                 }
             }
         }
-        LOGGER.info("TailTask execute order size:" + order.size() + " shambles:" + shambles.size());
+//        LOGGER.info("TailTask execute order size:" + order.size() + " shambles:" + shambles.size());
         while (!order.isEmpty()) {
             LinkedList<Chunk> chunks = new LinkedList<>();
             Chunk target = order.getFirst();

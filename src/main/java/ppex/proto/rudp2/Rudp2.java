@@ -274,7 +274,7 @@ public class Rudp2 {
 
     private void rcvStartChunk(byte tag, long ots) {
         //收到startChunk都是New的一方发送过来的。需要清理这边的所有数据
-        LOGGER.info("rcv start chunk:" + tag + " ts:" +ots);
+//        LOGGER.info("rcv start chunk:" + tag + " ts:" +ots);
         if (tag == RudpParam.TAG_NEW) {
             if (this.tag == RudpParam.TAG_NEW) {
                 this.tag = RudpParam.TAG_OLD;
@@ -307,7 +307,7 @@ public class Rudp2 {
 //            sndAckList.addLast(chunk);
             ByteBuf buf = createOutputByteBuf(chunk);
             sndChunk(buf,chunk.sn);
-            LOGGER.info("snd back chunk");
+//            LOGGER.info("snd back chunk");
         }
     }
 
@@ -452,7 +452,7 @@ public class Rudp2 {
                     }
                 }
                 rcvShambles.removeIf(chunk -> chunk.sn < rcvNxt);
-                LOGGER.info("arrangeRcvShambles rcvNxt:" + rcvNxt);
+//                LOGGER.info("arrangeRcvShambles rcvNxt:" + rcvNxt);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
