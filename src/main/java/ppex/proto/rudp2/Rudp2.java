@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import ppex.proto.Statistic;
 import ppex.proto.msg.Message;
 import ppex.proto.rudp.IOutput;
-import ppex.proto.rudp.Rudp;
 import ppex.utils.ByteUtil;
 import ppex.utils.MessageUtil;
 
@@ -17,7 +16,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 2019-12-23.暂不考虑其他重传算法以及RTT,RTO等时间计算.直接简单粗暴发送与接收

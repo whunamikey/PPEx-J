@@ -28,6 +28,9 @@ import java.net.InetSocketAddress;
 public class ProbeTypeMsgHandler implements TypeMessageHandler {
 
     private Logger LOGGER = Logger.getLogger(ProbeTypeMsgHandler.class);
+    private Object handleLock = new Object();
+    private volatile boolean handleWait = false;
+
 
     @Override
     public void handleTypeMessage(RudpPack rudpPack, IAddrManager addrManager, TypeMessage tmsg) {
@@ -132,7 +135,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
-    private synchronized void handleServer2Port2FromServer1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
+    private void handleServer2Port2FromServer1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         //第一阶段从Server1:Port1发送到的数据
         LOGGER.info("s2p2 handle msg from server1:" + msg.toString());
         try {
@@ -162,7 +165,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
         }
     }
 
-    private synchronized void handleServer2Port2FromServer2Port1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
+    private void handleServer2Port2FromServer2Port1Msg(RudpPack rudpPack, IAddrManager addrManager, ProbeTypeMsg msg) {
         LOGGER.info("s2p2 handle msg from s2p1:" + msg.toString());
         try {
             if (msg.getStep() == ProbeTypeMsg.Step.TWO.ordinal()) {

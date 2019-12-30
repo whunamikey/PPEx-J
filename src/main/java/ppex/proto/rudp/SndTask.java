@@ -20,21 +20,21 @@ public class SndTask implements ITask {
 
     @Override
     public void execute() {
-        try {
-            ConcurrentLinkedQueue<Message> msgs = rudpkg.getQueue_snd();
-            while(rudpkg.canSend(false)){
-                Message msg = msgs.poll();
-                if (msg == null)
-                    break;
-                this.rudpkg.send(msg);
-            }
-            long cur = System.currentTimeMillis();
-            this.rudpkg.flush(cur,false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            release();
-        }
+//        try {
+//            ConcurrentLinkedQueue<Message> msgs = rudpkg.getQueue_snd();
+//            while(rudpkg.canSend(false)){
+//                Message msg = msgs.poll();
+//                if (msg == null)
+//                    break;
+//                this.rudpkg.send(msg);
+//            }
+//            long cur = System.currentTimeMillis();
+//            this.rudpkg.flush(cur,false);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            release();
+//        }
     }
 
     public void release() {
