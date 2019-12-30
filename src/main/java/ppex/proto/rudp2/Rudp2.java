@@ -304,7 +304,7 @@ public class Rudp2 {
             chunk.xmit = 0;
 //            sndAckList.addLast(chunk);
             ByteBuf buf = createOutputByteBuf(chunk);
-            sndChunk(buf,chunk.sn);
+            sndChunk(buf, chunk.sn);
 //            LOGGER.info("snd back chunk");
         }
     }
@@ -391,6 +391,7 @@ public class Rudp2 {
         chunk.sn = sn;
         chunk.una = una;
         chunk.length = length;
+        flushAck(sn);
 //        LOGGER.info("rudp2 affirmSnd :" +  " order size:" + rcvOrder.size() + " sb size:" + rcvShambles.size());
         synchronized (rcvShamebleLock) {
             try {
@@ -400,17 +401,11 @@ public class Rudp2 {
                 rcvShambleWait = true;
 
                 boolean add = false;
-                add = sn >= rcvNxt && !rcvShambles.stream().anyMatch(chunk1 -> chunk == null ? false:(chunk1.sn == sn));
-                if (add){
+                add = sn >= rcvNxt && !rcvShambles.stream().anyMatch(chunk1 -> chunk == null ? false : (chunk1.sn == sn));
+                if (add) {
                     rcvShambles.addLast(chunk);
-                    LOGGER.info("add sn:" + chunk.sn + " " +sn);
+                    LOGGER.info("add sn:" + chunk.sn + " " + sn);
                 }
-//                boolean exist = rcvShambles.stream().anyMatch(chunk1 -> chunk1 == null ? false : (chunk1.sn == sn));
-//                exist = sn < rcvNxt;
-//                if (!exist) {
-//                    rcvShambles.add(chunk);
-//                }
-                flushAck(sn);
                 Statistic.rcvCount.getAndIncrement();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -601,10 +596,10 @@ public class Rudp2 {
     }
 
 
-    private String getSnStrsByInteger(LinkedList<Integer> sns){
+    private String getSnStrsByInteger(LinkedList<Integer> sns) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        for (Integer in : sns){
+        for (Integer in : sns) {
             sb.append(in + " ");
         }
         sb.append("]");
