@@ -82,8 +82,8 @@ public class TailTask implements ITask {
             //todo 处理null的rudppack需要判断
             listener.onResponse(null, msg);
         }
-        System.out.printf("TailTask snd:%d,sndAck:%d,output:%d,rcv:%d,rcvOrder:%d,rcvAck:%d,response:%d,order:%d,shambles:%d\n",
-                Statistic.sndCount.get(), Statistic.sndAckCount.get(), Statistic.outputCount.get(), Statistic.rcvCount.get(), Statistic.rcvOrderCount.get(), Statistic.rcvAckCount.get(), Statistic.responseCount.get(), order.size(), shambles.size());
+//        System.out.printf("TailTask snd:%d,sndAck:%d,output:%d,rcv:%d,rcvOrder:%d,rcvAck:%d,response:%d,order:%d,shambles:%d\n",
+//                Statistic.sndCount.get(), Statistic.sndAckCount.get(), Statistic.outputCount.get(), Statistic.rcvCount.get(), Statistic.rcvOrderCount.get(), Statistic.rcvAckCount.get(), Statistic.responseCount.get(), order.size(), shambles.size());
 
     }
 
