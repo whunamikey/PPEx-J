@@ -108,7 +108,7 @@ public class ProbeTypeMsgHandler implements TypeMessageHandler {
             msg.setFromInetSocketAddress(Server.getInstance().getAddrServer2p1());
 
             Channel channel = rudpPack.getOutput().getChannel();
-
+            //todo 这里运行特别慢。要10秒钟。需要优化
             rudpPack = addrManager.get(msg.getRecordInetSocketAddress());
             if (rudpPack == null) {
                 Connection connection = new Connection("unknown", msg.getRecordInetSocketAddress(), "unknown", NatTypeUtil.NatType.UNKNOWN.getValue());
